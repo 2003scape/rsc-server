@@ -17,6 +17,9 @@ fs.readdirSync(__dirname).forEach(file => {
     const handler = require(path.join(__dirname, file))
 
     if (handler && packets.hasOwnProperty(handler.name)) {
+        if (handlers.hasOwnProperty(packets[handler.name])) {
+            console.warn(`warning: duplicate handlers for ${handler.name}`)
+        }
         handlers[packets[handler.name]] = handler.handle
     }
 });

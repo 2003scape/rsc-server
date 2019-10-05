@@ -46,7 +46,6 @@ const SessionState = {
 
 function attachListeners(session) {
     session.socket.on('close', () => session.emit('close'))
-    session.socket.on('data', data => session.emit('data', data))
     session.socket.on('error', error => session.emit('error', error))
     session.socket.on('timeout', () => session.emit('timeout'))
 

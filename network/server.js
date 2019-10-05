@@ -9,7 +9,6 @@ function handleNewSession(server, socket) {
         server.sessions.delete(session.identifier)
         server.emit('session-disconnected', session)
     })
-    session.on('data', data => server.emit('session-data', session, data))
     session.on('error', error => server.emit('session-error', session, error))
     session.on('timeout', () => server.emit('session-timeout', session))
 
