@@ -1,4 +1,3 @@
-const SessionState = require('../../session-state')
 const SmartBuffer = require('smart-buffer').SmartBuffer
 
 // TODO: this should be requested from the gateway server
@@ -19,12 +18,11 @@ module.exports.handle = (session, payload) => new Promise((resolve, reject) => {
         response.writeInt32BE(session.keys[0])
         response.writeInt32BE(session.keys[1])
 
-        session.state = SessionState.awaitingLogin
-        console.log(session.state)
-        console.log(SessionState)
+        session.advanceState()
         session.write(response.toBuffer())
         resolve()
     } catch (error) {
+        session.invalidateState()
         reject(error)
     }
 })
