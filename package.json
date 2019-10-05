@@ -1,0 +1,17 @@
+{
+  "name": "rsc-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "d3-quadtree": "^1.0.6",
+    "long": "^4.0.0",
+    "smart-buffer": "^4.1.0",
+    "uuid": "^3.3.3"
+  }
+}
