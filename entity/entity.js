@@ -6,9 +6,9 @@ const DEFAULT_POSITION = new Position(122, 657);
 const DEFAULT_DIRECTION = direction.north
 
 class Entity extends EventEmitter {
-    constructor(index) {
+    constructor() {
         super()
-        this.id = index
+        this.id = -1
         this.pos = DEFAULT_POSITION
         this.dir = DEFAULT_DIRECTION
     }

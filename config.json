@@ -6,5 +6,10 @@
     },
     "session": {
         "timeout": 30000
+    },
+    "world": {
+        "maximumPlayers": 512,
+        "maximumNpcs": 5000,
+        "maximumObjects": 10000
     }
 }

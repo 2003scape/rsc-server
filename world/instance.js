@@ -12,7 +12,11 @@ function y(tile) {
     return tile.position.y
 }
 
-function addEntity(tree, entity) {
+function addEntity(tree, entity, maxSize) {
+    if (tree.size() >= maxSize) {
+        return false
+    }
+
     const { x: x, y: y } = entity.position
     let tile = tree.find(x, y, 1)
 
@@ -22,6 +26,8 @@ function addEntity(tree, entity) {
         tile = { position: entity.position, list: new Set([entity]) }
         tree.add(tile)
     }
+
+    return true
 }
 
 function removeEntity(tree, entity) {
@@ -52,22 +58,51 @@ function getEntities(tree, position, radius) {
 }
 
 class Instance {
-    constructor() {
+    constructor(maximumPlayers, maximumNpcs, maximumObjects) {
+        this.maximumPlayers = maximumPlayers
+        this.maximumNpcs = maximumNpcs
+        this.maximumObjects = maximumObjects
         this.players = quadtree.quadtree().x(x).y(y)
         this.npcs = quadtree.quadtree().x(x).y(y)
         this.objects = quadtree.quadtree().x(x).y(y)
+    }
 
-        this.addPlayer = addEntity.bind(null, this.players)
-        this.removePlayer = removeEntity.bind(null, this.players)
-        this.getPlayers = getEntities.bind(null, this.players)
+    addPlayer(player) {
+        console.log(`added ${player.username} to instance`)
+        return addEntity(this.players, player, this.maximumPlayers)
+    }
 
-        this.addNpc = addEntity.bind(null, this.npcs)
-        this.removeNpc = removeEntity.bind(null, this.npcs)
-        this.getNpcs = getEntities.bind(null, this.npcs)
+    removePlayer(player) {
+        console.log(`removed ${player.username} from instance`)
+        removeEntity(this.players, player)
+    }
 
-        this.addObject = addEntity.bind(null, this.objects)
-        this.removeObject = removeEntity.bind(null, this.objects)
-        this.getObjects = getEntities.bind(null, this.objects)
+    getPlayers(position, radius = 16) {
+        getEntities(this.players, position, radius)
+    }
+
+    addNpc(npc) {
+        return addEntity(this.npcs, npc, this.maximumNpcs)
+    }
+
+    removeNpc(player) {
+        removeEntity(this.npcs, npc)
+    }
+
+    getNpcs(position, radius = 16) {
+        getEntities(this.npcs, position, radius)
+    }
+
+    addObject(object) {
+        return addEntity(this.objects, object, this.maximumObjects)
+    }
+
+    removeObject(object) {
+        removeEntity(this.objects, object)
+    }
+
+    getObjects(position, radius = 16) {
+        getEntities(this.objects, position, radius)
     }
 }
 

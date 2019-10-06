@@ -1,4 +1,5 @@
 const SmartBuffer = require('smart-buffer').SmartBuffer
+const Player = require('../../../entity/player')
 
 // TODO: integrate support for gateway server ....
 
@@ -28,7 +29,16 @@ const LoginResult = {
 async function emulateGatewayLoginRequest(request) {
     return new Promise((resolve, reject) => {
         if (Math.random() > 0.2) {
-            resolve(LoginResult.staff)
+            resolve({
+                profile: {
+                    username: request.username,
+                    password: request.password,
+                    status: 0x4 | 0x2 | 0x1, // hack for admin priv..
+                    x: 122,
+                    y: 657
+                },
+                code: LoginResult.staff
+            })
         } else {
             reject({
                 reason: 'random reject',
@@ -62,14 +72,20 @@ module.exports.handle = (session, payload) => new Promise(async (resolve, reject
 
         console.log(`login accepted: ${result}`)
 
+        // create player, add to world instance
+
         session.advanceState()
-        session.write(Buffer.from([result & 0xFF]))
+        session.write(Buffer.from([result.code & 0xFF]))
+
+        session.player = new Player(session, result.profile)
+        session.server.addPlayer(session.player)
+
         resolve()
     } catch (error) {
-        console.log(`login rejected: ${error.reason}`)
+        console.log(`login rejected: ${error}`)
 
         session.invalidateState()
         session.write(Buffer.from([error.code & 0xFF]))
-        reject(error.reason)
+        reject(error)
     }
 })

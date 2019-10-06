@@ -93,15 +93,18 @@ class Session extends EventEmitter {
         switch (this.state) {
             case SessionState.awaitingSessionRequest:
                 this.state = SessionState.awaitingLogin
+                console.log(`moved from sessReq to loginReq`)
                 break
             case SessionState.awaitingLogin:
                 this.state = SessionState.loggedIn
+                console.log(`moved from loginReq to loggedIn`)
                 break
         }
     }
 
     invalidateState() {
         this.state = SessionState.invalid
+        console.log(`invalidated session`)
     }
 
     toString() {
