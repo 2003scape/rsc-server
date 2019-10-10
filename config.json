@@ -4,6 +4,17 @@
         "port": 43594,
         "maxConnections": 512
     },
+    "client": {
+        "options": {
+            "host": "localhost",
+            "port": 1234
+        },
+        "ssl_": {
+            "key": "certs/client/client.key",
+            "cert": "certs/client/client.crt",
+            "ca": "certs/ca/ca.crt"
+        }
+    },
     "session": {
         "timeout": 30000
     },

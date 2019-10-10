@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate-ssl-keys": "openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' -keyout localhost-privkey.pem -out localhost-cert.pem"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "d3-quadtree": "^1.0.6",
+    "json-socket": "^0.3.0",
     "long": "^4.0.0",
     "smart-buffer": "^4.1.0",
     "uuid": "^3.3.3"
