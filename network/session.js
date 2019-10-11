@@ -1,114 +1,55 @@
-const config = require('./../config')
-
-const EventEmitter = require('events').EventEmitter
+const events = require('events')
+const decode = require('./packet/decoder')
+const senders = require('./senders')
+const SessionState = require('./session-state')
+const state = require('state')
 const uuid = require('uuid/v4')
 
-const decode = require('./packet/decoder')
-const handlers = require('./packet/handlers')
-const senders = require('./packet/senders')
-const opcodes = require('./packet/opcodes')
-
-async function handlePacket(session, packet) {
-    if (!(packet.id in handlers)) {
-        console.warn(`unhandled packet from ${session} => ${packet.id}`)
-    } else {
-        try {
-            await handlers[packet.id](session, packet.payload)
-        } catch (error) {
-            session.emit('error', error)
-        }
-    }
-}
-
-const SessionState = {
-    awaitingSessionRequest: async (session, packet) => {
-        if (packet.id === opcodes.client.session) {
-            return await handlePacket(session, packet)
-        }
-        console.warn(`awaitingSessionRequest: ${session} invalid packet => ${packet.id}`)
-    },
-    awaitingLogin: async (session, packet) => {
-        if (packet.id === opcodes.client.login) {
-            return await handlePacket(session, packet)
-        }
-        console.warn(`awaitingLogin: ${session} invalid packet => ${packet.id}`)
-    },
-    loggedIn: async (session, packet) => {
-        if (packet.id !== opcodes.client.session && packet.id !== opcodes.client.login) {
-            return await handlePacket(session, packet)
-        }
-        console.warn(`loggedIn: ${session} invalid packet => ${packet.id}`)
-    },
-    invalid: async (session, packet) => {
-        console.log(`got packet ${packet.id} from ${session} with invalid state`)
-    }
-}
-
-function attachListeners(session) {
-    session.socket.on('close', () => session.emit('close'))
-    session.socket.on('error', error => session.emit('error', error))
-    session.socket.on('timeout', () => session.emit('timeout'))
-
-    session.socket.on('data', async data => {
-        const decoded = decode(data)
-
-        console.log(`got packet: ${decoded.id}`)
-
-        session.state(session, decoded)
-    })
-
-    if (config.session.timeout) {
-        session.socket.setTimeout(config.session.timeout)
-    }
-}
-
-class Session extends EventEmitter {
+class Session extends events.EventEmitter {
     constructor(server, socket) {
         super()
-
         this.server = server
         this.socket = socket
-        this.state = SessionState.awaitingSessionRequest
-
         this.send = senders(this)
-
         this.generateIdentifier()
 
-        attachListeners(this)
-    }
+        state(this, SessionState)
 
+        this.state().change('SessionRequest')
+
+        this.socket.on('data', async data => {
+            // TODO: buffer data, what if multiple packets are sent
+            // within the same frame? for now, we can just ignore this,
+            // but it needs to be implemented SOON.
+            try {
+                const packet = decode(data)
+
+                this.handlePacket(this, packet)
+            } catch (error) {
+                this.close()
+                console.error(error)
+            }
+        })
+    }
     close() {
         this.socket.destroy()
     }
-
     async write(data) {
-        return new Promise(resolve => this.socket.write(data, () => resolve))
+        return new Promise((resolve, reject) => {
+            this.socket.write(data, error => {
+                if (error) {
+                    reject(error)
+                } else {
+                    resolve()
+                }
+            })
+        })
     }
-
     generateIdentifier() {
         this.identifier = uuid()
     }
-
-    advanceState() {
-        switch (this.state) {
-            case SessionState.awaitingSessionRequest:
-                this.state = SessionState.awaitingLogin
-                console.log(`moved from sessReq to loginReq`)
-                break
-            case SessionState.awaitingLogin:
-                this.state = SessionState.loggedIn
-                console.log(`moved from loginReq to loggedIn`)
-                break
-        }
-    }
-
-    invalidateState() {
-        this.state = SessionState.invalid
-        console.log(`invalidated session`)
-    }
-
     toString() {
-        return `Session[${this.identifier}]`
+        return `session[${this.identifier}]`
     }
 }
 

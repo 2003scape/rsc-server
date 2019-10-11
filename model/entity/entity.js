@@ -1,9 +1,9 @@
 const EventEmitter = require('events').EventEmitter
 const Position = require('../world/position')
-const direction = require('./direction')
+const Direction = require('./direction')
 
-const DEFAULT_POSITION = new Position(122, 657);
-const DEFAULT_DIRECTION = direction.north
+const DEFAULT_POSITION = new Position(122, 657)
+const DEFAULT_DIRECTION = Direction.NORTH
 
 class Entity extends EventEmitter {
     constructor() {
@@ -11,6 +11,7 @@ class Entity extends EventEmitter {
         this.id = -1
         this.pos = DEFAULT_POSITION
         this.dir = DEFAULT_DIRECTION
+        this.currentInstance = null
     }
     get index() {
         return this.id
@@ -40,6 +41,16 @@ class Entity extends EventEmitter {
         this.dir = newDirection
 
         this.emit('direction', oldDirection, newDirection)
+    }
+
+    get instance() {
+        return this.currentInstance
+    }
+    set instance(newInstance) {
+        const oldInstance = this.currentInstance
+        this.currentInstance = newInstance
+
+        this.emit('instance', oldInstance, newInstance)
     }
 }
 

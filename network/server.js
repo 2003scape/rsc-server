@@ -1,127 +1,93 @@
-const config = require('../config')
-const EventEmitter = require('events').EventEmitter
+const events = require('events')
 const net = require('net')
 const Session = require('./session')
-const IndexOgranizer = require('../world/index-organizer')
-const World = require('../world/world')
+const World = require('../model/world/world')
+const IndexTracker = require('../model/world/index-tracker')
 
-function handleNewSession(server, socket) {
+// TODO: this might could use some cleaning up, but it's ok for now.
+
+function connectionListener(server, socket) {
     const session = new Session(server, socket)
 
-    session.on('close', () => {
-        server.sessions.delete(session.identifier)
-        server.emit('session-disconnected', session)
-    })
-    session.on('error', error => server.emit('session-error', session, error))
-    session.on('timeout', () => server.emit('session-timeout', session))
-
-    // ensure that, by chance, this session's id isn't already in use
     while (server.sessions.get(session.identifier)) {
         session.generateIdentifier()
     }
 
+    socket.on('close', () => {
+        session.emit('disconnect')
+
+        server.sessions.delete(session.identifier)
+        server.emit('session-disconnect', session)
+    })
+    socket.on('error', error => {
+        session.emit('error', error)
+        server.emit('session-error', session, error)
+    })
+    socket.on('timeout', () => {
+        session.emit('timeout')
+        server.emit('session-timeout', session)
+    })
+
+    const timeout = server.config.server['session-timeout']
+
+    if (timeout) {
+        socket.setTimeout(timeout)
+    }
+
     server.sessions.set(session.identifier, session)
-    server.emit('session-connected', session)
+    server.emit('session-connect', session)
+    session.emit('connect')
 }
 
-function registerEntity(entity, indexer, register) {
-    const added = register(entity)
-
-    if (added) {
-        entity.index = indexer.request()
-
-        entity.emit('registered')
+function gameTick(server) {
+    for (const instance of server.instances) {
+        instance.update()
     }
 
-    return added
+    setTimeout(server.gameTicker, 600)
 }
 
-function deregisterEntity(entity, indexer, deregister) {
-    if (entity.index) {
-        indexer.release(entity.index)
-        delete entity.index
-
-        entity.emit('deregistered')
-    }
-    deregister(entity)
-}
-
-class Server extends EventEmitter {
-    constructor(maxConnections = 0) {
+class Server extends events.EventEmitter {
+    constructor(config) {
         super()
-        this.maxConnections = maxConnections
+
+        const listener = connectionListener.bind(null, this)
+
+        this.config = config
+        this.socket = net.createServer(listener)
         this.sessions = new Map()
+        this.instances = new Set()
+        this.world = new World(this)
+        this.playerIndex = new IndexTracker()
 
-        this.playerIndex = new IndexOgranizer()
-        this.npcIndex = new IndexOgranizer()
-        this.objectIndex = new IndexOgranizer()
+        this.gameTicker = gameTick.bind(null, this)
 
-        this.world = new World(config.world)
+        // this should stop when the server goes offline.
+        setTimeout(this.gameTicker, 600)
     }
-
-    async bind(port = 1234, host = '0.0.0.0') {
+    async bind() {
         return new Promise((resolve, reject) => {
-            if (this.server) {
-                return reject('Server object already has been binded')
+            try {
+                const defaultOptions = {
+                    host: "0.0.0.0",
+                    port: 43594
+                }
+                const options = { ...defaultOptions, ...this.config.server }
+
+                this.socket.listen(options.port, options.host, resolve)
+            } catch (error) {
+                reject(error)
             }
-            this.server = net.createServer(handleNewSession.bind(null, this))
-            this.server.maxConnections = this.maxConnections
-            this.server.listen(port, host, resolve)
         })
     }
-
     async unbind() {
         return new Promise((resolve, reject) => {
-            if (!this.server) {
-                return reject('Server object has not already been binded')
+            try {
+                this.socket.close(resolve)
+            } catch (error) {
+                reject(error)
             }
-            this.server.close(error => {
-                if (error) {
-                    reject(error.message)
-                } else {
-                    resolve()
-                }
-            })
         })
-    }
-
-    // TODO: should we set an attribute in each entity to whichever
-    // TODO: instance they're in? this could reduce bugs later on..
-
-    addPlayer(player) {
-        // TODO: maybe put staff in their own instance upon login?
-        // TODO: but for now, everyone gets put inside the default instance..
-        return registerEntity(player, this.playerIndex,
-            this.world.addPlayer.bind(this.world))
-    }
-
-    removePlayer(player) {
-        deregisterEntity(player, this.playerIndex,
-            this.world.removePlayer.bind(this.world))
-    }
-
-    addNpc(npc, instance = this.world) {
-        return registerEntity(npc, this.npcIndex,
-            instance.addNpc.bind(instance))
-    }
-
-    removeNpc(npc, instance = this.world) {
-        deregisterEntity(npc, this.npcIndex,
-            instance.removeNpc.bind(instance))
-    }
-
-    addObject(object, instance = this.world) {
-        return registerEntity(object, this.objectIndex,
-            instance.addObject.bind(instance))
-    }
-
-    removeObject(object, instance = this.world) {
-        deregisterEntity(object, this.objectIndex,
-            instance.removeObject.bind(instance))
-    }
-
-    [Symbol.iterator]() {
-        return this.sessions.values()
     }
 }
 

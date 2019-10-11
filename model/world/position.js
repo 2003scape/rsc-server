@@ -10,6 +10,10 @@ class Position {
     get y() {
         return this.my
     }
+    distance(other) {
+        return Math.sqrt(Math.pow(this.mx + other.mx, 2) +
+            Math.pow(this.my + other.my, 2))
+    }
 }
 
 module.exports = Position

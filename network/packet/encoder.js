@@ -1,12 +1,3 @@
-// `Encoder` will encode arbitrary data into RSC packets.
-
-// The constructor takes two parameters, `id and `size`. The `id` parameter
-// is mandatory and dictates the final opcode sent to the client in the header.
-// The `size` parameters is optional. If present, it will generate a `Buffer` of
-// a static size for the payload. Otherwise, an array is used. Enter a size when
-// the length of the packet is consistent.
-
-// The bitmasks used to encode bits into the packet.
 const bitmasks = new Uint32Array(32)
 
 for (let i = 0; i < 32; i++) {

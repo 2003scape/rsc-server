@@ -1,10 +1,7 @@
-// Decode a packet the client sent into an opcode and a payload.
-// TODO: buffer incoming data, what if multiple packets are sent within the same frame?
-// TODO: this could result in losing packets
 function decodeBuffer(buffer) {
     let position = 0
     let id = 0
-    let length = buffer[position++];
+    let length = buffer[position++]
 
     if (length >= 160) {
         length = (length - 160) * 256 + buffer[position++]

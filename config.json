@@ -2,25 +2,16 @@
     "server": {
         "host": "0.0.0.0",
         "port": 43594,
-        "maxConnections": 512
+        "session-timeout": 60000
     },
     "client": {
-        "options": {
-            "host": "localhost",
-            "port": 1234
-        },
-        "ssl_": {
-            "key": "certs/client/client.key",
-            "cert": "certs/client/client.crt",
-            "ca": "certs/ca/ca.crt"
-        }
-    },
-    "session": {
-        "timeout": 30000
+        "protocol-version": 204,
+        "build-version": 204
     },
     "world": {
-        "maximumPlayers": 512,
-        "maximumNpcs": 5000,
-        "maximumObjects": 10000
+        "max-players": 512,
+        "plane-width": 2304,
+        "plane-height": 1776,
+        "plane-elevation-divisor": 944
     }
 }

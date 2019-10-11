@@ -1,4 +1,4 @@
-class IndexOrganizer {
+class IndexTracker {
     constructor() {
         this.indicies = {
             list: [],
@@ -28,4 +28,4 @@ class IndexOrganizer {
     }
 }
 
-module.exports = IndexOrganizer
+module.exports = IndexTracker
