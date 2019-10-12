@@ -1,7 +1,7 @@
 module.exports = player => {
     player.on('instance', (oldInstance, newInstance) => {
         if (oldInstance) {
-            oldInstance.players.remove(player)
+            oldInstance.removePlayer(player)
 
             // the old instance is no longer needed since it's empty,
             // we can tell the server to dispose of it

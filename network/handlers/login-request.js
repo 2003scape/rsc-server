@@ -43,6 +43,12 @@ module.exports.handle = (session, buffer) => new Promise(async (resolve, reject)
         try {
             const response = await emulateDataServer(request)
 
+            if (request.reconnecting === 1) {
+                session.state().change('Invalid')
+                session.write(Buffer.from([8]))
+                reject(new Error(`Login rejected: reconnections disabled`))
+            }
+
             session.state().change('LoggedIn')
             session.write(Buffer.from([response.code & 0xFF]))
 

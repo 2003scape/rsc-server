@@ -36,6 +36,9 @@ class Session extends events.EventEmitter {
     }
     async write(data) {
         return new Promise((resolve, reject) => {
+            if (this.socket.destroyed) {
+                return reject()
+            }
             this.socket.write(data, error => {
                 if (error) {
                     reject(error)

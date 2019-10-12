@@ -15,8 +15,6 @@ class Instance {
         player.instance = null
     }
     update() {
-        console.log(`updating instance: ${this.constructor.name}`)
-
         for (let player of this.players) {
             player.update()
         }

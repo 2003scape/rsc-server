@@ -20,22 +20,11 @@ class Player extends Entity {
 
         addPlayerListeners(this)
     }
-    destroy() {
-        playerIndexTracker.release(this.index)
-        this.index = -1
-        if (this.instance) {
-            this.instance.removePlayer(this)
-        }
-        this.session.close()
-    }
     update() {
-        console.log(`updating player: ${this}`)
-
-        // update after having sent the position packet
-        this.players.update()
+        this.session.send.regionPlayers()
     }
     toString() {
-        return `player[${this.username}, ${this.index}]`
+        return this.index
     }
 }
 

@@ -14,6 +14,9 @@ class Position {
         return Math.sqrt(Math.pow(this.mx + other.mx, 2) +
             Math.pow(this.my + other.my, 2))
     }
+    offsetFrom(other) {
+        return new Position(other.mx - this.mx, other.my - this.my)
+    }
 }
 
 module.exports = Position
