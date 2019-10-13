@@ -6,7 +6,6 @@ async function handle(session, packet) {
     const handler = handlers.get(packet.id)
 
     if (!handler) {
-        session.close()
         return console.warn(`${session}[${session.state().name}] sent an unknown packet: ${packet.id}`)
     }
 

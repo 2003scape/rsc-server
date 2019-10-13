@@ -18,6 +18,10 @@ class Encoder {
         }
     }
 
+    addBoolean(bool) {
+        return this.addByte(bool ? 1 : 0)
+    }
+
     addByte(byte) {
         if (this.static) {
             this.payload.writeUInt8(byte & 0xFF, this.caret)
@@ -42,14 +46,14 @@ class Encoder {
 
     addInt(int) {
         if (this.static) {
-            this.payload.writeUInt32BE(short & 0xFFFFFFFF, this.caret)
+            this.payload.writeUInt32BE(int & 0xFFFFFFFF, this.caret)
             this.caret += 4
         } else {
             this.payload.push(
-                (short & 0xFFFFFFFF) >> 24,
-                (short & 0xFFFFFF) >> 16,
-                (short & 0xFFFF) >> 8,
-                (short & 0xFF))
+                (int & 0xFFFFFFFF) >> 24,
+                (int & 0xFFFFFF) >> 16,
+                (int & 0xFFFF) >> 8,
+                (int & 0xFF))
         }
         return this
     }
