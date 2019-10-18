@@ -1,7 +1,7 @@
 module.exports = player => {
-    player.on('sprites', () => {
+    player.on('overhead-action', item => {
         for (const p of player.players.known) {
-            p.playerUpdates.appearance(player)
+            p.playerUpdates.action(player, item)
         }
     })
 }

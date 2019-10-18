@@ -21,6 +21,7 @@ module.exports.send = (session, id) => {
         const event = players.events[known.index]
 
         if (event) {
+            packet.addBits(1, 1)
             packet.addBits(event.type, 1)
             packet.addBits(event.value, event.bits)
         } else {

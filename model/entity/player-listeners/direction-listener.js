@@ -1,7 +1,7 @@
 module.exports = player => {
-    player.on('sprites', () => {
+    player.on('direction', () => {
         for (const p of player.players.known) {
-            p.playerUpdates.appearance(player)
+            p.players.reorient(player)
         }
     })
 }

@@ -1,11 +1,14 @@
 const EVENT_ENTITY_REORIENTED = 0
 const EVENT_ENTITY_REMOVED = 1
 
-class EntityTracker {
+class EntityPosition {
     constructor() {
         this.unknown = new Set()
         this.known = new Set()
         this.events = {}
+    }
+    knows(entity) {
+        return this.known.has(entity)
     }
     reorient(entity) {
         if (!this.known.has(entity)) {
@@ -24,6 +27,14 @@ class EntityTracker {
         if (!this.known.has(entity)) {
             return
         }
+
+        // the client doesn't know about this entity yet, so it's
+        // safe to just remove it without notifying the client
+        if (this.unknown.has(entity)) {
+            this.unknown.delete(entity)
+            return
+        }
+
         this.events[entity.index] = {
             type: EVENT_ENTITY_REMOVED,
             value: 12,
@@ -34,8 +45,10 @@ class EntityTracker {
         if (this.unknown.has(entity) || this.known.has(entity)) {
             return
         }
-        if (this.events[entity.index]) {
-            delete this.events[entity.index]
+        const update = this.events[entity.index]
+
+        if (update && update.type == EVENT_ENTITY_REMOVED) {
+            Reflect.deleteProperty(this.events, entity.index)
         }
         this.unknown.add(entity)
     }
@@ -47,7 +60,7 @@ class EntityTracker {
             if (update.type === EVENT_ENTITY_REMOVED) {
                 this.known.delete(entity)
             }
-            delete this.events[entity.index]
+            Reflect.deleteProperty(this.events, entity.index)
         }
 
         if (wasUnknown) {
@@ -56,4 +69,4 @@ class EntityTracker {
     }
 }
 
-module.exports = EntityTracker
+module.exports = EntityPosition

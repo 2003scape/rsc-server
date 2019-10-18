@@ -17,7 +17,7 @@ class Session extends events.EventEmitter {
 
         this.state().change('SessionRequest')
 
-        this.socket.on('data', async data => {
+        this.socket.on('data', data => {
             // TODO: buffer data, what if multiple packets are sent
             // within the same frame? for now, we can just ignore this,
             // but it needs to be implemented SOON.

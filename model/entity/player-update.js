@@ -66,7 +66,7 @@ class PlayerUpdate {
             sprites: player.sprites,
             username: player.usernameHash,
             level: player.level,
-            skulled: false,
+            skulled: false
         })
     }
     privilegedChat(player, message) {

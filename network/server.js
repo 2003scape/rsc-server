@@ -89,6 +89,25 @@ class Server extends events.EventEmitter {
             }
         })
     }
+    findPlayer(username) {
+        username = username.toLowerCase()
+
+        for (const instance of this.instances) {
+            for (const player of instance.players) {
+                if (player.username.toLowerCase() === username) {
+                    return player
+                }
+            }
+        }
+        return null
+    }
+    *allPlayers() {
+        for (const instance of this.instances) {
+            for (const player of instance.players) {
+                yield player
+            }
+        }
+    }
 }
 
 module.exports = Server

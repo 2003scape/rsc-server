@@ -13,7 +13,12 @@ module.exports = player => {
             // make players aware that a new player has been added to the instance
             for (const other of newInstance.players) {
                 player.players.add(other)
-                other.players.add(player)
+                player.playerUpdates.appearance(other)
+
+                if (player !== other) {
+                    other.players.add(player)
+                    other.playerUpdates.appearance(player)
+                }
             }
         }
     })

@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "long": "^4.0.0",
+    "rbush": "^3.0.1",
     "smart-buffer": "^4.1.0",
     "state": "^0.2.0",
     "superquad": "^0.1.1",

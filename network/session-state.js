@@ -24,7 +24,7 @@ const SessionState = {
     },
     SessionRequest: {
         handlePacket: async (session, packet) => {
-            if (packet.id !== packets['session']) {
+            if (packet.id !== packets.session) {
                 return console.warn(`${session} sent invalid session packet`)
             }
             handle(session, packet)
@@ -32,7 +32,7 @@ const SessionState = {
     },
     LoginRequest: {
         handlePacket: async (session, packet) => {
-            if (packet.id !== packets['login']) {
+            if (packet.id !== packets.login) {
                 return console.warn(`${session} sent invalid login packet`)
             }
             handle(session, packet)

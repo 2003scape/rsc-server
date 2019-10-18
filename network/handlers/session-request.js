@@ -6,7 +6,7 @@ function secureInt() {
     return ~~(Math.random() * 0xFFFFFFFF)
 }
 
-module.exports.handle = (session, buffer) => new Promise(async (resolve, reject) => {
+module.exports.handle = session => new Promise((resolve, reject) => {
     const response = SmartBuffer.fromSize(8)
 
     try {

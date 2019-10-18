@@ -1,5 +1,5 @@
 module.exports.name = 'ping'
 
-module.exports.handle = session => new Promise((resolve, reject) => {
+module.exports.handle = () => new Promise(resolve => {
     resolve()
 })

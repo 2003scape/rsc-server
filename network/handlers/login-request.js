@@ -1,31 +1,21 @@
 const Player = require('../../model/entity/player')
-const SmartBuffer = require('smart-buffer').SmartBuffer
 
-async function emulateDataServer(request) {
-    return new Promise((resolve, reject) => {
-        if (Math.random() > 0.2) {
-            resolve({
-                profile: {
-                    username: request.username,
-                    password: request.password,
-                    status: 0x4 | 0x2 | 0x1, // hack for admin priv..
-                    x: 122,
-                    y: 657
-                },
-                code: 25
-            })
-        } else {
-            reject({
-                reason: 'random reject',
-                code: 11
-            })
-        }
-    })
+function emulateDataServer(request) {
+    return {
+        profile: {
+            username: request.username,
+            password: request.password,
+            status: 0x4 | 0x2 | 0x1, // hack for admin priv..
+            x: 122,
+            y: 657
+        },
+        code: 25
+    }
 }
 
 module.exports.name = 'login'
 
-module.exports.handle = (session, buffer) => new Promise(async (resolve, reject) => {
+module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
     try {
         const request = {
             reconnecting: buffer.readInt8() == 1,
@@ -41,7 +31,7 @@ module.exports.handle = (session, buffer) => new Promise(async (resolve, reject)
             password: buffer.readString(20).trim()
         }
         try {
-            const response = await emulateDataServer(request)
+            const response = emulateDataServer(request)
 
             if (request.reconnecting === 1) {
                 session.state().change('Invalid')

@@ -1,12 +1,14 @@
 const Character = require('./character')
-const EntityTracker = require('./entity-tracker')
+const EntityPosition = require('./entity-position')
 const PlayerStatus = require('./player-status')
 const PlayerUpdate = require('./player-update')
 const Position = require('../world/position')
 const Username = require('../../operations/username')
 const addPlayerListeners = require('./player-listeners')
 
-const DEFUALT_VIEW_DISTANCE = 15
+const DEFAULT_VIEW_DISTANCE = 15
+
+let offset = 0
 
 class Player extends Character {
     constructor(session, profile) {
@@ -16,15 +18,18 @@ class Player extends Character {
         this.username = profile.username
         this.usernameHash = Username.encode(profile.username)
         this.status = new PlayerStatus(profile.status)
-        this.position = new Position(profile.x, profile.y)
+        this.position = new Position(profile.x, profile.y + offset++)
 
-        this.viewDistance = DEFUALT_VIEW_DISTANCE
-        this.players = new EntityTracker()
+        this.viewDistance = DEFAULT_VIEW_DISTANCE
+        this.players = new EntityPosition()
         this.playerUpdates = new PlayerUpdate()
 
         addPlayerListeners(this)
     }
     update() {
+        if (this.players.unknown.size > 0) {
+            console.log(`${this.username} has a new player in view.`)
+        }
         this.session.send.regionPlayers()
         this.session.send.regionPlayerUpdate()
     }

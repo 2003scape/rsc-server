@@ -45,9 +45,13 @@ module.exports.send = (session, id) => {
                 break
 
             case PlayerUpdate.Type.DAMAGE:
+                packet.addByte(update.damage)
+                    .addByte(update.current)
+                    .addByte(update.max)
                 break
 
             case PlayerUpdate.Type.OVERHEAD_ACTION:
+                packet.addShort(update.item)
                 break
         }
     }
