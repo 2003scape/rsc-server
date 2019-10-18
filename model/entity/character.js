@@ -18,12 +18,12 @@ class Character extends Entity {
     get sprites() {
         return this.msprites
     }
-    set sprites(newAppearance) {
-        const oldAppearance = this.mappearance
-        this.msprites = newAppearance
+    set sprites(newSprites) {
+        const oldSprites = this.msprites
+        this.msprites = newSprites
         this.spriteChanges += 1
 
-        this.emit('sprites', oldAppearance, newAppearance)
+        this.emit('sprites', oldSprites, newSprites)
     }
 }
 

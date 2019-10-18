@@ -20,7 +20,11 @@ module.exports.send = (session, id) => {
     for (const known of players.known) {
         const event = players.events[known.index]
 
-        if (event) {
+        if (known.index === -1) {
+            packet.addBits(1, 1)
+            packet.addBits(1, 1)
+            packet.addBits(12, 4)
+        } else if (event) {
             packet.addBits(1, 1)
             packet.addBits(event.type, 1)
             packet.addBits(event.value, event.bits)

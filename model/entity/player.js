@@ -24,17 +24,33 @@ class Player extends Character {
         this.players = new EntityPosition()
         this.playerUpdates = new PlayerUpdate()
 
+        this.mskulled = 0
+
         addPlayerListeners(this)
     }
+    get skulled() {
+        return this.mskulled
+    }
+    set skulled(newSkulled) {
+        this.mskulled = newSkulled
+        this.emit('appearance')
+    }
+
     update() {
-        if (this.players.unknown.size > 0) {
-            console.log(`${this.username} has a new player in view.`)
-        }
+        this.updateSkullTimeout()
+
         this.session.send.regionPlayers()
         this.session.send.regionPlayerUpdate()
     }
-    toString() {
-        return this.index
+    updateSkullTimeout() {
+        if (this.mskulled > 0) {
+            this.mskulled -= 1
+
+            // player became unskulled
+            if (this.mskulled == 0) {
+                this.emit('appearance')
+            }
+        }
     }
 }
 

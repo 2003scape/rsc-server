@@ -6,6 +6,7 @@ module.exports = player => {
         if (player.instance) {
             player.instance.removePlayer(player)
         }
+
         if (player.index < 0) {
             return
         }

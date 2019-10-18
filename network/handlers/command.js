@@ -16,18 +16,17 @@ module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
                     player.session.send.message(`@gre@${msg}`)
                     player.session.send.message(`@cya@${msg}`)
                 }
-            }
-                break
+            } break
+            case 'inst': {
+                const players = session.player.instance.playerTree.getAllPoints()
+                session.send.serverMessage(players.map(p => p.username).join(', '))
+            } break
             case 'tele': {
                 const [x, y] = args
                 session.player.position = new Position(+x, +y)
-            }
-                break
+            } break
             case 'emit':
                 session.player.emit(...args)
-                break
-            case 'a':
-                session.player.position = new Position(session.player.position.x + 1, session.player.position.y)
                 break
             case 'action': {
                 const player = session.server.findPlayer(args[0])
@@ -36,8 +35,7 @@ module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
                     player.emit('overhead-action', +args[1])
                     session.send.message(`sent ${args[1]} action to ${args[0]}`)
                 }
-            }
-                break
+            } break
             case 'damage': {
                 const player = session.server.findPlayer(args[0])
 
@@ -45,8 +43,15 @@ module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
                     player.emit('damage', +args[1])
                     session.send.message(`sent ${args[1]} damage to ${args[0]}`)
                 }
-            }
-                break
+            } break
+            case 'skull': {
+                const player = session.server.findPlayer(args[0])
+
+                if (player) {
+                    player.skulled = +args[1]
+                    session.send.message(`skulled ${args[0]} for ${args[1]} ticks`)
+                }
+            } break
         }
         resolve()
     } catch (error) {

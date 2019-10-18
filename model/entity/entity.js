@@ -33,6 +33,20 @@ class Entity extends EventEmitter {
         this.emit('position', oldPosition, newPosition)
     }
 
+    get x() {
+        return this.pos.x
+    }
+    get y() {
+        return this.pos.y
+    }
+
+    set x(newX) {
+        this.position = new Position(newX, this.pos.y)
+    }
+    set y(newY) {
+        this.position = new Position(this.pos.y, newY)
+    }
+
     get direction() {
         return this.dir
     }

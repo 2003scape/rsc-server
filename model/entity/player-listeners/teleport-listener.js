@@ -7,13 +7,18 @@ module.exports = player => {
             player.players.remove(p)
         }
 
-        const playersInArea = player.instance.getPlayers(player.position, player.viewDistance)
+        setTimeout(() => {
+            const playersInArea = player.instance.getPlayers(player.position, player.viewDistance)
 
-        console.log('players in teleport:', playersInArea.map(pl => pl.username))
+            for (const p of playersInArea) {
+                if (player !== p && !player.players.knows(p)) {
+                    player.players.add(p)
+                    player.playerUpdates.appearance(p)
 
-        for (const p of playersInArea) {
-            player.players.add(p)
-            p.players.add(player)
-        }
+                    p.players.add(player)
+                    p.playerUpdates.appearance(player)
+                }
+            }
+        }, 600)
     })
 }

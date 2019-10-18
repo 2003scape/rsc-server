@@ -32,13 +32,13 @@ class PlayerUpdate {
             message: message
         })
     }
-    damage(player, damage, current, max) {
+    damage(player, damage) { // TODO fix once skills are implemented
         this.updates.push({
             index: player.index,
             type: UpdateType.DAMAGE,
             damage: damage,
-            current: current,
-            max: max
+            current: 0,
+            max: 10
         })
     }
     npcProjectile(player, npc, projectile) {
@@ -66,7 +66,7 @@ class PlayerUpdate {
             sprites: player.sprites,
             username: player.usernameHash,
             level: player.level,
-            skulled: false
+            skulled: player.skulled > 0
         })
     }
     privilegedChat(player, message) {

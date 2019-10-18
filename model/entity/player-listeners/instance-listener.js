@@ -10,14 +10,15 @@ module.exports = player => {
             }
         }
         if (newInstance) {
-            // make players aware that a new player has been added to the instance
-            for (const other of newInstance.players) {
-                player.players.add(other)
-                player.playerUpdates.appearance(other)
+            const players = newInstance.getPlayers(player.position, player.viewDistance)
 
-                if (player !== other) {
-                    other.players.add(player)
-                    other.playerUpdates.appearance(player)
+            for (const p of players) {
+                player.players.add(p)
+                player.playerUpdates.appearance(p)
+
+                if (player !== p) {
+                    p.players.add(player)
+                    p.playerUpdates.appearance(player)
                 }
             }
         }

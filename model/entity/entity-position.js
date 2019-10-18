@@ -14,6 +14,7 @@ class EntityPosition {
         if (!this.known.has(entity)) {
             return
         }
+
         this.events[entity.index] = {
             type: EVENT_ENTITY_REORIENTED,
             value: entity.direction,
@@ -21,13 +22,6 @@ class EntityPosition {
         }
     }
     remove(entity) {
-        // we care if an entity was deleted from known entities.
-        // however, if an entity was unknown, and we delete it,
-        // there's no point in telling the client to remove it
-        if (!this.known.has(entity)) {
-            return
-        }
-
         // the client doesn't know about this entity yet, so it's
         // safe to just remove it without notifying the client
         if (this.unknown.has(entity)) {
@@ -35,6 +29,15 @@ class EntityPosition {
             return
         }
 
+        // we care if an entity was deleted from known entities.
+        // however, if an entity was unknown, and we delete it,
+        // there's no point in telling the client to remove it
+        if (!this.known.has(entity)) {
+            return
+        }
+
+        // TODO: for some reason this isn't being preserved when
+        // it comes time to send the region update...
         this.events[entity.index] = {
             type: EVENT_ENTITY_REMOVED,
             value: 12,
@@ -55,6 +58,12 @@ class EntityPosition {
     acknowledge(entity) {
         const wasUnknown = this.unknown.delete(entity)
         const update = this.events[entity.index]
+
+        if (entity.index === -1) {
+            // not sure why EVENT_ENTITY_REMOVED isn't being preserved..
+            this.known.delete(entity)
+            Reflect.deleteProperty(this.events, entity.index)
+        }
 
         if (update) {
             if (update.type === EVENT_ENTITY_REMOVED) {

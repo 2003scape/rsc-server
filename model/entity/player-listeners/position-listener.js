@@ -4,9 +4,12 @@ function walk(player, oldPosition, newPosition) {
 
     // the player has found new players to be added to their unknown list.
     for (const p of playersInArea) {
-        if (!players.knows(p)) {
+        if (player !== p && !player.players.knows(p)) {
             player.players.add(p)
+            player.playerUpdates.appearance(p)
+
             p.players.add(player)
+            p.playerUpdates.appearance(player)
         }
     }
 
@@ -33,9 +36,7 @@ module.exports = player => {
         // if the player moved more than 1 tile away it has to be considered a teleport.
         // the player must be removed from all watched entities, and readded. technically,
         // this IS a teleport as players are not able to move more than 1 tile at a time.
-        const dist = oldPosition ? newPosition.distance(oldPosition) : 1
-
-        console.log(`${player.username} has moved a dist of ${dist}!!`)
+        const dist = oldPosition ? Math.floor(newPosition.distance(oldPosition)) : 1
 
         if (dist <= 1) {
             walk(player, oldPosition, newPosition)
@@ -44,5 +45,6 @@ module.exports = player => {
         }
     })
 
+    // update the player's instance when they move
     player.on('position', () => player.instance.playerMoved(player))
 }
