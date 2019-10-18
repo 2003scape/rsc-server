@@ -37,16 +37,15 @@ class Instance {
         this.playersRequiringMovement.add(player)
     }
     update() {
+        for (let player of this.players) {
+            player.update()
+        }
         // this... i don't like this. but it will have to work for now.
         for (let player of this.playersRequiringMovement) {
             this.playerTree.remove(player)
             this.playerTree.insert(player)
         }
         this.playersRequiringMovement.clear()
-
-        for (let player of this.players) {
-            player.update()
-        }
     }
 }
 

@@ -37,6 +37,8 @@ class Player extends Character {
     }
 
     update() {
+        super.update()
+
         this.updateSkullTimeout()
 
         this.session.send.regionPlayers()

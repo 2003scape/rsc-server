@@ -1,4 +1,5 @@
 const Entity = require('./entity')
+const Position = require('../world/position')
 
 class Character extends Entity {
     constructor() {
@@ -14,6 +15,8 @@ class Character extends Entity {
             legColor: 14,
             skinColor: 0
         }
+
+        this.walkQueue = []
     }
     get sprites() {
         return this.msprites
@@ -24,6 +27,15 @@ class Character extends Entity {
         this.spriteChanges += 1
 
         this.emit('sprites', oldSprites, newSprites)
+    }
+    move(x, y) {
+        this.position = new Position(this.x + x, this.y + y)
+    }
+    update() {
+        if (this.walkQueue.length > 0) {
+            const { x: dx, y: dy } = this.walkQueue.shift()
+            this.move(dx, dy)
+        }
     }
 }
 

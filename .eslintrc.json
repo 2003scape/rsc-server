@@ -124,7 +124,6 @@
         "max-lines": "error",
         "max-lines-per-function": "off",
         "max-nested-callbacks": "error",
-        "max-params": "error",
         "max-statements": "off",
         "max-statements-per-line": "error",
         "multiline-comment-style": [
@@ -176,7 +175,6 @@
         "no-multi-str": "error",
         "no-multiple-empty-lines": "error",
         "no-native-reassign": "error",
-        "no-negated-condition": "error",
         "no-negated-in-lhs": "error",
         "no-nested-ternary": "error",
         "no-new": "error",

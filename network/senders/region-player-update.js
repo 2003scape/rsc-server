@@ -38,7 +38,6 @@ module.exports.send = (session, id) => {
 
             case PlayerUpdate.Type.CHAT_MESSAGE:
             case PlayerUpdate.Type.PRIVILEGED_CHAT_MESSAGE:
-                console.log(`sending chat to ${session.player.username} from ${update.index}`)
                 packet.addByte(update.message.length)
                     .addBytes(update.message)
                 break
