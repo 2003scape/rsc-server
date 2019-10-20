@@ -1,12 +1,5 @@
 module.exports = player => {
     player.on('instance', (oldInstance, newInstance) => {
-        console.log(`changed instance for ${player.username}`)
-        try {
-            throw new Error()
-        } catch (error) {
-            console.log(error)
-        }
-
         if (oldInstance) {
             oldInstance.removePlayer(player)
 

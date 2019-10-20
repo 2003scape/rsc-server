@@ -1,8 +1,8 @@
 const events = require('events')
 const net = require('net')
 const Session = require('./session')
-const World = require('../model/world/world')
-const IndexTracker = require('../model/world/index-tracker')
+const Instance = require('../model/world/instance')
+const Indexer = require('../operations/indexer')
 
 // TODO: this might could use some cleaning up, but it's ok for now.
 
@@ -57,8 +57,8 @@ class Server extends events.EventEmitter {
         this.socket = net.createServer(listener)
         this.sessions = new Map()
         this.instances = new Set()
-        this.world = new World(this)
-        this.playerIndex = new IndexTracker()
+        this.world = new Instance(this, 'GLOBAL_INSTANCE', false)
+        this.playerIndex = new Indexer()
 
         this.gameTicker = gameTick.bind(null, this)
 
@@ -88,6 +88,10 @@ class Server extends events.EventEmitter {
                 reject(error)
             }
         })
+    }
+    findInstance(name) {
+        // attempts to find the Instance with `name` in this.instances,
+        // if not, return the global instance
     }
     findPlayer(username) {
         username = username.toLowerCase()
