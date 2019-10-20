@@ -1,25 +1,16 @@
-const fs = require('fs')
-const path = require('path')
+const plugin = require('../../operations/plugin')
 const packets = require('../opcodes').client
 
-const handlers = new Map()
+// eslint-disable-next-line no-undef
+const handlers = plugin.loadMap(__dirname, true)
+const mappedHandlers = new Map()
 
-fs.readdirSync(__dirname).forEach(file => {
-    if (file === path.basename(__filename) || !/\.js$/.test(file)) {
-        return
+for (const [key, handler] of handlers.entries()) {
+    if (Reflect.has(packets, key)) {
+        mappedHandlers.set(packets[key], handler)
+    } else {
+        console.warn(`unknown packet handler: ${key}`)
     }
+}
 
-    const handler = require(path.join(__dirname, file))
-
-    if (handler && packets.hasOwnProperty(handler.name)) {
-        const packetId = packets[handler.name]
-
-        if (handlers.has(packetId)) {
-            console.warn(`warning: duplicate handler for ${handler.name}`)
-        }
-
-        handlers.set(packetId, handler.handle)
-    }
-})
-
-module.exports = handlers
+module.exports = mappedHandlers

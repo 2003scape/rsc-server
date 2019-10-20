@@ -1,27 +1,34 @@
 const config = require('../../config')
 const { QuadTree, Box } = require('js-quadtree')
 
-const BOUNDING_BOX = new Box(0, 0, config.world['plane-width'], config.world['plane-height'])
+const DEFAULT_BOUNDS = new Box(0, 0, config.world['plane-width'], config.world['plane-height'])
 
 const TREE_CONFIG = {
     capacity: 16,
     removeEmptyNodes: true
 }
 
-// TODO allow specific bounds, default to world bounds
+function getEntities(tree, pos, dist) {
+    const box = new Box(pos.x - dist, pos.y - dist, pos.x + dist, pos.y + dist)
+    return tree.query(box)
+}
 
 class Instance {
-    constructor(server, name, disposeWhenEmpty) {
+    constructor(server, name, disposeWhenEmpty, bounds = DEFAULT_BOUNDS) {
         this.server = server
         this.name = name
         this.disposeWhenEmpty = disposeWhenEmpty
 
-        this.players = new Set() // remove in future
+        this.players = new Set()
         this.playersRequiringMovement = new Set()
-        this.playerTree = new QuadTree(BOUNDING_BOX, TREE_CONFIG)
+        this.playerTree = new QuadTree(bounds, TREE_CONFIG)
+
+        this.objectTree = new QuadTree(bounds, TREE_CONFIG)
+        this.wallDecorTree = new QuadTree(bounds, TREE_CONFIG)
 
         this.server.instances.add(this)
     }
+
     addPlayer(player) {
         this.playerTree.insert(player)
         this.players.add(player)
@@ -33,13 +40,38 @@ class Instance {
         player.players.forget()
         player.inst = null
     }
-    getPlayers(position, distance = 15) {
-        const box = new Box(position.x - distance, position.y - distance, position.x + distance, position.y + distance)
-        return this.playerTree.query(box)
-    }
     playerMoved(player) {
         this.playersRequiringMovement.add(player)
     }
+
+    addObject(object) {
+        this.objectTree.insert(object)
+        object.instance = this
+    }
+    removeObject(object) {
+        this.objectTree.remove(object)
+        object.instance = null
+    }
+
+    addWallDecoration(object) {
+        this.wallDecorTree.insert(object)
+        object.instance = this
+    }
+    removeWallDecoration(object) {
+        this.wallDecorTree.remove(object)
+        object.instance = null
+    }
+
+    getPlayers(position, distance = 15) {
+        return getEntities(this.playerTree, position, distance)
+    }
+    getObjects(position, distance = 15) {
+        return getEntities(this.objectTree, position, distance)
+    }
+    getWallDecorations(position, distance = 15) {
+        return getEntities(this.wallDecorTree, position, distance)
+    }
+
     update() {
         for (let player of this.players) {
             player.update()

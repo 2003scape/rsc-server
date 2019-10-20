@@ -1,7 +1,7 @@
 module.exports.name = 'skull'
 
 module.exports.handle = (player, playerName, skullDuration) => {
-    if (!playerName | !skullDuration) {
+    if (!playerName || !skullDuration) {
         return player.send.message('invalid command parity')
     }
 

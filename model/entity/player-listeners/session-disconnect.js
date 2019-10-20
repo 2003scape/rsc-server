@@ -3,13 +3,13 @@ module.exports = player => {
         console.log(`${player.username} has logged off`)
 
         const instance = player.instance
-        
+
         if (instance) {
             instance.removePlayer(player)
-            
-            if (instance.disposeWhenEmpty && instance.player.size === 0) {
+
+            if (instance.disposeWhenEmpty && instance.players.size === 0) {
                 console.log(`deleted instance ${instance.name}`)
-                player.session.server.delete(instance)
+                player.session.server.instances.delete(instance)
             }
         }
 

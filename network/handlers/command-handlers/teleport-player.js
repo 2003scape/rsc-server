@@ -3,15 +3,11 @@ const Position = require('../../../model/world/position')
 module.exports.name = 'tele'
 
 module.exports.handle = (player, playerName, x, y) => {
-    console.log(playerName, x, y)
-
     if (!y) {
         y = x
         x = playerName
         playerName = x
     }
-
-    console.log(playerName, x, y)
 
     if (!playerName) {
         return player.send.message(`invalid parity`)

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const Player = require('../../model/entity/player')
 
 function emulateDataServer(request) {
