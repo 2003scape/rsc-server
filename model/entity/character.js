@@ -26,7 +26,7 @@ class Character extends Entity {
         this.msprites = newSprites
         this.spriteChanges += 1
 
-        this.emit('sprites', oldSprites, newSprites)
+        this.emit('appearance', oldSprites, newSprites)
     }
     move(x, y) {
         this.position = new Position(this.x + x, this.y + y)

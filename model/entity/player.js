@@ -20,6 +20,8 @@ class Player extends Character {
         this.status = new PlayerStatus(profile.status)
         this.position = new Position(profile.x, profile.y + offset++)
 
+        this.send = session.send
+
         this.viewDistance = DEFAULT_VIEW_DISTANCE
         this.players = new EntityPosition()
         this.playerUpdates = new PlayerUpdate()

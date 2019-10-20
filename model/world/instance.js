@@ -8,9 +8,12 @@ const TREE_CONFIG = {
     removeEmptyNodes: true
 }
 
+// TODO allow specific bounds, default to world bounds
+
 class Instance {
-    constructor(server, disposeWhenEmpty) {
+    constructor(server, name, disposeWhenEmpty) {
         this.server = server
+        this.name = name
         this.disposeWhenEmpty = disposeWhenEmpty
 
         this.players = new Set() // remove in future
@@ -27,7 +30,8 @@ class Instance {
     removePlayer(player) {
         this.playerTree.remove(player)
         this.players.delete(player)
-        player.instance = null
+        player.players.forget()
+        player.inst = null
     }
     getPlayers(position, distance = 15) {
         const box = new Box(position.x - distance, position.y - distance, position.x + distance, position.y + distance)

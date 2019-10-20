@@ -2,7 +2,7 @@ const Instance = require('./instance')
 
 class World extends Instance {
     constructor(server) {
-        super(server, false)
+        super(server, 'GLOBAL WORLD', false)
     }
 }
 

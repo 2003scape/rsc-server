@@ -39,10 +39,8 @@ module.exports = player => {
         const dist = oldPosition ? Math.floor(newPosition.distance(oldPosition)) : 1
 
         if (dist <= 1) {
-            console.log('walk')
             walk(player, oldPosition, newPosition)
         } else {
-            console.log('tele')
             player.emit('teleport', newPosition, false)
         }
     })

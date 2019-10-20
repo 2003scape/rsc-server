@@ -76,6 +76,12 @@ class EntityPosition {
             this.known.add(entity)
         }
     }
+    forget() {
+        this.unknown.clear()
+        for (const p of this.known) {
+            this.remove(p)
+        }
+    }
 }
 
 module.exports = EntityPosition

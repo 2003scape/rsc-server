@@ -1,5 +1,12 @@
 module.exports = player => {
     player.on('instance', (oldInstance, newInstance) => {
+        console.log(`changed instance for ${player.username}`)
+        try {
+            throw new Error()
+        } catch (error) {
+            console.log(error)
+        }
+
         if (oldInstance) {
             oldInstance.removePlayer(player)
 
@@ -10,13 +17,20 @@ module.exports = player => {
             }
         }
         if (newInstance) {
+            // forget oldInstance's entities
+            for (const p of player.players.known) {
+                p.players.remove(player)
+            }
+            player.players.forget()
+
+            // inform player of newInstance's entities
             const players = newInstance.getPlayers(player.position, player.viewDistance)
 
             for (const p of players) {
-                player.players.add(p)
-                player.playerUpdates.appearance(p)
-
                 if (player !== p) {
+                    player.players.add(p)
+                    player.playerUpdates.appearance(p)
+
                     p.players.add(player)
                     p.playerUpdates.appearance(player)
                 }
