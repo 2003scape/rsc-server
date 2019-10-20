@@ -5,8 +5,9 @@ module.exports = player => {
 
             // the old instance is no longer needed since it's empty,
             // we can tell the server to dispose of it
-            if (oldInstance.disposeWhenEmpty && oldInstance.player.size === 0) {
-                player.session.server.delete(oldInstance)
+            if (oldInstance.disposeWhenEmpty && oldInstance.players.size === 0) {
+                console.log(`deleted instance ${oldInstance.name}`)
+                player.session.server.instances.delete(oldInstance)
             }
         }
         if (newInstance) {

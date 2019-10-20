@@ -21,9 +21,6 @@ module.exports.handle = (player, name, join) => {
     if (join) {
         player.instance.removePlayer(player)
         instance.addPlayer(player)
-
-        if (player.instance.name === name) {
-            player.send.message(`you have been moved to the instance @yel@${name}`)
-        }
+        player.send.message(`you have warped to instance @yel@${name}`)
     }
 }

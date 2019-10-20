@@ -7,7 +7,7 @@ function emulateDataServer(request) {
             password: request.password,
             status: 0x4 | 0x2 | 0x1, // hack for admin priv..
             x: 122,
-            y: 657
+            y: 509
         },
         code: 25
     }
@@ -18,7 +18,7 @@ module.exports.name = 'login'
 module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
     try {
         const request = {
-            reconnecting: buffer.readInt8() == 1,
+            reconnecting: buffer.readInt8() !== 0,
             version: buffer.readInt16BE(),
             limit30: buffer.readInt8(),
             const10: buffer.readInt8(),
@@ -36,7 +36,7 @@ module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
             if (request.reconnecting === 1) {
                 session.state().change('Invalid')
                 session.write(Buffer.from([8]))
-                reject(new Error(`Login rejected: reconnections disabled`))
+                return reject(new Error(`Login rejected: reconnections disabled`))
             }
 
             session.state().change('LoggedIn')

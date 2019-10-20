@@ -92,6 +92,12 @@ class Server extends events.EventEmitter {
     findInstance(name) {
         // attempts to find the Instance with `name` in this.instances,
         // if not, return the global instance
+        for (const instance of this.instances) {
+            if (instance.name === name) {
+                return instance
+            }
+        }
+        return this.world
     }
     findPlayer(username) {
         username = username.toLowerCase()

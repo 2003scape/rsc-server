@@ -1,10 +1,16 @@
 module.exports = player => {
-    // releases the player's index to be reused by someone else
     player.session.on('disconnect', () => {
         console.log(`${player.username} has logged off`)
 
-        if (player.instance) {
-            player.instance.removePlayer(player)
+        const instance = player.instance
+        
+        if (instance) {
+            instance.removePlayer(player)
+            
+            if (instance.disposeWhenEmpty && instance.player.size === 0) {
+                console.log(`deleted instance ${instance.name}`)
+                player.session.server.delete(instance)
+            }
         }
 
         if (player.index < 0) {
