@@ -38,7 +38,7 @@ module.exports = player => {
         // this IS a teleport as players are not able to move more than 1 tile at a time.
         const dist = oldPosition ? Math.floor(newPosition.distance(oldPosition)) : 1
 
-        if (dist <= 1) {
+        if (newPosition && dist <= 1) {
             walk(player, oldPosition, newPosition)
         } else {
             player.emit('teleport', newPosition, false)
