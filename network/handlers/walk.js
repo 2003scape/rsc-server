@@ -46,13 +46,15 @@ module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
         const targetX = buffer.readUInt16BE()
         const targetY = buffer.readUInt16BE()
 
+        let [cx, cy] = [session.player.x, session.player.y]
+        const steps = createSteps(cx, cy, targetX, targetY)
+
         session.player.walkQueue.length = 0
-
-        const steps = createSteps(session.player.x, session.player.y, targetX, targetY)
-
         session.player.walkQueue.push(...steps)
 
-        let [cx, cy] = [session.player.x, session.player.y]
+        cx = targetX
+        cy = targetY
+
         const additionalSteps = buffer.remaining() / 2
 
         for (let i = 0; i < additionalSteps; i += 1) {

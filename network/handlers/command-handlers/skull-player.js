@@ -13,7 +13,7 @@ module.exports.handle = (player, playerName, skullDuration) => {
 
     try {
         const duration = +skullDuration
-        targetPlayer.skull = duration
+        targetPlayer.skulled = duration
     } catch (_) {
         player.send.message(`invalid skull duration`)
     }

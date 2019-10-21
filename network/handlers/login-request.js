@@ -8,7 +8,7 @@ function emulateDataServer(request) {
             password: request.password,
             status: 0x4 | 0x2 | 0x1, // hack for admin priv..
             x: 122,
-            y: 509
+            y: 657
         },
         code: 25
     }
