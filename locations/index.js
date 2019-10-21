@@ -4,9 +4,9 @@ const wallDecorLocations = require('./wall-decoration')
 
 module.exports.initialize = server => {
     for (const location of objectLocations) {
-        server.world.addObject(new GameObject(location))
+        server.world.addObject(new GameObject(server, location))
     }
     for (const location of wallDecorLocations) {
-        server.world.addWallDecoration(new GameObject(location))
+        server.world.addWallDecoration(new GameObject(server, location))
     }
 }

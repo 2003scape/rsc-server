@@ -47,4 +47,14 @@ module.exports = player => {
 
     // update the player's instance when they move
     player.on('position', () => player.instance.playerMoved(player))
+
+    player.on('position', () => {
+        const [regionX, regionY] = [player.position.x >> 4, player.position.y >> 4]
+
+        if (regionX !== player.region.x || regionY !== player.region.y) {
+            const oldRegion = player.region
+            player.region = { x: regionX, y: regionY }
+            player.emit('region', oldRegion, player.region)
+        }
+    })
 }

@@ -59,6 +59,7 @@ class Server extends events.EventEmitter {
         this.instances = new Set()
         this.world = new Instance(this, 'GLOBAL_INSTANCE', false)
         this.playerIndex = new Indexer()
+        this.objectIndex = new Indexer()
 
         this.gameTicker = gameTick.bind(null, this)
 

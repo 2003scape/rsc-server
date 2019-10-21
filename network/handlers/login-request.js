@@ -53,6 +53,7 @@ module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
         } catch (badResponse) {
             session.state().change('Invalid')
             session.write(Buffer.from([badResponse.code & 0xFF]))
+            console.log(badResponse)
             reject(new Error(`Login rejected: ${badResponse}`))
         }
     } catch (error) {

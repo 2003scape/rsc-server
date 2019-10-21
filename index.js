@@ -9,6 +9,10 @@ async function main() {
 
         const server = new Server(config)
 
+        server.on('session-error', (session, error) => {
+            console.log('session error:', session, error)
+        })
+
         locations.initialize(server)
 
         console.log(` - registered ${server.world.objectTree.getAllPoints().length} game objects`)
