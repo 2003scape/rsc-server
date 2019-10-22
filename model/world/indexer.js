@@ -1,33 +1,25 @@
 class Indexer {
     constructor() {
-        this.indicies = {
-            list: [],
-            open: []
-        }
-        console.log(this.indicies)
+        this.list = []
+        this.open = []
     }
     request() {
         if (this.indicies.open.length === 0) {
-            // If the open list is empty, no gaps in the index list have been created
-            // yet, so push an index to the end
-            const index = this.indicies.list.length
-            this.indicies.list.push(index)
-            console.log(`gave new index ${index}, indicies: ${this.indicies}`)
+            const index = this.list.length
+            this.list.push(index)
             return index
         } else {
-            // Since the open list isn't empty, there are gaps in the array that we
-            // need to fill with the values of the open list. Shift a position off of
-            // the the open list and fill the gap in the entity list.
-            const index = this.indicies.open.shift()
-            this.indicies.list[index] = index
-            console.log(`gave old index: ${index}, indicies: ${this.indicies}`)
+            const index = this.open.shift()
+            this.list[index] = index
             return index
         }
     }
     release(index) {
-        Reflect.deleteProperty(this.indicies.list, index)
-        this.indicies.open.push(index)
-        console.log(`released index ${index}`)
+        const listIndex = this.list.indexOf(index)
+        if (listIndex !== -1) {
+            this.list.splice(listIndex, 1)
+            this.open.push(index)
+        }
     }
 }
 
