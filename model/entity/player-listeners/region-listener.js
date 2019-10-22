@@ -4,7 +4,7 @@ module.exports = player => {
         if (!position) {
             position = newPosition ? newPosition : player.position
         }
-        console.log(`region`)
+
         const objects = player.instance.getObjects(position)
         const wallObjects = player.instance.getWallObject(position)
 
