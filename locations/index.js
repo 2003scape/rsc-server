@@ -7,6 +7,6 @@ module.exports.initialize = server => {
         server.world.addObject(new GameObject(server, location))
     }
     for (const location of wallDecorLocations) {
-        server.world.addWallDecoration(new GameObject(server, location))
+        server.world.addWallObject(new GameObject(server, location))
     }
 }

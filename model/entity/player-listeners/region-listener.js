@@ -4,9 +4,9 @@ module.exports = player => {
         if (!position) {
             position = newPosition ? newPosition : player.position
         }
-
-        const objects = player.instance.getObjects(position, 20)
-        const wallObjects = player.instance.getWallDecorations(position, 20)
+        console.log(`region`)
+        const objects = player.instance.getObjects(position)
+        const wallObjects = player.instance.getWallObject(position)
 
         const objectsRequireUpdate = player.gameObjects.intersection(objects)
         const wallObjectsRequireUpdate = player.wallObjects.intersection(wallObjects)

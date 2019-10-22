@@ -9,7 +9,7 @@ const TREE_CONFIG = {
 }
 
 function getEntities(tree, pos, dist) {
-    const box = new Box(pos.x - dist, pos.y - dist, pos.x + dist, pos.y + dist)
+    const box = new Box(pos.x - ~~(dist / 2), pos.y - ~~(dist / 2), dist, dist)
     return tree.query(box)
 }
 
@@ -53,11 +53,11 @@ class Instance {
         object.instance = null
     }
 
-    addWallDecoration(object) {
+    addWallObject(object) {
         this.wallDecorTree.insert(object)
         object.instance = this
     }
-    removeWallDecoration(object) {
+    removeWallObject(object) {
         this.wallDecorTree.remove(object)
         object.instance = null
     }
@@ -65,10 +65,10 @@ class Instance {
     getPlayers(position, distance = 15) {
         return getEntities(this.playerTree, position, distance)
     }
-    getObjects(position, distance = 15) {
+    getObjects(position, distance = 35) {
         return getEntities(this.objectTree, position, distance)
     }
-    getWallDecorations(position, distance = 15) {
+    getWallObject(position, distance = 35) {
         return getEntities(this.wallDecorTree, position, distance)
     }
 

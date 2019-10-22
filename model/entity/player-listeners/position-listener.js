@@ -49,7 +49,7 @@ module.exports = player => {
     player.on('position', () => player.instance.playerMoved(player))
 
     player.on('position', (oldPosition, newPosition) => {
-        const [regionX, regionY] = [player.position.x >> 4, player.position.y >> 4]
+        const [regionX, regionY] = [player.position.x >> 3, player.position.y >> 3]
 
         if (regionX !== player.region.x || regionY !== player.region.y) {
             player.region = { x: regionX, y: regionY }

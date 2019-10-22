@@ -34,8 +34,8 @@ module.exports = player => {
                 }
             }
 
-            const objectsInArea = player.instance.getObjects(position, 20)
-            const wallObjectsinArea = player.instance.getWallDecorations(position, 20)
+            const objectsInArea = player.instance.getObjects(position)
+            const wallObjectsinArea = player.instance.getWallObject(position)
 
             player.gameObjects.intersection(objectsInArea)
             player.gameObjects.intersection(wallObjectsinArea)
