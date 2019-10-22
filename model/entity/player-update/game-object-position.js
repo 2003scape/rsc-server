@@ -35,7 +35,7 @@ class GameObjectPositionUpdater {
         }
     }
     remove(object) {
-        if (this.newObjects.remove(object)) {
+        if (this.newObjects.delete(object)) {
             return
         }
         const wasRemoved = this.knownObjects.delete(object)

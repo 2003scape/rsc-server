@@ -16,7 +16,7 @@ module.exports = player => {
         if (player.index < 0) {
             return
         }
-        player.session.server.playerIndex.release(this.index)
+        player.session.server.playerIndex.release(player.index)
         player.index = -1
     })
 }

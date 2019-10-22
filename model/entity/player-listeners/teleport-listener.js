@@ -15,14 +15,14 @@ module.exports = player => {
         player.wallObjects.newObjects.clear()
         
         for (const object of player.gameObjects.knownObjects) {
-            player.gameObjects.delete(object)
+            player.gameObjects.remove(object)
         }
         for (const object of player.wallObjects.knownObjects) {
-            player.wallObjects.delete(object)
+            player.wallObjects.remove(object)
         }
 
         setTimeout(() => {
-            const playersInArea = player.instance.getPlayers(player.position, player.viewDistance)
+            const playersInArea = player.instance.getPlayers(position, player.viewDistance)
 
             for (const p of playersInArea) {
                 if (player !== p && !player.players.knows(p)) {
@@ -34,14 +34,14 @@ module.exports = player => {
                 }
             }
 
-            const objectsInArea = player.instance.getObjects(player.position, 20)
-            const wallObjectsinArea = player.instance.getWallDecorations(player.position, 20)
+            const objectsInArea = player.instance.getObjects(position, 20)
+            const wallObjectsinArea = player.instance.getWallDecorations(position, 20)
 
             player.gameObjects.intersection(objectsInArea)
             player.gameObjects.intersection(wallObjectsinArea)
 
-            player.emit('game-object-position', player.position)
-            player.emit('wall-object-position', player.position)
+            player.emit('game-object-position', position)
+            player.emit('wall-object-position', position)
         }, 600)
     })
 }

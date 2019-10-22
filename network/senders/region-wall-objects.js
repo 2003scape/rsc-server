@@ -9,7 +9,7 @@ module.exports.send = (session, id, position) => {
     for (const object of player.wallObjects.removedObjects) {
         const { x: dx, y: dy } = position.offsetFrom(object.position)
 
-        packet.addShort(65535)
+        packet.addShort(255)
         packet.addByte(dx).addByte(dy)
     }
 

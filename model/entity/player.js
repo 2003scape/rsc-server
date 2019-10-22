@@ -16,6 +16,7 @@ class Player extends Character {
         super()
 
         this.index = session.server.playerIndex.request()
+        console.log(`index: ${this.index}`, session.server.playerIndex)
         this.session = session
         this.username = profile.username
         this.usernameHash = Username.encode(profile.username)

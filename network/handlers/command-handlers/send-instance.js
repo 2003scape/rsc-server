@@ -2,7 +2,7 @@ module.exports.name = 'sendinst'
 
 module.exports.handle = (player, playerName, instanceName) => {
     const targetPlayer = player.session.server.findPlayer(playerName)
-    const targetInstance = player.session.server.findInstance(instanceName)
+    const targetInstance = player.session.server.findInstance(instanceName | 'GLOBAL_INSTANCE')
 
     if (!targetPlayer) {
         return player.send.message(`player @yel@${playerName} @whi@ was not found`)

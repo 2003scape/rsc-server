@@ -1,8 +1,9 @@
 module.exports = player => {
     player.on('login', () => {
         console.log(`${player.username} has logged in`)
+
         player.session.send.worldInfo()
-        player.session.send.message('Welcome to Runescape!')
+        player.session.send.message('Welcome to 2003scape!')
 
         setTimeout(() => {
             // we have to add a delay here, the position updaters require
