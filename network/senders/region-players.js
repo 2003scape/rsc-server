@@ -21,22 +21,34 @@ module.exports.send = (session, id) => {
         const event = players.events[known.index]
 
         if (known.index === -1) {
-            packet.addBits(1, 1)
-            packet.addBits(1, 1)
-            packet.addBits(12, 4)
+            // player update is available
+            packet.addBits(0b1, 1)
+
+            packet.addBits(0b1, 1) // update type, change animation
+
+            // animation bits -- remove player must have the 3rd and 4th MSB
+            // set in order to remove the player, otherwise the client
+            // interprets this as an animation change. 
+            packet.addBits(0b1100, 4)
         } else if (event) {
-            packet.addBits(1, 1)
+            // player update is available
+            packet.addBits(0b1, 1)
+            
+            // update type, (change animation/movement)
             packet.addBits(event.type, 1)
+
+            // animation bits -- vary depending on update type (either 3 or 4)
             packet.addBits(event.value, event.bits)
         } else {
             // no events occurred for this player
-            packet.addBits(0, 1)
+            packet.addBits(0b0, 1)
         }
 
         players.acknowledge(known)
     }
 
     // modifying a collection while iterating over it... uh... this could cause problems.
+    // unless node makes a copy of the array, then this is fine.
     for (const unknown of players.unknown) {
         packet.addBits(unknown.index, 11)
 
