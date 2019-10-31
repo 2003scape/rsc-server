@@ -20,8 +20,12 @@ function connectionListener(server, socket) {
         server.emit('session-disconnect', session)
     })
     socket.on('error', error => {
-        session.emit('error', error)
-        server.emit('session-error', session, error)
+        try {
+            session.emit('error', error)
+            server.emit('session-error', session, error)
+        } catch (e) {
+            console.log(e)
+        }
     })
     socket.on('timeout', () => {
         session.emit('timeout')

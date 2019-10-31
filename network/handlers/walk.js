@@ -41,33 +41,28 @@ function createSteps(startX, startY, endX, endY) {
     return steps
 }
 
-module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
-    try {
-        const targetX = buffer.readUInt16BE()
-        const targetY = buffer.readUInt16BE()
+module.exports.handle = async (session, buffer) => {
+    const targetX = buffer.readUInt16BE()
+    const targetY = buffer.readUInt16BE()
 
-        let [cx, cy] = [session.player.x, session.player.y]
-        const steps = createSteps(cx, cy, targetX, targetY)
+    let [cx, cy] = [session.player.x, session.player.y]
+    const steps = createSteps(cx, cy, targetX, targetY)
 
-        session.player.walkQueue.length = 0
-        session.player.walkQueue.push(...steps)
+    session.player.walkQueue.length = 0
+    session.player.walkQueue.push(...steps)
 
-        cx = targetX
-        cy = targetY
+    cx = targetX
+    cy = targetY
 
-        const additionalSteps = buffer.remaining() / 2
+    const additionalSteps = buffer.remaining() / 2
 
-        for (let i = 0; i < additionalSteps; i += 1) {
-            const dx = buffer.readInt8()
-            const dy = buffer.readInt8()
+    for (let i = 0; i < additionalSteps; i += 1) {
+        const dx = buffer.readInt8()
+        const dy = buffer.readInt8()
 
-            session.player.walkQueue.push(...createSteps(cx, cy, targetX + dx, targetY + dy))
+        session.player.walkQueue.push(...createSteps(cx, cy, targetX + dx, targetY + dy))
 
-            cx = targetX + dx
-            cy = targetY + dy
-        }
-        resolve()
-    } catch (error) {
-        reject(error)
+        cx = targetX + dx
+        cy = targetY + dy
     }
-})
+}

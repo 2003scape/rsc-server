@@ -11,23 +11,32 @@ class Session extends events.EventEmitter {
         this.server = server
         this.socket = socket
         this.send = senders(this)
+
         this.generateIdentifier()
 
         state(this, SessionState)
 
         this.state().change('SessionRequest')
 
-        this.socket.on('data', data => {
-            // TODO: buffer data, what if multiple packets are sent
-            // within the same frame? for now, we can just ignore this,
-            // but it needs to be implemented SOON.
-            try {
-                const packet = decode(data)
+        this.packet = {
+            state: 0,
+            position: 0
+        }
 
-                this.handlePacket(this, packet)
+        this.socket.on('data', data => {
+            try {
+                decode(this, data)
             } catch (error) {
                 this.close()
-                console.error(error)
+                console.error('error decoding message', error)
+            }
+        })
+
+        this.on('packet', async () => {
+            try {
+                await this.handlePacket(this, this.packet)
+            } catch (error) {
+                console.warn('error handling packet', error)
             }
         })
     }

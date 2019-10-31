@@ -2,7 +2,7 @@ const commandHandlers = require('./command-handlers')
 
 module.exports.name = 'command'
 
-module.exports.handle = (session, buffer) => new Promise(resolve => {
+module.exports.handle = async (session, buffer) => {
     const [command, ...args] = buffer.toString().split(' ')
 
     const handler = commandHandlers.get(command.toLowerCase())
@@ -12,5 +12,4 @@ module.exports.handle = (session, buffer) => new Promise(resolve => {
     } else {
         session.send.message(`invalid command: ${command.toLowerCase()}`)
     }
-    resolve()
-})
+}

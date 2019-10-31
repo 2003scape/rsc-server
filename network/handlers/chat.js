@@ -1,6 +1,6 @@
 module.exports.name = 'chat'
 
-module.exports.handle = (session, buffer) => new Promise(resolve => {
+module.exports.handle = async (session, buffer) => {
     const player = session.player
     const message = buffer.readBuffer()
     const players = player.players.known
@@ -10,5 +10,4 @@ module.exports.handle = (session, buffer) => new Promise(resolve => {
             p.playerUpdates.chat(player, message)
         }
     }
-    resolve()
-})
+}

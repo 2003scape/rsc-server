@@ -16,7 +16,8 @@ function emulateDataServer(request) {
 
 module.exports.name = 'login'
 
-module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
+// TODO: clean this up :\
+module.exports.handle = async (session, buffer) => {
     try {
         const request = {
             reconnecting: buffer.readInt8() !== 0,
@@ -37,7 +38,7 @@ module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
             if (request.reconnecting === 1) {
                 session.state().change('Invalid')
                 session.write(Buffer.from([8]))
-                return reject(new Error(`Login rejected: reconnections disabled`))
+                throw new Error('Login rejected: reconnections disabled')
             }
 
             session.state().change('LoggedIn')
@@ -49,15 +50,15 @@ module.exports.handle = (session, buffer) => new Promise((resolve, reject) => {
             session.player = new Player(session, response.profile)
             session.server.world.addPlayer(session.player)
             session.player.emit('login')
-            resolve()
         } catch (badResponse) {
             session.state().change('Invalid')
             session.write(Buffer.from([badResponse.code & 0xFF]))
+
             console.log(badResponse)
-            reject(new Error(`Login rejected: ${badResponse}`))
+            throw new Error(`Login rejected: ${badResponse}`)
         }
     } catch (error) {
         session.state().change('Invalid')
-        reject(error)
+        throw error
     }
-})
+}
