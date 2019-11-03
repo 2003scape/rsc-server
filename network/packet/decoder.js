@@ -117,7 +117,9 @@ function readPacketBody(session, buffer, position, available) {
 
 function decodePacket(session, buffer, tries = 0) {
     if (tries >= 5) {
-        // something has gone wrong or a frame was REALLY large (unlikely)
+        // something has gone wrong or a frame was REALLY large (packet flooding)
+        // drop the buffer and start from scratch..
+        session.packet = { state: 0, position: 0 }
         return
     }
     

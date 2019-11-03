@@ -6,6 +6,14 @@ module.exports = player => {
 
         console.log(`${player.username} is teleporting to ${position}:${visible}`)
 
+        if (visible) {
+            const visiblePlayers = player.instance.getPlayers(position)
+
+            for (const visible of visiblePlayers) {
+                visible.send.teleportBubble(true, position)
+            }
+        }
+
         for (const p of player.players.known) {
             p.players.remove(player)
             player.players.remove(p)
