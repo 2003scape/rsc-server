@@ -1,8 +1,6 @@
 const Encoder = require('../packet/encoder')
 
-module.exports.name = 'region-wall-objects'
-
-module.exports.send = (session, id, position) => {
+module.exports = (session, id, position) => {
     const player = session.player
     const packet = new Encoder(id)
 

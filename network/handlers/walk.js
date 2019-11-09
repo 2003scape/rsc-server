@@ -1,5 +1,3 @@
-module.exports.name = 'walk'
-
 // this function solves basic paths that the client expects us to do. it can
 // move in straight lines (that is, if X or Y is being incremented alone), or
 // perfect diagonals (X and Y both being incremented the same amount). it
@@ -41,7 +39,7 @@ function createSteps(startX, startY, endX, endY) {
     return steps
 }
 
-module.exports.handle = async (session, buffer) => {
+module.exports = async (session, buffer) => {
     const targetX = buffer.readUInt16BE()
     const targetY = buffer.readUInt16BE()
 

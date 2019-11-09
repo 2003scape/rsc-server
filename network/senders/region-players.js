@@ -1,8 +1,6 @@
 const Encoder = require('../packet/encoder')
 
-module.exports.name = 'region-players'
-
-module.exports.send = (session, id) => {
+module.exports = (session, id) => {
     const packet = new Encoder(id)
     const player = session.player
     const players = player.players

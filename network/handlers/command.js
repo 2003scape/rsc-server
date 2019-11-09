@@ -1,8 +1,6 @@
 const commandHandlers = require('./command-handlers')
 
-module.exports.name = 'command'
-
-module.exports.handle = async (session, buffer) => {
+module.exports = async (session, buffer) => {
     const [command, ...args] = buffer.toString().split(' ')
 
     const handler = commandHandlers.get(command.toLowerCase())

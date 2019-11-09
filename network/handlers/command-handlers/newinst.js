@@ -1,8 +1,6 @@
 const Instance = require('../../../model/world/instance')
 
-module.exports.name = 'newinst'
-
-module.exports.handle = (player, name, join) => {
+module.exports = (player, name, join) => {
     if (!name) {
         return player.send.message('command requires instance name')
     }

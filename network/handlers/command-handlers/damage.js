@@ -1,8 +1,6 @@
-module.exports.name = 'damage'
-
-module.exports.handle = (player, playerName, damage) => {
+module.exports = (player, playerName, damage) => {
     if (!playerName || !damage) {
-        return player.send.message('invalid parity')
+        return player.send.message('usage: ::damage <player> <damage>')
     }
 
     const targetPlayer = player.session.server.findPlayer(playerName)

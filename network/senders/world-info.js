@@ -5,9 +5,7 @@ function elevation(player) {
     return ~~(player.position.y / config.world['plane-elevation-divisor'])
 }
 
-module.exports.name = 'world-info'
-
-module.exports.send = (session, id) => {
+module.exports = (session, id) => {
     const packet = new Encoder(id)
 
     packet.addShort(session.player.index)

@@ -1,14 +1,15 @@
 {
   "name": "rsc-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "runescape classic game server emulator",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "2003Scape Team",
+  "license": "AGPL-3.0+",
   "dependencies": {
+    "bulk-require": "^1.0.1",
     "js-quadtree": "^2.0.1",
     "long": "^4.0.0",
     "rbush": "^3.0.1",
@@ -16,5 +17,21 @@
     "state": "^0.2.0",
     "superquad": "^0.1.1",
     "uuid": "^3.3.3"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2003scape/rsc-server.git"
+  },
+  "keywords": [
+    "runescape",
+    "rsc",
+    "game-server",
+    "server",
+    "mmorpg"
+  ],
+  "bugs": {
+    "url": "https://github.com/2003scape/rsc-server/issues"
+  },
+  "homepage": "https://github.com/2003scape/rsc-server#readme"
 }

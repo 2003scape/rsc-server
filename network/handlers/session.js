@@ -1,17 +1,15 @@
-const SmartBuffer = require('smart-buffer').SmartBuffer
-
-module.exports.name = 'session'
+const { SmartBuffer } = require('smart-buffer')
 
 function secureInt() {
     return ~~(Math.random() * 0xFFFFFFFF)
 }
 
-module.exports.handle = async session => {
+module.exports = async session => {
     const response = SmartBuffer.fromSize(8)
 
     try {
-        // what if we based this off the session identifier instead
-        // of 'secure' random integers?
+        // what if we based this off the session identifier instead of 'secure'
+        // random integers?
         session.isaac = {
             keys: {
                 in: [],
@@ -19,11 +17,11 @@ module.exports.handle = async session => {
             }
         }
 
-        // there's a byte in the buffer that is not being read,
-        // it is based off the username hash and not really needed
+        // there's a byte in the buffer that is not being read, it is based off
+        // the username hash and not really needed
 
-        // the "session id," as its called in the client,
-        // is actually the isaac seed for the client's incoming packets.
+        // the "session id," as its called in the client, is actually the isaac
+        // seed for the client's incoming packets.
         response.writeInt32BE(session.isaac.keys.out[0])
         response.writeInt32BE(session.isaac.keys.out[1])
 

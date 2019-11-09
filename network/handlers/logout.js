@@ -1,6 +1,4 @@
-module.exports.name = 'logout'
-
-module.exports.handle = async session => {
+module.exports = async session => {
     session.send.closeConnection()
     session.close()
 }

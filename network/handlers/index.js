@@ -1,9 +1,10 @@
-const plugin = require('../../operations/plugin')
+const bulk = require('bulk-require');
 const packets = require('../opcodes').client
 
-// eslint-disable-next-line no-undef
-const handlers = plugin.loadMap(__dirname, true)
+const handlers = new Map(Object.entries(bulk(__dirname, ['*.js'])))
 const mappedHandlers = new Map()
+
+handlers.delete('index')
 
 for (const [key, handler] of handlers.entries()) {
     if (Reflect.has(packets, key)) {

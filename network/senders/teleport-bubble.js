@@ -1,8 +1,6 @@
 const Encoder = require('../packet/encoder')
 
-module.exports.name = 'teleport-bubble'
-
-module.exports.send = (session, id, largeBubble, position) => {
+module.exports = (session, id, largeBubble, position) => {
     const packet = new Encoder(id)
     const { x: dx, y: dy } = session.player.position.offsetFrom(position)
 

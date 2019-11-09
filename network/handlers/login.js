@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-
 const Player = require('../../model/entity/player')
 const PlayerRank = require('../../model/entity/player-rank')
 
@@ -21,9 +19,7 @@ function emulateDataServer(request) {
     }
 }
 
-module.exports.name = 'login'
-
-module.exports.handle = async (session, buffer) => {
+module.exports = async (session, buffer) => {
     try {
         const request = {
             reconnecting: buffer.readInt8() !== 0,
@@ -51,6 +47,6 @@ module.exports.handle = async (session, buffer) => {
         session.state().change('Invalid')
         session.write(Buffer.from([responses.SERVER_REJECT]))
 
-        throw new Error(`Login rejected: ${badResponse}`)
+        throw new Error(`login rejected ${e}`)
     }
 }

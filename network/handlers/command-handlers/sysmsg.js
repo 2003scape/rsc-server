@@ -1,6 +1,4 @@
-module.exports.name = 'sysmsg'
-
-module.exports.handle = (player, ...text) => {
+module.exports = (player, ...text) => {
     const msg = `SYSTEM MESSAGE: ${text.join(' ')}`
 
     for (const p of player.session.server.allPlayers()) {

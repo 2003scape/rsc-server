@@ -1,13 +1,9 @@
 const Position = require('../../../model/world/position')
 
-module.exports.name = 'bubble'
-
-module.exports.handle = (player, x, y, large = true) => {
+module.exports = (player, x, y, large = true) => {
     if (!x | !y) {
-        return player.send.message('invalid command parity')
+        return player.send.message('usage: ::bubble <x> <y> [<large?>]')
     }
-
-    // TODO this should probably just send the bubble to nearby players?
 
     const position = new Position(+x, +y)
     const instancePlayers = player.instance.getPlayers(position)

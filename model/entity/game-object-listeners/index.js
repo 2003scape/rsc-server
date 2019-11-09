@@ -1,7 +1,9 @@
-const plugin = require('../../../operations/plugin')
+const bulk = require('bulk-require')
 
-// eslint-disable-next-line no-undef
-const listeners = plugin.loadSet(__dirname)
+let listeners = bulk(__dirname, ['*.js'])
+Reflect.deleteProperty(listeners, 'index')
+
+listeners = new Set(Object.values(listeners))
 
 module.exports = gameObject => {
     for (const listener of listeners) {

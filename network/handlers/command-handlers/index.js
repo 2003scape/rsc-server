@@ -1,6 +1,6 @@
-const plugin = require('../../../operations/plugin')
+const bulk = require('bulk-require')
 
-// eslint-disable-next-line no-undef
-const handlers = plugin.loadMap(__dirname, true)
+const handlers = new Map(Object.entries(bulk(__dirname, ['*.js'])))
+handlers.delete('index')
 
 module.exports = handlers

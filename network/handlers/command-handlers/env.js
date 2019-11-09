@@ -1,6 +1,4 @@
-module.exports.name = 'env'
-
-module.exports.handle = player => {
+module.exports = player => {
     let msg = `@gre@Environment % %@whi@instance=@yel@${player.instance.name}` +
         `@whi@, position=@yel@(${player.x}, ${player.y}) % @whi@players={`
 

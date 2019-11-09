@@ -1,3 +1,1 @@
-module.exports.name = 'ping'
-
-module.exports.handle = async () => { /* maybe update timeout? */ }
+module.exports = async () => { /* maybe update timeout? */ }

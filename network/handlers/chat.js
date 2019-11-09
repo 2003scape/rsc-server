@@ -1,6 +1,4 @@
-module.exports.name = 'chat'
-
-module.exports.handle = async (session, buffer) => {
+module.exports = async (session, buffer) => {
     const player = session.player
     const message = buffer.readBuffer()
     const players = player.players.known

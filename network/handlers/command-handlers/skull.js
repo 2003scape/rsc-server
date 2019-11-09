@@ -1,8 +1,6 @@
-module.exports.name = 'skull'
-
-module.exports.handle = (player, playerName, skullDuration) => {
+module.exports = (player, playerName, skullDuration) => {
     if (!playerName || !skullDuration) {
-        return player.send.message('invalid command parity')
+        return player.send.message('usage: ::skull <player> <duration>')
     }
 
     const targetPlayer = player.session.server.findPlayer(playerName)

@@ -1,12 +1,15 @@
-const plugin = require('../../operations/plugin')
+const bulk = require('bulk-require')
 const packets = require('../opcodes').server
 
-// eslint-disable-next-line no-undef
-const senders = plugin.loadMap(__dirname, false, 'send')
+const senders = new Map(Object.entries(bulk(__dirname, ['*.js'])))
 const renamedSenders = new Map()
 
-const toCamel = str => str.replace(/([-_][a-z])/ig,
-    $1 => $1.toUpperCase().replace('-', ''))
+senders.delete('index')
+
+// convert the snake-case keys in the JSON to camelCase for our methods
+function toCamel(str) {
+    return str.replace(/([-_][a-z])/ig, $1 => $1.toUpperCase().replace('-', ''))
+}
 
 for (const [key, send] of senders) {
     renamedSenders.set(toCamel(key), {
@@ -19,7 +22,7 @@ module.exports = session => {
     const send = {}
 
     // nice, double unpacking.
-    for (let [name, { id: id, sender: sender }] of renamedSenders) {
+    for (let [name, { id, sender }] of renamedSenders) {
         send[name] = sender.bind(null, session, id)
     }
 

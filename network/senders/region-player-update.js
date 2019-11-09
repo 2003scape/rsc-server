@@ -1,9 +1,7 @@
 const Encoder = require('../packet/encoder')
 const PlayerUpdate = require('../../model/entity/player-update')
 
-module.exports.name = 'region-player-update'
-
-module.exports.send = (session, id) => {
+module.exports = (session, id) => {
     const updates = session.player.playerUpdates
 
     if (updates.updates.length === 0) {
