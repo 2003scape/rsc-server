@@ -4,6 +4,7 @@ class GameObjectPositionUpdater {
         this.knownObjects = new Set()
         this.removedObjects = new Set()
     }
+
     intersection(objects) {
         const difference = new Set(this.knownObjects)
 
@@ -14,6 +15,7 @@ class GameObjectPositionUpdater {
                 this.newObjects.add(object)
             }
         }
+
         for (const object of difference) {
             const wasRemoved = this.knownObjects.delete(object)
 
@@ -24,26 +26,31 @@ class GameObjectPositionUpdater {
 
         return this.newObjects.size > 0 || this.removedObjects.size > 0
     }
+
     add(object) {
         if (this.knownObjects.has(object)) {
             return
         }
+
         const wasRemoved = this.removedObjects.delete(object)
 
         if (!wasRemoved) {
             this.newObjects.add(object)
         }
     }
+
     remove(object) {
         if (this.newObjects.delete(object)) {
             return
         }
+
         const wasRemoved = this.knownObjects.delete(object)
-        
+
         if (wasRemoved) {
             this.removedObjects.add(object)
         }
     }
+
     acknowledge(object) {
         const wasNew = this.newObjects.delete(object)
 
@@ -53,6 +60,7 @@ class GameObjectPositionUpdater {
 
         this.removedObjects.delete(object)
     }
+
     update() {
         this.newObjects.forEach(object => this.knownObjects.add(object))
         this.newObjects.clear()

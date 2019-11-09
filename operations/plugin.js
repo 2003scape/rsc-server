@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 
+// TODO replace this with bulk-require and use filenames rather than name attr
+
 function load(directory, add) {
     for (const item of fs.readdirSync(directory)) {
         if (item !== path.basename('index.js') && /\.js$/.test(item)) {
@@ -21,7 +23,10 @@ module.exports.loadSet = directory => {
 module.exports.loadMap = (directory, ignoreCase = false, handler = 'handle') => {
     const modules = new Map()
 
-    load(directory, mod => modules.set(ignoreCase ? mod.name.toLowerCase() : mod.name, mod[handler]))
+    load(directory, mod => {
+        const name = ignoreCase ? mod.name.toLowerCase() : mod.name;
+        modules.set(name, mod[handler])
+    })
 
     return modules
 }

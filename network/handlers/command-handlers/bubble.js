@@ -7,10 +7,12 @@ module.exports.handle = (player, x, y, large = true) => {
         return player.send.message('invalid command parity')
     }
 
-    const position = new Position(+x, +y)
-    const players = player.instance.getPlayers(position)
+    // TODO this should probably just send the bubble to nearby players?
 
-    for (const player of players) {
-        player.send.teleportBubble(large, position)
+    const position = new Position(+x, +y)
+    const instancePlayers = player.instance.getPlayers(position)
+
+    for (const instancePlayer of instancePlayers) {
+        instancePlayer.send.teleportBubble(large, position)
     }
 }

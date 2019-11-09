@@ -29,6 +29,7 @@ class Encoder {
         } else {
             this.payload.push(byte & 0xFF)
         }
+
         return this
     }
 
@@ -41,6 +42,7 @@ class Encoder {
                 (short & 0xFFFF) >> 8,
                 (short & 0xFF))
         }
+
         return this
     }
 
@@ -55,12 +57,14 @@ class Encoder {
                 (int & 0xFFFF) >> 8,
                 (int & 0xFF))
         }
+
         return this
     }
 
     addLong(long) {
         this.addInt(long.shiftRight(32).toInt())
         this.addInt(long.toInt())
+
         return this
     }
 
@@ -73,6 +77,7 @@ class Encoder {
                 this.payload.push(string.charCodeAt(i) & 0xFF)
             }
         }
+
         return this
     }
 
@@ -80,6 +85,7 @@ class Encoder {
         for (let i = 0; i < bytes.length; i += 1) {
             this.addByte(bytes[i])
         }
+
         return this
     }
 
@@ -113,15 +119,15 @@ class Encoder {
         return this
     }
 
-    // Build the final buffer with a header to send to the client.
+    // build the final buffer with a header to send to the client.
     build() {
         const length = this.payload.length
         const header = Buffer.alloc(3)
 
         header.fill(0)
 
-        // If the packet was being dynamically sized, turn it into a static buffer
-        // now so the rest of the operations are consistent.
+        // if the packet was being dynamically sized, turn it into a static
+        // buffer now so the rest of the operations are consistent.
         if (!this.static) {
             this.payload = Buffer.from(this.payload)
         }

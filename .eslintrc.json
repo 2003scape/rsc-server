@@ -1,6 +1,6 @@
 {
     "env": {
-        "browser": true,
+        "node": true,
         "commonjs": true,
         "es6": true
     },
@@ -120,7 +120,7 @@
         "lines-between-class-members": "off",
         "max-classes-per-file": "error",
         "max-depth": "error",
-        "max-len": "off",
+        "max-len": "error",
         "max-lines": "error",
         "max-lines-per-function": "off",
         "max-nested-callbacks": "error",
@@ -257,7 +257,11 @@
         "prefer-spread": "error",
         "prefer-template": "error",
         "quote-props": "off",
-        "quotes": "off",
+        "quotes": [
+            "error", 
+            "single",
+            { "allowTemplateLiterals": true }
+        ],
         "radix": "error",
         "require-await": "off",
         "require-jsdoc": "off",

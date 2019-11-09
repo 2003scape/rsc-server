@@ -10,7 +10,8 @@ module.exports.handle = (player, name, join) => {
     // check if an instance w/ the requested name already exists
     for (const instance of player.session.server.instances) {
         if (instance.name === name) {
-            return player.send.message('an instance with the same name already exists')
+            return player.send.message('an instance with this name already ' +
+                'exists')
         }
     }
 

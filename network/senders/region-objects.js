@@ -15,8 +15,8 @@ module.exports.send = (session, id, position) => {
         objects.acknowledge(object)
 
         if (packet.caret >= 4900) {
-            // the packet can be a maximum of up to 5000 bytes (including the header)
-            // but we will stop at the arbitrarily chosen 4900.
+            // the packet can be a maximum of up to 5000 bytes (including the
+            // header) but we will stop at the arbitrarily chosen 4900.
             session.write(packet.build())
 
             // emit the object position packet again
@@ -33,8 +33,8 @@ module.exports.send = (session, id, position) => {
         objects.acknowledge(object)
 
         if (packet.caret >= 4900) {
-            // the packet can be a maximum of up to 5000 bytes (including the header)
-            // but we will stop at the arbitrarily chosen 4900.
+            // the packet can be a maximum of up to 5000 bytes (including the
+            // header) but we will stop at the arbitrarily chosen 4900.
             session.write(packet.build())
 
             // emit the object position packet again

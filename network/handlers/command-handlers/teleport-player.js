@@ -13,19 +13,21 @@ module.exports.handle = (player, playerName, x, y) => {
         return player.send.message(`invalid parity`)
     }
 
-    const targetPlayer = playerName == x ? player : player.session.server.findPlayer(playerName)
+    const targetPlayer = playerName == x ? player
+        : player.session.server.findPlayer(playerName)
 
     if (!targetPlayer) {
-        return player.send.message(`player @yel@${playerName} @whi@was not found`)
+        return player.send.message(`player @yel@${playerName} @whi@ not found`)
     }
 
     try {
         targetPlayer.position = new Position(+x, +y)
 
         if (player !== targetPlayer) {
-            targetPlayer.send.message(`you have been teleported by ${player.username}`)
+            targetPlayer.send.message(`you have been teleported by ` +
+                `${player.username}`)
         }
-    } catch (_) {
+    } catch (e) {
         player.send.message('error parsing coordinates')
     }
 }

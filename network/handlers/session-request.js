@@ -29,8 +29,8 @@ module.exports.handle = async session => {
 
         session.state().change('LoginRequest')
         session.write(response.toBuffer())
-    } catch (error) {
+    } catch (e) {
         session.state().change('Invalid')
-        throw error
+        throw e
     }
 }

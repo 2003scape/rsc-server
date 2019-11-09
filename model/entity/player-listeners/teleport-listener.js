@@ -4,13 +4,14 @@ module.exports = player => {
             return
         }
 
-        console.log(`${player.username} is teleporting to ${position}:${visible}`)
+        console.log(`${player.username} is teleporting to ` +
+            `${position}:${visible}`)
 
         if (visible) {
             const visiblePlayers = player.instance.getPlayers(position)
 
-            for (const visible of visiblePlayers) {
-                visible.send.teleportBubble(true, position)
+            for (const visiblePlayer of visiblePlayers) {
+                visiblePlayer.send.teleportBubble(true, position)
             }
         }
 
@@ -21,7 +22,7 @@ module.exports = player => {
 
         player.gameObjects.newObjects.clear()
         player.wallObjects.newObjects.clear()
-        
+
         for (const object of player.gameObjects.knownObjects) {
             player.gameObjects.remove(object)
         }
@@ -30,7 +31,8 @@ module.exports = player => {
         }
 
         setTimeout(() => {
-            const playersInArea = player.instance.getPlayers(position, player.viewDistance)
+            const playersInArea = player.instance.getPlayers(position,
+                player.viewDistance)
 
             for (const p of playersInArea) {
                 if (player !== p && !player.players.knows(p)) {

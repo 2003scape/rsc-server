@@ -5,24 +5,24 @@ const locations = require('./locations')
 
 async function main() {
     try {
-        console.log(`starting server..`)
+        console.log('starting server...')
 
         const server = new Server(config)
 
-        server.on('session-error', (session, error) => {
-            console.log('session error:', session, error)
-        })
+        server.on('error', e => console.error(e))
 
         locations.initialize(server)
 
-        console.log(` - registered ${server.world.objectTree.getAllPoints().length} game objects`)
-        console.log(` - registered ${server.world.wallDecorTree.getAllPoints().length} wall objects`)
+        console.log(' - registered ' +
+            `${server.world.objectTree.getAllPoints().length} game objects`)
+        console.log(' - registered ' +
+            `${server.world.wallDecorTree.getAllPoints().length} wall objects`)
 
         await server.bind()
 
         console.log(`${pkg.name} is online at`, server.socket.address())
-    } catch (error) {
-        console.error(error)
+    } catch (e) {
+        console.error(e)
     }
 }
 

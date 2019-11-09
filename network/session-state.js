@@ -1,19 +1,20 @@
+const SmartBuffer = require('smart-buffer').SmartBuffer
 const handlers = require('./handlers')
 const packets = require('./opcodes').client
-const SmartBuffer = require('smart-buffer').SmartBuffer
 
 async function handle(session, packet) {
     const handler = handlers.get(packet.id)
 
     if (!handler) {
-        return console.warn(`${session}[${session.state().name}] sent an unknown packet: ${packet.id}`)
+        session.emit('error', new Error(`unhandled packet: ${packet.id}`))
+        return
     }
 
     try {
         await handler(session, SmartBuffer.fromBuffer(packet.payload))
-    } catch (error) {
+    } catch (e) {
+        session.emit('error', e)
         session.close()
-        console.error(error)
     }
 }
 
@@ -25,17 +26,23 @@ const SessionState = {
     SessionRequest: {
         handlePacket: async (session, packet) => {
             if (packet.id !== packets.session) {
-                return console.warn(`${session} sent invalid session packet`, packet, packets.session)
+                session.emit('error',
+                    new Error(`invalid session packet: ${packet}`))
+                return
             }
-            handle(session, packet)
+
+            await handle(session, packet)
         }
     },
     LoginRequest: {
         handlePacket: async (session, packet) => {
             if (packet.id !== packets.login) {
-                return console.warn(`${session} sent invalid login packet`)
+                session.emit('error',
+                    new Error(`unexpected packet during login: ${packet.id}`))
+                return
             }
-            handle(session, packet)
+
+            await handle(session, packet)
         }
     },
     LoggedIn: {

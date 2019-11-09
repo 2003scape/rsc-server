@@ -1,5 +1,3 @@
 module.exports = player => {
-    player.on('death', () => {
-        player.session.send.playerDied()
-    })
+    player.on('death', () => player.session.send.playerDied())
 }

@@ -8,7 +8,7 @@ module.exports.handle = (player, playerName, skullDuration) => {
     const targetPlayer = player.session.server.findPlayer(playerName)
 
     if (!targetPlayer) {
-        return player.send.message(`player @yel@${playerName} @whi@ was not found`)
+        return player.send.message(`player @yel@${playerName} @whi@ not found`)
     }
 
     try {

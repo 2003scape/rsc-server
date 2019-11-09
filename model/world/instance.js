@@ -1,7 +1,8 @@
 const config = require('../../config')
 const { QuadTree, Box } = require('js-quadtree')
 
-const DEFAULT_BOUNDS = new Box(0, 0, config.world['plane-width'], config.world['plane-height'])
+const DEFAULT_BOUNDS = new Box(
+    0, 0, config.world['plane-width'], config.world['plane-height'])
 
 const TREE_CONFIG = {
     capacity: 16,
@@ -34,12 +35,14 @@ class Instance {
         this.players.add(player)
         player.instance = this
     }
+
     removePlayer(player) {
         this.playerTree.remove(player)
         this.players.delete(player)
         player.players.forget()
         player.inst = null
     }
+
     playerMoved(player) {
         this.playersRequiringMovement.add(player)
     }
@@ -48,6 +51,7 @@ class Instance {
         this.objectTree.insert(object)
         object.instance = this
     }
+
     removeObject(object) {
         this.objectTree.remove(object)
         object.instance = null
@@ -57,6 +61,7 @@ class Instance {
         this.wallDecorTree.insert(object)
         object.instance = this
     }
+
     removeWallObject(object) {
         this.wallDecorTree.remove(object)
         object.instance = null
@@ -65,9 +70,11 @@ class Instance {
     getPlayers(position, distance = 15) {
         return getEntities(this.playerTree, position, distance)
     }
+
     getObjects(position, distance = 35) {
         return getEntities(this.objectTree, position, distance)
     }
+
     getWallObject(position, distance = 35) {
         return getEntities(this.wallDecorTree, position, distance)
     }
@@ -76,11 +83,13 @@ class Instance {
         for (let player of this.players) {
             player.update()
         }
+
         // this... i don't like this. but it will have to work for now.
         for (let player of this.playersRequiringMovement) {
             this.playerTree.remove(player)
             this.playerTree.insert(player)
         }
+
         this.playersRequiringMovement.clear()
     }
 }

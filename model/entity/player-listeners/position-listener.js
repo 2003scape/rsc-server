@@ -1,5 +1,6 @@
 function walk(player, oldPosition, newPosition) {
-    const playersInArea = player.instance.getPlayers(player.position, player.viewDistance)
+    const playersInArea = player.instance.getPlayers(player.position,
+        player.viewDistance)
     const players = player.players
 
     // the player has found new players to be added to their unknown list.
@@ -33,10 +34,15 @@ function walk(player, oldPosition, newPosition) {
 
 module.exports = player => {
     player.on('position', (oldPosition, newPosition) => {
-        // if the player moved more than 1 tile away it has to be considered a teleport.
-        // the player must be removed from all watched entities, and readded. technically,
-        // this IS a teleport as players are not able to move more than 1 tile at a time.
-        const dist = oldPosition ? Math.floor(newPosition.distance(oldPosition)) : 1
+        // if the player moved more than 1 tile away it has to be considered a
+        // teleport. the player must be removed from all watched entities, and
+        // readded. technically, this IS a teleport as players are not able to
+        // move more than 1 tile at a time.
+        let dist = 1;
+
+        if (oldPosition) {
+            dist = Math.floor(newPosition.distance(oldPosition))
+        }
 
         if (newPosition && dist <= 1) {
             walk(player, oldPosition, newPosition)
@@ -49,7 +55,10 @@ module.exports = player => {
     player.on('position', () => player.instance.playerMoved(player))
 
     player.on('position', (oldPosition, newPosition) => {
-        const [regionX, regionY] = [player.position.x >> 3, player.position.y >> 3]
+        const [regionX, regionY] = [
+            player.position.x >> 3,
+            player.position.y >> 3
+        ]
 
         if (regionX !== player.region.x || regionY !== player.region.y) {
             player.region = { x: regionX, y: regionY }

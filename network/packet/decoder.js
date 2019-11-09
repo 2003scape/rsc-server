@@ -24,11 +24,11 @@ function stashBuffer(packet, buffer, offset) {
         packet.position = 0
         buffer.copy(packet.stash, 0, offset)
     } else {
-        delete packet.stash
+        Reflect.deleteProperty(packet.stash)
     }
 }
 
-function readPacketHeader(packet, buffer, position, available) { 
+function readPacketHeader(packet, buffer, position, available) {
     if (packet.state === PACKET_STATE_HEADER) {
         // read the first byte of the packet's header, the length
         packet.length = buffer[position++]
@@ -90,7 +90,8 @@ function readPacketBody(session, buffer, position, available) {
             packet.payload[packet.length - 1] = buffer[position++]
 
             if (packet.length > 1) {
-                buffer.copy(packet.payload, 0, position, position + packet.length - 1)
+                buffer.copy(packet.payload, 0, position, position +
+                    packet.length - 1)
                 packet.id = packet.payload[0]
                 packet.payload = packet.payload.slice(1)
             } else {
@@ -116,20 +117,19 @@ function readPacketBody(session, buffer, position, available) {
 }
 
 function decodePacket(session, buffer, tries = 0) {
+    // something has gone wrong or a frame was REALLY large (packet flooding)
+    // drop the buffer and start from scratch..
     if (tries >= 5) {
-        // something has gone wrong or a frame was REALLY large (packet flooding)
-        // drop the buffer and start from scratch..
         session.packet = { state: 0, position: 0 }
         return
     }
-    
+
     // we have data from a previous data frame that hasn't been read yet
     // so prepend it to the current buffer
     if (session.packet.stash) {
         buffer = Buffer.concat([session.packet.stash, buffer])
         session.packet.position = 0
         session.packet.stash = null
-        delete session.packet.stash
     }
 
     let position = session.packet.position

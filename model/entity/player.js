@@ -1,15 +1,14 @@
 const Character = require('./character')
-const PlayerStatus = require('./player-status')
 const EntityPosition = require('./entity-position') // rename
+const GameObjectPotisionUpdater =
+    require('./player-update/game-object-position')
+const PlayerRank = require('./player-rank')
 const PlayerUpdate = require('./player-update')
-const GameObjectPotisionUpdater = require('./player-update/game-object-position')
 const Position = require('../world/position')
 const Username = require('../../operations/username')
 const addPlayerListeners = require('./player-listeners')
 
 const DEFAULT_VIEW_DISTANCE = 15
-
-let offset = 0
 
 class Player extends Character {
     constructor(session, profile) {
@@ -19,7 +18,7 @@ class Player extends Character {
         this.session = session
         this.username = profile.username
         this.usernameHash = Username.encode(profile.username)
-        this.status = new PlayerStatus(profile.status)
+        this.rank = new PlayerRank(profile.rank)
         this.position = new Position(profile.x, profile.y)
 
         this.send = session.send

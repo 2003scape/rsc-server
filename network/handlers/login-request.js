@@ -1,12 +1,19 @@
 /* eslint-disable no-undef */
+
 const Player = require('../../model/entity/player')
+const PlayerRank = require('../../model/entity/player-rank')
+
+const responses = {
+    SERVER_REJECT: 8,
+    LOGINSERVER_REJECT: 9
+};
 
 function emulateDataServer(request) {
     return {
         profile: {
             username: request.username,
             password: request.password,
-            status: 0x4 | 0x2 | 0x1, // hack for admin priv..
+            rank: PlayerRank.ADMIN,
             x: 122,
             y: 657
         },
@@ -16,7 +23,6 @@ function emulateDataServer(request) {
 
 module.exports.name = 'login'
 
-// TODO: clean this up :\
 module.exports.handle = async (session, buffer) => {
     try {
         const request = {
@@ -32,33 +38,19 @@ module.exports.handle = async (session, buffer) => {
             username: buffer.readString(20).trim(),
             password: buffer.readString(20).trim()
         }
-        try {
-            const response = emulateDataServer(request)
 
-            if (request.reconnecting === 1) {
-                session.state().change('Invalid')
-                session.write(Buffer.from([8]))
-                throw new Error('Login rejected: reconnections disabled')
-            }
+        const response = emulateDataServer(request)
 
-            session.state().change('LoggedIn')
-            session.write(Buffer.from([response.code & 0xFF]))
+        session.state().change('LoggedIn')
+        session.write(Buffer.from([response.code & 0xFF]))
 
-            // we could add staff to a private instance upon login,
-            // then have themselves manually move to the global
-            // instance via command? maybe.
-            session.player = new Player(session, response.profile)
-            session.server.world.addPlayer(session.player)
-            session.player.emit('login')
-        } catch (badResponse) {
-            session.state().change('Invalid')
-            session.write(Buffer.from([badResponse.code & 0xFF]))
-
-            console.log(badResponse)
-            throw new Error(`Login rejected: ${badResponse}`)
-        }
-    } catch (error) {
+        session.player = new Player(session, response.profile)
+        session.server.world.addPlayer(session.player)
+        session.player.emit('login')
+    } catch (e) {
         session.state().change('Invalid')
-        throw error
+        session.write(Buffer.from([responses.SERVER_REJECT]))
+
+        throw new Error(`Login rejected: ${badResponse}`)
     }
 }
