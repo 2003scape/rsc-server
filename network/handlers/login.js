@@ -35,6 +35,10 @@ module.exports = async (session, buffer) => {
             password: buffer.readString(20).trim()
         }
 
+        if (request.reconnecting) {
+            throw new Error('reconnecting unsupported')
+        }
+
         const response = emulateDataServer(request)
 
         session.state().change('LoggedIn')

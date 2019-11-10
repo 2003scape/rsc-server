@@ -4,6 +4,10 @@
         "port": 43594,
         "session-timeout": 60000
     },
+    "websocketServer": {
+        "host": "0.0.0.0",
+        "port": 43595
+    },
     "client": {
         "protocol-version": 204,
         "build-version": 204

@@ -1,7 +1,7 @@
-const config = require('./config')
-const pkg = require('./package')
 const Server = require('./network/server')
+const config = require('./config')
 const locations = require('./locations')
+const pkg = require('./package')
 
 async function main() {
     try {
@@ -18,11 +18,18 @@ async function main() {
         console.log(' - registered ' +
             `${server.world.wallDecorTree.getAllPoints().length} wall objects`)
 
-        await server.bind()
+        await server.start()
 
-        console.log(`${pkg.name} is online at`, server.socket.address())
+        console.log(`${pkg.name} is listening for tcp connections at`,
+            server.socket.address())
+
+        if (config.websocketServer.port > 0) {
+            console.log(`${pkg.name} is listening for websocket connections at`,
+                server.websocket.address())
+        }
     } catch (e) {
-        console.error(e)
+        process.exitCode = 1
+        console.error('fatal error initializing server', e)
     }
 }
 

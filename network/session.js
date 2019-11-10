@@ -10,6 +10,7 @@ class Session extends events.EventEmitter {
         super()
         this.server = server
         this.socket = socket
+        this.isWebsocket = this.socket.constructor.name === 'WebSocket'
 
         this.send = senders(this)
 
@@ -27,24 +28,30 @@ class Session extends events.EventEmitter {
 
         const timeout = server.config.server['session-timeout'];
 
-        if (timeout) {
+        if (timeout && !this.isWebsocket) {
             this.socket.setTimeout(timeout)
         }
     }
 
     addListeners() {
-        this.socket.on('error', err => this.emit('error', err))
-        this.socket.on('close', () => this.emit('disconnect'))
-        this.socket.on('timeout', () => this.emit('timeout'))
-
-        this.socket.on('data', data => {
+        const onData = data => {
             try {
                 decode(this, data)
             } catch (e) {
                 this.close()
                 this.emit('error', e)
             }
-        })
+        }
+
+        this.socket.on('error', err => this.emit('error', err))
+        this.socket.on('close', () => this.emit('disconnect'))
+
+        if (this.isWebsocket) {
+            this.socket.on('message', onData)
+        } else {
+            this.socket.on('timeout', () => this.emit('timeout'))
+            this.socket.on('data', onData)
+        }
 
         this.on('packet', async () => {
             try {
@@ -56,22 +63,39 @@ class Session extends events.EventEmitter {
     }
 
     close() {
-        this.socket.destroy()
+        if (this.isWebsocket) {
+            this.socket.terminate()
+        } else {
+            this.socket.destroy()
+        }
     }
 
-    async write(data) {
-        return new Promise((resolve, reject) => {
-            if (this.socket.destroyed) {
-                return reject()
-            }
-            this.socket.write(data, err => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve()
-                }
-            })
-        })
+    writeTcp(data) {
+        if (this.socket.destroyed) {
+            this.emit('error', new Error('writing to destroyed socket'))
+            return
+        }
+
+        this.socket.write(data)
+    }
+
+    writeWebsocket(data) {
+        const readyState = this.socket.readyState;
+
+        if (readyState !== 1) {
+            this.emit('error', new Error(`invalid readyState ${readyState}`))
+            return
+        }
+
+        this.socket.send(data, { compress: false, binary: true })
+    }
+
+    write(data) {
+        if (this.isWebsocket) {
+            this.writeWebsocket(data)
+        } else {
+            this.writeTcp(data)
+        }
     }
 
     generateIdentifier() {
