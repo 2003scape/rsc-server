@@ -4,6 +4,7 @@
   "description": "runescape classic game server emulator",
   "main": "index.js",
   "scripts": {
+    "start": "node index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "2003Scape Team",

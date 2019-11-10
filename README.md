@@ -1,14 +1,40 @@
 # rsc-server
-
 a runescape classic game server emulator written in javascript. designed for the
-original [204 revision](https://github.com/2003scape/mudclient204]) and for
-the [204 web client](https://github.com/2003scape/rsc-client) via websockets.
+original [204 revision](https://github.com/2003scape/mudclient204) in java and
+for the [204 web client](https://github.com/2003scape/rsc-client) via
+websockets.
 
 ## install
 
     $ npm install rsc-server
 
 ## usage
+edit `config.json` and run:
+
+    $ npm start
+
+## file layout
+* `./config.json`
+    * details on how to configure the game world and network communications
+* `./definitions/`
+    * JSON files describing properties of objects, items (and their attributes),
+NPCs, etc.
+* `./locations/`
+    * JSON files describing where objects, items and NPCs are located in the
+    game world
+* `./model/`
+    * game world abstractions and their implementations
+* `./network/`
+    * communication between the client and server
+    * `./handlers/`
+        * implementations of server/client communication (packet building and
+        parsing)
+    * `./opcodes/`
+        * JSON files with [opcode](https://en.wikipedia.org/wiki/Opcode)
+        (packet ID) maps
+* `./operations/`
+    * various runescape-related algorithm implementations such as username
+    encoding and encryption
 
 ## license
 Copyright (C) 2019  2003Scape Team
