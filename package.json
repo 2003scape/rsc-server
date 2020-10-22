@@ -1,24 +1,11 @@
 {
-  "name": "rsc-server",
+  "name": "@2003scape/rsc-server",
   "version": "1.0.0",
   "description": "runescape classic game server emulator",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node index",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "./src/bin.js | garnish"
   },
-  "author": "2003Scape Team",
-  "license": "AGPL-3.0+",
-  "dependencies": {
-    "bulk-require": "^1.0.1",
-    "js-quadtree": "^2.0.1",
-    "long": "^4.0.0",
-    "smart-buffer": "^4.1.0",
-    "state": "^0.2.0",
-    "uuid": "^3.3.3",
-    "ws": "^7.2.0"
-  },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/2003scape/rsc-server.git"
@@ -26,15 +13,32 @@
   "keywords": [
     "runescape",
     "rsc",
-    "game-server",
+    "game",
     "server",
-    "mmorpg"
+    "mmorpg",
+    "emulator"
   ],
+  "author": "2003Scape Team",
+  "license": "AGPL-3.0+",
   "bugs": {
     "url": "https://github.com/2003scape/rsc-server/issues"
   },
   "homepage": "https://github.com/2003scape/rsc-server#readme",
-  "optionalDependencies": {
-    "bufferutil": "^4.0.1"
+  "dependencies": {
+    "@2003scape/rsc-captcha": "^1.0.0",
+    "@2003scape/rsc-data": "^1.0.1",
+    "@2003scape/rsc-landscape": "^2.0.0",
+    "@2003scape/rsc-path-finder": "^1.0.0",
+    "@2003scape/rsc-socket": "^1.0.0",
+    "bulk-require": "^1.0.1",
+    "flat": "^5.0.2",
+    "js-quadtree": "^3.3.3",
+    "json-socket": "^0.3.0",
+    "rand-token": "^1.0.1",
+    "ws": "^7.3.1",
+    "yargs": "^16.0.3"
+  },
+  "devDependencies": {
+    "garnish": "^5.2.0"
   }
 }

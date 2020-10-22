@@ -1,21 +1,17 @@
 {
-    "server": {
-        "host": "0.0.0.0",
-        "port": 43594,
-        "session-timeout": 60000
-    },
-    "websocketServer": {
-        "host": "0.0.0.0",
-        "port": 43595
-    },
-    "client": {
-        "protocol-version": 204,
-        "build-version": 204
-    },
+    "dataServerFile": "/tmp/rsc-data-server.sock",
+    "dataServerTCP": "localhost:9001",
+    "dataServerPassword": "test",
+    "version": 204,
+    "worldID": 1,
+    "tcpPort": 43594,
+    "websocketPort": 43595,
+    "country": "CAN",
+    "members": false,
     "world": {
-        "max-players": 512,
-        "plane-width": 2304,
-        "plane-height": 1776,
-        "plane-elevation-divisor": 944
+        "experienceRate": 1,
+        "fatigue": true,
+        "bankCertificates": false,
+        "rememberCombatStyle": true
     }
 }
