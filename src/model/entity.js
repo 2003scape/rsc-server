@@ -7,20 +7,14 @@ class Entity {
     }
 
     withinRange(entity, range = 8) {
-        /*if (
+        if (
             Math.abs(entity.x - this.x) > (range / 2) ||
             Math.abs(entity.y - this.y) > (range / 2)
         ) {
             return false;
-        }*/
+        }
 
-        //return true;
-
-        var distance = Math.sqrt(
-            Math.pow(entity.x - this.x, 2) + Math.pow(entity.y - this.y, 2)
-        );
-
-        return distance <= range / 2;
+        return true;
     }
 
     // get the x, y offsets of an entity relative to this one

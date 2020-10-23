@@ -64,7 +64,10 @@ class Server {
 
         socket.on('close', async () => {
             if (socket.player) {
-                await socket.player.logout();
+                if (socket.player.loggedIn) {
+                    await socket.player.logout();
+                }
+
                 delete socket.player;
                 delete socket.server;
             }

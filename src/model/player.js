@@ -92,6 +92,8 @@ class Player extends Character {
         this.inventory = new Inventory(this, player.inventory);
         this.bank = new Bank(this, player.bank);
 
+        this.combatLevel = this.getCombatLevel();
+
         this.interfaceOpen = {
             bank: false,
             shop: false,
@@ -140,6 +142,7 @@ class Player extends Character {
         this.localEntities.updateNearby('players');
         this.localEntities.updateNearby('gameObjects');
         this.localEntities.updateNearby('wallObjects');
+        this.localEntities.updateNearby('groundItems');
 
         this.localEntities.characterUpdates.playerAppearances.push(
             this.formatAppearanceUpdate()
@@ -161,11 +164,14 @@ class Player extends Character {
     }
 
     async logout() {
+        if (!this.loggedIn) {
+            return;
+        }
+
         this.loggedIn = false;
 
         this.send({ type: 'logoutSuccess' });
 
-        await this.save();
         await this.world.sleepTicks(1);
 
         this.socket.close();
@@ -180,6 +186,8 @@ class Player extends Character {
 
             log.info(`${this} logged out`);
         });
+
+        await this.save();
     }
 
     // the blue menu text prompting the player for a choice. if repeat is true,
@@ -332,7 +340,8 @@ class Player extends Character {
             topColour: appearance.topColour,
             trouserColour: appearance.trouserColour,
             headSprite: appearance.headSprite,
-            bodySprite: appearance.bodySprite
+            bodySprite: appearance.bodySprite,
+            skinColour: appearance.skinColour
         };
 
         this.animations[0] = this.appearance.headSprite;
@@ -347,7 +356,7 @@ class Player extends Character {
             username: this.username,
             animations: this.animations,
             ...this.appearance,
-            combatLevel: this.getCombatLevel(),
+            combatLevel: this.combatLevel,
             skulled: this.isSkulled()
         };
     }
@@ -435,10 +444,15 @@ class Player extends Character {
             }
 
             if (!player.localEntities.known.players.has(this)) {
-                player.localEntities.added.players.add(this);
-                player.localEntities.characterUpdates.playerAppearances.push(
-                    this.formatAppearanceUpdate()
-                );
+                const theirEntities = player.localEntities;
+
+                theirEntities.added.players.add(this);
+
+                this.world.nextTick(() => {
+                    theirEntities.characterUpdates.playerAppearances.push(
+                        this.formatAppearanceUpdate()
+                    );
+                });
             }
 
             this.localEntities.added.players.add(player);
@@ -484,6 +498,8 @@ class Player extends Character {
                 ) {
                     this.localEntities.updateNearby('wallObjects');
                 }
+
+                this.localEntities.updateNearby('groundItems');
             } else {
                 this.walkQueue.length = 0;
 

@@ -12,13 +12,15 @@ const { PathFinder } = require('@2003scape/rsc-path-finder');
 const entityLocations = {
     npcs: require('@2003scape/rsc-data/locations/npcs'),
     gameObjects: require('@2003scape/rsc-data/locations/objects'),
-    wallObjects: require('@2003scape/rsc-data/locations/wall-objects')
+    wallObjects: require('@2003scape/rsc-data/locations/wall-objects'),
+    groundItems: require('@2003scape/rsc-data/locations/items')
 };
 
 const entityConstructors = {
     npcs: require('./npc'),
     gameObjects: require('./game-object'),
-    wallObjects: require('./wall-object')
+    wallObjects: require('./wall-object'),
+    groundItems: require('./ground-item')
 };
 
 // defaults has a function for every type of plugin, so use it to get a list
@@ -215,6 +217,11 @@ class World {
         this.tickFunctions.set(this.tickIndex, { func, ticks });
 
         return this.tickIndex;
+    }
+
+    // set tick timeout but just 1
+    nextTick(func) {
+        return this.setTickTimeout(func, 1);
     }
 
     clearTickTimeout(id) {

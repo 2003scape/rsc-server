@@ -4,7 +4,11 @@ async function appearance(socket, message) {
     player.interfaceOpen.appearance = false;
 
     player.setAppearance(message);
-    player.updatePlayerAppearance(player);
+    player.broadcastPlayerAppearance();
+
+    player.localEntities.characterUpdates.playerAppearances.push(
+        player.formatAppearanceUpdate()
+    );
 
     delete player.cache.sendAppearance;
 }

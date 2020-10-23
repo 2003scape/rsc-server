@@ -9,7 +9,8 @@ class LocalEntities {
             players: 16,
             npcs: 16,
             gameObjects: 48,
-            wallObjects: 48
+            wallObjects: 48,
+            groundItems: 48
         };
 
         // all the entities player is currently aware of
@@ -17,7 +18,8 @@ class LocalEntities {
             players: new Set(),
             npcs: new Set(),
             gameObjects: new Set(),
-            wallObjects: new Set()
+            wallObjects: new Set(),
+            groundItems: new Set()
         };
 
         // entities player will know about next tick
@@ -25,7 +27,8 @@ class LocalEntities {
             players: new Set(),
             npcs: new Set(),
             gameObjects: new Set(),
-            wallObjects: new Set()
+            wallObjects: new Set(),
+            groundItems: new Set()
         };
 
         // entity instances player can't see anymore
@@ -33,7 +36,8 @@ class LocalEntities {
             players: new Set(),
             npcs: new Set(),
             gameObjects: new Set(),
-            wallObjects: new Set()
+            wallObjects: new Set(),
+            groundItems: new Set()
         };
 
         // characters that have changed position
@@ -199,15 +203,15 @@ class LocalEntities {
             return;
         }
 
-        const removing = Array.from(this.removed.gameObjects).map(
-            (gameObject) => {
-                const { offsetX, offsetY } = this.player.getEntityOffsets(
-                    gameObject
-                );
+        const removing = [];
 
-                return { x: offsetX, y: offsetY };
-            }
-        );
+        for (const gameObject of this.removed.gameObjects) {
+            const { offsetX, offsetY } = this.player.getEntityOffsets(
+                gameObject
+            );
+
+            removing.push({ x: offsetX, y: offsetY });
+        }
 
         this.player.send({
             type: 'regionObjects',
@@ -232,11 +236,36 @@ class LocalEntities {
         this.updateKnown('wallObjects');
     }
 
+    sendRegionGroundItems() {
+        if (!this.added.groundItems.size && !this.removed.groundItems.size) {
+            return;
+        }
+
+        const removing = [];
+
+        for (const groundItem of this.removed.groundItems) {
+            const { offsetX, offsetY } = this.player.getEntityOffsets(
+                groundItem
+            );
+
+            removing.push({ id: groundItem.id, x: offsetX, y: offsetY });
+        }
+
+        this.player.send({
+            type: 'regionGroundItems',
+            removing,
+            adding: this.formatAdded('groundItems')
+        });
+
+        this.updateKnown('groundItems');
+    }
+
     sendRegions() {
         this.sendRegionPlayers();
         this.sendRegionObjects();
         this.sendRegionWallObjects();
         this.sendRegionNPCs();
+        this.sendRegionGroundItems();
         this.sendRegionPlayerUpdate();
     }
 }
