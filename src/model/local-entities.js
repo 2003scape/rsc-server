@@ -83,6 +83,12 @@ class LocalEntities {
             if (!this.known[type].has(entity)) {
                 this.added[type].add(entity);
             }
+
+            if (type === 'players') {
+                this.characterUpdates.playerAppearances.push(
+                    entity.formatAppearanceUpdate()
+                );
+            }
         }
     }
 

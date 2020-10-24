@@ -429,36 +429,6 @@ class Player extends Character {
         return this.rank >= 3;
     }
 
-    updateKnownPlayers() {
-        for (const player of this.localEntities.known.players) {
-            if (!player.loggedIn || !player.withinRange(this, 16)) {
-                player.localEntities.removed.players.add(this);
-                player.localEntities.movedCharacters.players.delete(this);
-                this.localEntities.known.players.delete(player);
-            }
-        }
-
-        for (const player of this.getNearbyEntities('players', 16)) {
-            if (!player.loggedIn) {
-                break;
-            }
-
-            if (!player.localEntities.known.players.has(this)) {
-                const theirEntities = player.localEntities;
-
-                theirEntities.added.players.add(this);
-
-                this.world.nextTick(() => {
-                    theirEntities.characterUpdates.playerAppearances.push(
-                        this.formatAppearanceUpdate()
-                    );
-                });
-            }
-
-            this.localEntities.added.players.add(player);
-        }
-    }
-
     walkTo(deltaX, deltaY) {
         super.walkTo(deltaX, deltaY);
 
@@ -475,9 +445,6 @@ class Player extends Character {
                 this.walkTo(deltaX, deltaY);
 
                 this.localEntities.updateNearby('npcs');
-                this.localEntities.updateNearby('players');
-
-                this.updateKnownPlayers();
 
                 const gameObjectViewport =
                     this.localEntities.viewports.gameObjects / 2;
@@ -511,6 +478,7 @@ class Player extends Character {
         }
 
         this.localEntities.sendRegions();
+        this.localEntities.updateNearby('players');
     }
 
     async save() {
