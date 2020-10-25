@@ -8,7 +8,7 @@ const EQUIPMENT_BONUS_NAMES = ['weaponAim', 'weaponPower', 'magic', 'prayer'];
 const DROP_OWNER_TIMEOUT = 1000 * 60; // 1 min
 
 // when does a drop disappear entirely?
-const DROP_DISAPPEAR_TIMEOUT = 1000 * 2;
+const DROP_DISAPPEAR_TIMEOUT = 1000 * 60 * 2; // 2 mins
 
 class Inventory {
     constructor(player, items = []) {
