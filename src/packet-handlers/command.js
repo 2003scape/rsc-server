@@ -32,10 +32,12 @@ async function command(socket, message) {
                 maxY: player.y + 4
             });
 
-            player.spawnedNPCs.push(npc);
             player.world.addEntity('npcs', npc);
             break;
         }
+        case 'face':
+            player.faceDirection(+args[0], +args[1]);
+            break;
     }
 }
 

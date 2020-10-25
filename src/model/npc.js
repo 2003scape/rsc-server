@@ -150,7 +150,7 @@ class NPC extends Character {
             !this.stationary &&
             (this.knownPlayers.size || this.stepsLeft > 0)
         ) {
-            this.walkNextRandomStep();
+            //this.walkNextRandomStep();
         }
     }
 

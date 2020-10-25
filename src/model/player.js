@@ -437,6 +437,16 @@ class Player extends Character {
         }
     }
 
+    faceDirection(deltaX, deltaY) {
+        const direction = super.faceDirection(deltaX, deltaY);
+
+        for (const player of this.localEntities.known.players) {
+            player.localEntities.spriteChangedCharacters.players.add(this);
+        }
+
+        return direction;
+    }
+
     tick() {
         if (this.walkQueue.length) {
             const { deltaX, deltaY } = this.walkQueue.shift();
@@ -469,11 +479,13 @@ class Player extends Character {
                 this.localEntities.updateNearby('groundItems');
             } else {
                 this.walkQueue.length = 0;
+                this.faceDirection(deltaX * -1, deltaY * -1);
 
+                /*
                 log.warn(
                     `${this} walking out of bounds: ${this.x + deltaX}, ` +
                         `${this.y + deltaY}`
-                );
+                );*/
             }
         }
 
