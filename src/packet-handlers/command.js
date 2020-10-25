@@ -38,6 +38,12 @@ async function command(socket, message) {
         case 'face':
             player.faceDirection(+args[0], +args[1]);
             break;
+        case 'item':
+            player.inventory.add(+args[0], +args[1] || 1);
+            break;
+        case 'sound':
+            player.sendSound(args[0]);
+            break;
     }
 }
 

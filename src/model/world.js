@@ -29,11 +29,8 @@ const PLUGIN_TYPES = Object.keys(pluginDefaults);
 // ms per each cycle of player/entity movement and delay updates
 const TICK_INTERVAL = 640;
 
-// when does a drop disappear entirely?
-const DROP_DISAPPEAR_TIMEOUT = 120000;
-
-// when is a player's drop visible to other players?
-const DROP_PLAYER_TIMEOUT = 60000;
+// ms between each global player save
+const PLAYER_SAVE_INTERVAL = 1000 * 60 * 5; // (5 mins)
 
 class World {
     constructor(server) {
@@ -62,6 +59,7 @@ class World {
         this.deltaTimes = [];
 
         this.boundTick = this.tick.bind(this);
+        this.boundSaveAllPlayers = this.saveAllPlayers.bind(this);
     }
 
     async loadLandscape() {
@@ -120,13 +118,15 @@ class World {
             for (const npc of entity.localEntities.known.npcs) {
                 npc.knownPlayers.delete(entity);
             }
+        }
 
-            for (const player of entity.localEntities.known.players) {
-                player.localEntities.removed.players.add(entity);
+        for (const player of entity.getNearbyEntities('players')) {
+            if (entity === player) {
+                return;
             }
-        } else if (type === 'npcs') {
-            for (const player of npc.knownPlayers) {
-                player.localEntities.removed.npcs.add(entity);
+
+            if (player.localEntities.known[type].has(entity)) {
+                player.localEntities.removed[type].add(entity);
             }
         }
     }
@@ -282,6 +282,24 @@ class World {
         }
 
         setTimeout(this.boundTick, TICK_INTERVAL - deltaTime);
+    }
+
+    async saveAllPlayers() {
+        if (!this.players.length) {
+            return;
+        }
+
+        const startTime = Date.now();
+        log.info('saving all players...');
+
+        for (const player of this.players.getAll()) {
+            await player.save();
+        }
+
+        const deltaTime = Date.now() - startTime;
+        log.info(`finished saving all players in ${deltaTime}ms`);
+
+        setTimeout(this.boundSaveAllPlayers, PLAYER_SAVE_INTERVAL);
     }
 
     toString() {

@@ -64,6 +64,12 @@ class LocalEntities {
     // viewport
     add(type, entity) {
         if (entity.withinRange(this.player, this.viewports[type])) {
+            if (type === 'groundItems') {
+                if (entity.owner && entity.owner !== this.player.id) {
+                    return;
+                }
+            }
+
             this.player.localEntities.added[type].add(entity);
         }
     }
@@ -81,7 +87,7 @@ class LocalEntities {
             this.viewports[type]
         )) {
             if (!this.known[type].has(entity)) {
-                this.added[type].add(entity);
+                this.add(type, entity);
             }
 
             if (type === 'players') {

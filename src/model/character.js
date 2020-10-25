@@ -171,7 +171,7 @@ class Character extends Entity {
             if (
                 getObstacle(pathFinder, this.x, this.y, 1, 1) ||
                 getObstacle(pathFinder, this.x, destY, 1, 0) ||
-                getObstacle(pathFinder, destX, destY, 1, 0)
+                getObstacle(pathFinder, destX, destY, 1, 1)
             ) {
                 return false;
             }

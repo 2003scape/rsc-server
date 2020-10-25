@@ -106,6 +106,9 @@ class Player extends Character {
         // list of { deltaX, deltaY } steps we're going to move to each tick
         this.walkQueue = [];
 
+        // action to perform when path is done
+        this.endWalkFunction = null;
+
         // incremented every time we change appearance
         this.appearanceIndex = 0;
 
@@ -131,6 +134,7 @@ class Player extends Character {
         this.sendWorldInfo();
         this.sendGameSettings();
         this.sendPrivacySettings();
+        this.inventory.sendAll();
 
         if (!this.loginDate || this.cache.sendAppearance) {
             this.sendAppearance();
@@ -429,6 +433,25 @@ class Player extends Character {
         return this.rank >= 3;
     }
 
+    canWalk(deltaX, deltaY) {
+        if (!super.canWalk(deltaX, deltaY)) {
+            return false;
+        }
+
+        const destX = this.x + deltaX;
+        const destY = this.y + deltaY;
+
+        // we aren't allowed to finish our path on a player
+        if (
+            !this.walkQueue.length &&
+            this.world.players.getAtPoint(destX, destY).length
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
     walkTo(deltaX, deltaY) {
         super.walkTo(deltaX, deltaY);
 
@@ -475,22 +498,20 @@ class Player extends Character {
                 ) {
                     this.localEntities.updateNearby('wallObjects');
                 }
-
-                this.localEntities.updateNearby('groundItems');
             } else {
                 this.walkQueue.length = 0;
                 this.faceDirection(deltaX * -1, deltaY * -1);
-
-                /*
-                log.warn(
-                    `${this} walking out of bounds: ${this.x + deltaX}, ` +
-                        `${this.y + deltaY}`
-                );*/
             }
+        }
+
+        if (!this.walkQueue.length && this.endWalkFunction) {
+            this.endWalkFunction();
+            this.endWalkFunction = null;
         }
 
         this.localEntities.sendRegions();
         this.localEntities.updateNearby('players');
+        this.localEntities.updateNearby('groundItems');
     }
 
     async save() {
