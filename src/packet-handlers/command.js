@@ -44,6 +44,9 @@ async function command(socket, message) {
         case 'sound':
             player.sendSound(args[0]);
             break;
+        case 'bubble':
+            player.sendBubble(+args[0]);
+            break;
     }
 }
 

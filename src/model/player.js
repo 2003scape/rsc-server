@@ -112,6 +112,9 @@ class Player extends Character {
         // incremented every time we change appearance
         this.appearanceIndex = 0;
 
+        // to prevent chat spam
+        this.lastChat = 0;
+
         this.setAppearance(player);
 
         this.loggedIn = false;
@@ -313,7 +316,18 @@ class Player extends Character {
     }
 
     // show bubble above player's head with certain item
-    showBubble(itemID) {}
+    sendBubble(itemID) {
+        const message = {
+            index: this.index,
+            id: itemID
+        };
+
+        this.localEntities.characterUpdates.playerBubbles.push(message);
+
+        for (const player of this.localEntities.known.players) {
+            player.localEntities.characterUpdates.playerBubbles.push(message);
+        }
+    }
 
     // open the welcome box
     sendWelcome() {
@@ -374,6 +388,15 @@ class Player extends Character {
             player.localEntities.characterUpdates.playerAppearances.push(
                 update
             );
+        }
+    }
+
+    broadcastChat(message) {
+        for (const player of this.localEntities.known.players) {
+            player.localEntities.characterUpdates.playerChat.push({
+                index: this.index,
+                message
+            });
         }
     }
 

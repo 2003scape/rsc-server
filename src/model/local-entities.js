@@ -56,6 +56,7 @@ class LocalEntities {
         this.characterUpdates = {
             playerAppearances: [],
             playerChat: [],
+            playerBubbles: [],
             npcChat: []
         };
     }
@@ -88,12 +89,12 @@ class LocalEntities {
         )) {
             if (!this.known[type].has(entity)) {
                 this.add(type, entity);
-            }
 
-            if (type === 'players') {
-                this.characterUpdates.playerAppearances.push(
-                    entity.formatAppearanceUpdate()
-                );
+                if (type === 'players') {
+                    this.characterUpdates.playerAppearances.push(
+                        entity.formatAppearanceUpdate()
+                    );
+                }
             }
         }
     }
@@ -173,19 +174,25 @@ class LocalEntities {
 
     // send updates regarding the currently known player entities
     sendRegionPlayerUpdate() {
-        if (!this.characterUpdates.playerAppearances.length) {
+        if (
+            !this.characterUpdates.playerAppearances.length &&
+            !this.characterUpdates.playerChat.length &&
+            !this.characterUpdates.playerBubbles.length
+        ) {
             return;
         }
 
         this.player.send({
             type: 'regionPlayerUpdate',
-            bubbles: [],
-            chats: [],
+            bubbles: this.characterUpdates.playerBubbles,
+            chats: this.characterUpdates.playerChat,
             hits: [],
             projectiles: [],
             appearances: this.characterUpdates.playerAppearances
         });
 
+        this.characterUpdates.playerBubbles.length = 0;
+        this.characterUpdates.playerChat.length = 0;
         this.characterUpdates.playerAppearances.length = 0;
     }
 
