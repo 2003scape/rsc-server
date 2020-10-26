@@ -7,7 +7,7 @@
     "tcpPort": 43594,
     "websocketPort": 43595,
     "country": "CAN",
-    "members": false,
+    "members": true,
     "world": {
         "experienceRate": 1,
         "fatigue": true,

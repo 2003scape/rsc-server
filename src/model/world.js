@@ -120,6 +120,15 @@ class World {
             }
         }
 
+        if (entity.respawn) {
+            this.setTimeout(() => {
+                this.addEntity(
+                    type,
+                    new entityConstructors[type](this, entity)
+                );
+            }, entity.respawn);
+        }
+
         for (const player of entity.getNearbyEntities('players')) {
             if (entity === player) {
                 return;

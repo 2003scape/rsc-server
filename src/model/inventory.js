@@ -10,6 +10,27 @@ const DROP_OWNER_TIMEOUT = 1000 * 60; // 1 min
 // when does a drop disappear entirely?
 const DROP_DISAPPEAR_TIMEOUT = 1000 * 60 * 2; // 2 mins
 
+function addPlayerDrop(player, item) {
+    const groundItem = new GroundItem(player.world, {
+        ...item,
+        x: player.x,
+        y: player.y
+    });
+
+    groundItem.owner = player.id;
+
+    player.world.setTimeout(() => {
+        delete groundItem.owner;
+    }, DROP_OWNER_TIMEOUT);
+
+    player.world.setTimeout(() => {
+        player.world.removeEntity('groundItems', groundItem);
+    }, DROP_DISAPPEAR_TIMEOUT);
+
+    player.sendSound('dropobject');
+    player.world.addEntity('groundItems', groundItem);
+}
+
 class Inventory {
     constructor(player, items = []) {
         this.player = player;
@@ -44,7 +65,8 @@ class Inventory {
                     'ground!'
             );
 
-            this.drop(id, amount);
+            addPlayerDrop(this.player, { id, amount });
+            return;
         }
 
         const item = new Item({ id, amount });
@@ -109,24 +131,7 @@ class Inventory {
         this.items.splice(index, 1);
         this.sendRemove(index);
 
-        const groundItem = new GroundItem(this.player.world, {
-            ...item,
-            x: this.player.x,
-            y: this.player.y
-        });
-
-        groundItem.owner = this.player.id;
-
-        this.player.world.setTimeout(() => {
-            delete groundItem.owner;
-        }, DROP_OWNER_TIMEOUT);
-
-        this.player.world.setTimeout(() => {
-            this.player.world.removeEntity('groundItems', groundItem);
-        }, DROP_DISAPPEAR_TIMEOUT);
-
-        this.player.sendSound('dropobject');
-        this.player.world.addEntity('groundItems', groundItem);
+        addPlayerDrop(this.player, item);
     }
 
     equip(index) {}

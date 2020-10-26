@@ -9,7 +9,14 @@ class EntityList {
         this.length = 0;
 
         this.quadTree = new QuadTree(new Box(0, 0, width, height), {
-            capacity: 16
+            capacity: 64,
+            arePointsEqual: (point1, point2) => {
+                return (
+                    point1.index === point2.index &&
+                    point1.x === point2.x &&
+                    point1.y === point2.y
+                );
+            }
         });
     }
 
@@ -65,11 +72,9 @@ class EntityList {
         return this.quadTree.query(new Box(x, y, 0, 0));
     }
 
-    *getAllByID(id) {
-    }
+    *getAllByID(id) {}
 
-    getByID(id) {
-    }
+    getByID(id) {}
 }
 
 module.exports = EntityList;

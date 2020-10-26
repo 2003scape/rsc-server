@@ -504,14 +504,14 @@ class Player extends Character {
             }
         }
 
+        this.localEntities.sendRegions();
+        this.localEntities.updateNearby('players');
+        this.localEntities.updateNearby('groundItems');
+
         if (!this.walkQueue.length && this.endWalkFunction) {
             this.endWalkFunction();
             this.endWalkFunction = null;
         }
-
-        this.localEntities.sendRegions();
-        this.localEntities.updateNearby('players');
-        this.localEntities.updateNearby('groundItems');
     }
 
     async save() {

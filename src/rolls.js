@@ -6,11 +6,9 @@ function addItemDrop(drops, currentDrops, entry) {
     } else {
         // if id is an array, drop multiple items in one entry
         if (Array.isArray(entry.id)) {
-            for (let i = 0; i < entry.id; i += 1) {
-                const id = entry.id[i];
-
+            for (let i = 0; i < entry.id.length; i += 1) {
                 currentDrops.push({
-                    id: id,
+                    id: entry.id[i],
                     amount: entry.amount[i] || 1
                 });
             }
