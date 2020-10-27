@@ -1,5 +1,4 @@
-async function appearance(socket, message) {
-    const { player } = socket;
+async function appearance({ player }, message) {
     player.unlock();
     player.interfaceOpen.appearance = false;
 

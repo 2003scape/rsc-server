@@ -90,6 +90,8 @@ class Player extends Character {
         }
 
         this.inventory = new Inventory(this, player.inventory);
+        this.inventory.updateEquipmentBonuses();
+
         this.bank = new Bank(this, player.bank);
 
         this.combatLevel = this.getCombatLevel();
@@ -101,6 +103,12 @@ class Player extends Character {
             appearance: false
         };
 
+        // incremented every time we change appearance
+        this.appearanceIndex = 0;
+
+        this.setAppearance(player);
+        this.inventory.updateEquipmentSlots();
+
         this.localEntities = new LocalEntities(this);
 
         // list of { deltaX, deltaY } steps we're going to move to each tick
@@ -109,13 +117,8 @@ class Player extends Character {
         // action to perform when path is done
         this.endWalkFunction = null;
 
-        // incremented every time we change appearance
-        this.appearanceIndex = 0;
-
-        // to prevent chat spam
+        // Date.now() of last chat to prevent chat spam
         this.lastChat = 0;
-
-        this.setAppearance(player);
 
         this.loggedIn = false;
     }
@@ -138,7 +141,10 @@ class Player extends Character {
         this.sendGameSettings();
         this.sendPrivacySettings();
         this.inventory.sendAll();
+        this.sendEquipmentBonuses();
 
+        // check the cache's sendAppearance in case the player disconnected
+        // before they finished
         if (!this.loginDate || this.cache.sendAppearance) {
             this.sendAppearance();
         }
@@ -151,13 +157,16 @@ class Player extends Character {
         this.localEntities.updateNearby('wallObjects');
         this.localEntities.updateNearby('groundItems');
 
+        // tell ourselves our appearance
         this.localEntities.characterUpdates.playerAppearances.push(
             this.formatAppearanceUpdate()
         );
 
         this.world.setTickTimeout(() => {
+            // tell everyone around us our appearance
             this.broadcastPlayerAppearance();
 
+            // make everyone around us tell us their appearance
             for (const player of this.localEntities.known.players) {
                 this.localEntities.characterUpdates.playerAppearances.push(
                     player.formatAppearanceUpdate()
@@ -166,7 +175,6 @@ class Player extends Character {
         }, 2);
 
         this.loggedIn = true;
-
         log.info(`${this} logged in`);
     }
 
@@ -268,6 +276,13 @@ class Player extends Character {
             privateChat: this.blockPrivateChat,
             trade: this.blockTrade,
             duel: this.blockDuel
+        });
+    }
+
+    sendEquipmentBonuses() {
+        this.send({
+            type: 'playerStatEquipmentBonus',
+            ...this.equipmentBonuses
         });
     }
 

@@ -32,6 +32,12 @@ const TICK_INTERVAL = 640;
 // ms between each global player save
 const PLAYER_SAVE_INTERVAL = 1000 * 60 * 5; // (5 mins)
 
+// when is a player's drop visible to other players?
+const DROP_OWNER_TIMEOUT = 1000 * 60; // 1 min
+
+// when does a drop disappear entirely?
+const DROP_DISAPPEAR_TIMEOUT = 1000 * 60 * 2; // 2 mins
+
 class World {
     constructor(server) {
         this.server = server;
@@ -170,6 +176,32 @@ class World {
 
         this.loadShops();
         log.info(`loaded ${this.shops.size} shops`);
+    }
+
+    // add a new ground item owned by a certain player (temporarily)
+    addPlayerDrop(player, item, x, y) {
+        const groundItem = new entityConstructors.groundItems(this, {
+            ...item,
+            x: typeof x !== 'undefined' ? x : player.x,
+            y: typeof y !== 'undefined' ? y : player.y
+        });
+
+        groundItem.owner = player.id;
+
+        // if we never delete the owner property, it never shows up to other
+        // players and still disappears after DROP_DISAPPEAR_TIMEOUT
+        if (!groundItem.definition.untradeable) {
+            this.setTimeout(() => {
+                delete groundItem.owner;
+            }, DROP_OWNER_TIMEOUT);
+        }
+
+        this.setTimeout(() => {
+            this.removeEntity('groundItems', groundItem);
+        }, DROP_DISAPPEAR_TIMEOUT);
+
+        player.sendSound('dropobject');
+        this.addEntity('groundItems', groundItem);
     }
 
     getPlayerByUsername(username) {

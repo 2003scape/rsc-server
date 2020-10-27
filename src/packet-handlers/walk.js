@@ -31,15 +31,11 @@ function createSteps(startX, startY, endX, endY) {
     return steps;
 }
 
-async function walk(socket, message) {
-    const { player } = socket;
-
+async function walk({ player }, { targetX, targetY, steps }) {
     player.walkQueue.length = 0;
 
     let currentX = player.x;
     let currentY = player.y;
-
-    const { targetX, targetY, steps } = message;
 
     player.walkQueue.push(...createSteps(currentX, currentY, targetX, targetY));
 

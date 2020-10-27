@@ -2,10 +2,7 @@
 
 const NPC = require('../model/npc');
 
-async function command(socket, message) {
-    const { player } = socket;
-    const { command, args } = message;
-
+async function command({ player }, { command, args }) {
     if (!player.isAdministrator()) {
         return;
     }

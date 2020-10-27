@@ -21,11 +21,26 @@ async function groundItemTake({ player }, { x, y, id }) {
                 return;
             }
         }
-    }
+    };
 }
 
 async function inventoryDrop({ player }, { index }) {
     player.endWalkFunction = () => player.inventory.drop(index);
 }
 
-module.exports = { groundItemTake, inventoryDrop };
+async function inventoryWear({ player }, { index }) {
+    player.sendSound('click');
+    player.inventory.equip(index);
+}
+
+async function inventoryUnequip({ player }, { index }) {
+    player.sendSound('click');
+    player.inventory.unequip(index);
+}
+
+module.exports = {
+    groundItemTake,
+    inventoryDrop,
+    inventoryWear,
+    inventoryUnequip
+};

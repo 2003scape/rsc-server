@@ -1,11 +1,9 @@
-async function settingsGame(socket, message) {
-    const { player } = socket;
+async function settingsGame({ player }, message) {
     delete message.type;
     Object.assign(player, message);
 }
 
-async function settingsPrivacy(socket, message) {
-    const { player } = socket;
+async function settingsPrivacy({ player }, message) {
     delete message.type;
 
     for (const setting of Object.keys(message)) {
