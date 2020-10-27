@@ -33,9 +33,9 @@ const SAVE_PROPERTIES = [
     'muteEndDate'
 ];
 
-/*const SLEEP_BAG_RATE = 4125;
+const SLEEP_BAG_RATE = 4125;
 const SLEEP_BED_RATE = 16500;
-const MAX_FATIGUE = 75000;*/
+const MAX_FATIGUE = 75000;
 
 class Player extends Character {
     constructor(world, socket, player) {
@@ -140,6 +140,8 @@ class Player extends Character {
         this.sendWorldInfo();
         this.sendGameSettings();
         this.sendPrivacySettings();
+        this.sendStats();
+        this.sendFatigue();
         this.inventory.sendAll();
         this.sendEquipmentBonuses();
 
@@ -205,24 +207,6 @@ class Player extends Character {
         await this.save();
     }
 
-    // the blue menu text prompting the player for a choice. if repeat is true,
-    // the player will say the option they picked
-    async ask(options, repeat = false) {
-        this.send({
-            type: 'optionList',
-            options
-        });
-
-        if (repeat) {
-            await this.say();
-        }
-    }
-
-    // white server-sided message in the chat box
-    message(message) {
-        this.send({ type: 'message', message });
-    }
-
     addFriend(username) {
         this.friends.push(username);
     }
@@ -250,6 +234,14 @@ class Player extends Character {
         }
     }
 
+    // white server-sided message in the chat box
+    message(...messages) {
+        for (const message of messages) {
+            this.send({ type: 'message', message });
+        }
+    }
+
+    // sent on login
     sendWorldInfo() {
         this.send({
             type: 'worldInfo',
@@ -293,11 +285,36 @@ class Player extends Character {
         this.send({ type: 'appearance' });
     }
 
-    // refresh player's fatigue
-    sendFatigue(fatigue) {
-        if (typeof fatigue === 'undefined') {
-            fatigue = this.fatigue;
+    // send our skills and quest points on login
+    sendStats() {
+        this.send({
+            type: 'playerStatList',
+            skills: this.skills,
+            questPoints: this.questPoints
+        });
+    }
+
+    // update experience in a single skill
+    sendExperience(skill) {
+        const index = Object.keys(this.skills).indexOf(skill);
+
+        if (index < 0) {
+            throw new RangeError(`invalid skill ${skill}`);
         }
+
+        this.send({
+            type: 'playerStatExperienceUpdate',
+            index,
+            experience: this.skills[skill].experience
+        });
+    }
+
+    // refresh player's fatigue
+    sendFatigue() {
+        this.send({
+            type: 'playerStatFatigue',
+            fatigue: Math.floor(this.fatigue / 100)
+        });
     }
 
     // play sound (only for members clients)
@@ -309,39 +326,22 @@ class Player extends Character {
         this.send({ type: 'sound', soundName });
     }
 
-    // open the bank
-    openBank() {}
+    // the blue menu text prompting the player for a choice. if repeat is true,
+    // the player will say the option they picked
+    async ask(options, repeat = false) {
+        this.send({
+            type: 'optionList',
+            options
+        });
+
+        if (repeat) {
+            await this.say();
+        }
+    }
 
     // open a shop by its definition name
     openShop(shopName) {
         //this.world.shops[shopName];
-    }
-
-    refreshSleepWord() {
-        const captcha = new Captcha();
-        const { word, image } = captcha.generate();
-
-        this.sleepWord = word;
-        this.sleepImage = Captcha.toByteArray(image);
-    }
-
-    // open sleep interface and start counting down fatigue
-    openSleep(bed = true) {
-        this.interfaceOpen.sleep = true;
-    }
-
-    // show bubble above player's head with certain item
-    sendBubble(itemID) {
-        const message = {
-            index: this.index,
-            id: itemID
-        };
-
-        this.localEntities.characterUpdates.playerBubbles.push(message);
-
-        for (const player of this.localEntities.known.players) {
-            player.localEntities.characterUpdates.playerBubbles.push(message);
-        }
     }
 
     // open the welcome box
@@ -362,6 +362,20 @@ class Player extends Character {
     sendDeath() {
         this.sendSound('death');
         this.send({ type: 'playerDied' });
+    }
+
+    // show bubble above player's head with certain item
+    sendBubble(itemID) {
+        const message = {
+            index: this.index,
+            id: itemID
+        };
+
+        this.localEntities.characterUpdates.playerBubbles.push(message);
+
+        for (const player of this.localEntities.known.players) {
+            player.localEntities.characterUpdates.playerBubbles.push(message);
+        }
     }
 
     // update the player's avatar
@@ -406,6 +420,7 @@ class Player extends Character {
         }
     }
 
+    // let everyone around us know about a message (don't send to self)
     broadcastChat(message) {
         for (const player of this.localEntities.known.players) {
             player.localEntities.characterUpdates.playerChat.push({
@@ -416,7 +431,7 @@ class Player extends Character {
     }
 
     // add experience to a skill, optionally with fatigue
-    addExperience(skillName, experience, fatigueRate = 4) {
+    addExperience(skill, experience, fatigueRate = 4) {
         if (this.fatigue === MAX_FATIGUE) {
             player.message(
                 '@gre@You are too tired to gain experience, get some rest!'
@@ -425,14 +440,25 @@ class Player extends Character {
             return false;
         }
 
-        this.skills[skillName].experience += experience;
+        this.skills[skill].experience += experience;
         this.fatigue += fatigueRate * experience;
+
+        this.sendExperience(skill);
+        this.sendFatigue();
 
         return true;
     }
 
     addQuestPoints(questPoints) {
         this.questPoints += questPoints;
+    }
+
+    refreshSleepWord() {
+        const captcha = new Captcha();
+        const { word, image } = captcha.generate();
+
+        this.sleepWord = word;
+        this.sleepImage = Captcha.toByteArray(image);
     }
 
     // get a player's base level in a skill, without stat modifiers like potions
@@ -465,7 +491,18 @@ class Player extends Character {
         return false;
     }
 
-    isMuted() {}
+    isMuted() {
+        if (this.muteEndDate === 0) {
+            return false;
+        }
+
+        // permanent mute
+        if (this.muteEndDate === -1) {
+            return true;
+        }
+
+        return Date.now() < this.muteEndDate;
+    }
 
     isAdministrator() {
         return this.rank >= 3;
@@ -479,7 +516,8 @@ class Player extends Character {
         const destX = this.x + deltaX;
         const destY = this.y + deltaY;
 
-        // we aren't allowed to finish our path on a player
+        // we aren't allowed to finish our path on a player (but walking through
+        // them is fine)
         if (
             !this.walkQueue.length &&
             this.world.players.getAtPoint(destX, destY).length

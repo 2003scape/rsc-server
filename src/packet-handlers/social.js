@@ -1,4 +1,5 @@
-async function friendAdd(socket, message) {
+async function friendAdd({ player }, { username }) {
+    player.addFriend(username);
 }
 
 async function friendRemove(socket, message) {

@@ -1,5 +1,5 @@
 async function chat({ player }, { message }) {
-    if ((Date.now() - player.lastChat) < 500) {
+    if (player.isMuted() || (Date.now() - player.lastChat) < 500) {
         return;
     }
 

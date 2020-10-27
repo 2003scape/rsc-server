@@ -44,6 +44,9 @@ async function command({ player }, { command, args }) {
         case 'bubble':
             player.sendBubble(+args[0]);
             break;
+        case 'addexp':
+            player.addExperience(args[0], +args[1]);
+            break;
     }
 }
 

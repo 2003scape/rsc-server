@@ -1,12 +1,12 @@
-const EXPERIENCE_ARRAY = [];
+const EXPERIENCE_ARRAY = [0];
 
-let totalExp = 0;
+let totalExperience = 0;
 
-for (let i = 0; i < 99; i++) {
-    const level = i + 1;
+for (let i = 1; i < 99; i++) {
+    const level = i;
     const experience = Math.floor(level + 300 * Math.pow(2, level / 7));
-    totalExp += experience;
-    EXPERIENCE_ARRAY[i] = totalExp & 0xffffffc;
+    totalExperience += experience;
+    EXPERIENCE_ARRAY[i] = totalExperience & 0xffffffc;
 }
 
 function experienceToLevel(experience) {

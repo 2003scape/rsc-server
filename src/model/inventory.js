@@ -221,6 +221,15 @@ class Inventory {
             throw new RangeError(`equipping unequipable item index ${index}`);
         }
 
+        if (item.definition.wieldable.female && this.player.isMale()) {
+            this.player.message(
+                "It doesn't fit!",
+                'Perhaps I should get someone to adjust it for me'
+            );
+
+            return;
+        }
+
         for (const type of item.definition.equip) {
             const equippedIndex = this.equipmentSlots[type];
 
@@ -241,6 +250,7 @@ class Inventory {
         this.updateEquipmentBonuses();
         this.player.sendEquipmentBonuses();
 
+        // TODO this is ugly make a function
         this.player.localEntities.characterUpdates.playerAppearances.push(
             this.player.formatAppearanceUpdate()
         );
