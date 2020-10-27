@@ -92,7 +92,7 @@ class LocalEntities {
 
                 if (type === 'players') {
                     this.characterUpdates.playerAppearances.push(
-                        entity.formatAppearanceUpdate()
+                        entity.getAppearanceUpdate()
                     );
                 }
             }

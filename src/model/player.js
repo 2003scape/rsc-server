@@ -4,7 +4,7 @@ const Character = require('./character');
 const Inventory = require('./inventory');
 const LocalEntities = require('./local-entities');
 const log = require('bole')('player');
-const { experienceToLevel } = require('../experience');
+const { formatSkillName, experienceToLevel } = require('../skills');
 
 // properties to save in the database
 const SAVE_PROPERTIES = [
@@ -57,7 +57,13 @@ class Player extends Character {
         this.x = player.x;
         this.y = player.y;
         this.questPoints = player.questPoints;
-        this.combatStyle = player.combatStyle;
+
+        // real RSC didn't save this
+        if (this.world.server.config.rememberCombatStyle) {
+            this.combatStyle = player.combatStyle;
+        } else {
+            this.combatStyle = 0;
+        }
 
         // 0 - 75000
         this.fatigue = player.fatigue;
@@ -161,7 +167,7 @@ class Player extends Character {
 
         // tell ourselves our appearance
         this.localEntities.characterUpdates.playerAppearances.push(
-            this.formatAppearanceUpdate()
+            this.getAppearanceUpdate()
         );
 
         this.world.setTickTimeout(() => {
@@ -171,7 +177,7 @@ class Player extends Character {
             // make everyone around us tell us their appearance
             for (const player of this.localEntities.known.players) {
                 this.localEntities.characterUpdates.playerAppearances.push(
-                    player.formatAppearanceUpdate()
+                    player.getAppearanceUpdate()
                 );
             }
         }, 2);
@@ -339,11 +345,6 @@ class Player extends Character {
         }
     }
 
-    // open a shop by its definition name
-    openShop(shopName) {
-        //this.world.shops[shopName];
-    }
-
     // open the welcome box
     sendWelcome() {
         const lastLoginDays = Math.floor(
@@ -396,22 +397,10 @@ class Player extends Character {
         this.animations[2] = 3;
     }
 
-    formatAppearanceUpdate() {
-        return {
-            index: this.index,
-            appearanceIndex: this.appearanceIndex,
-            username: this.username,
-            animations: this.animations,
-            ...this.appearance,
-            combatLevel: this.combatLevel,
-            skulled: this.isSkulled()
-        };
-    }
-
     // update our sprites, combat level, skull status, etc. to us and the
     // players we know about
     broadcastPlayerAppearance() {
-        const update = this.formatAppearanceUpdate();
+        const update = this.getAppearanceUpdate();
 
         for (const player of this.localEntities.known.players) {
             player.localEntities.characterUpdates.playerAppearances.push(
@@ -432,25 +421,48 @@ class Player extends Character {
 
     // add experience to a skill, optionally with fatigue
     addExperience(skill, experience, fatigueRate = 4) {
-        if (this.fatigue === MAX_FATIGUE) {
-            player.message(
-                '@gre@You are too tired to gain experience, get some rest!'
-            );
-
-            return false;
-        }
+        const nextLevel = experienceToLevel(
+            this.skills[skill].experience + experience
+        );
 
         this.skills[skill].experience += experience;
-        this.fatigue += fatigueRate * experience;
 
-        this.sendExperience(skill);
-        this.sendFatigue();
+        if (nextLevel !== this.skills[skill].base) {
+            const levelDelta = nextLevel - this.skills[skill].base;
+
+            this.skills[skill].base = nextLevel;
+            this.skills[skill].current += levelDelta;
+
+            this.message(
+                `@gre@You just advanced ${levelDelta} ` +
+                `${formatSkillName(skill).toLowerCase()} level!`
+            );
+
+            this.sendStats();
+            this.sendSound('advance');
+        } else {
+            this.sendExperience(skill);
+        }
+
+        if (fatigueRate > 0) {
+            if (this.fatigue === MAX_FATIGUE) {
+                player.message(
+                    '@gre@You are too tired to gain experience, get some rest!'
+                );
+
+                return false;
+            }
+
+            this.fatigue += fatigueRate * experience;
+            this.sendFatigue();
+        }
 
         return true;
     }
 
     addQuestPoints(questPoints) {
         this.questPoints += questPoints;
+        this.sendStats();
     }
 
     refreshSleepWord() {
@@ -459,6 +471,18 @@ class Player extends Character {
 
         this.sleepWord = word;
         this.sleepImage = Captcha.toByteArray(image);
+    }
+
+    getAppearanceUpdate() {
+        return {
+            index: this.index,
+            appearanceIndex: this.appearanceIndex,
+            username: this.username,
+            animations: this.animations,
+            ...this.appearance,
+            combatLevel: this.combatLevel,
+            skulled: this.isSkulled()
+        };
     }
 
     // get a player's base level in a skill, without stat modifiers like potions

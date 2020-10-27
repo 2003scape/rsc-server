@@ -23,4 +23,12 @@ function experienceToLevel(experience) {
     return level;
 }
 
-module.exports = { experienceToLevel };
+function formatSkillName(skill) {
+    if (skill === 'woodcutting') {
+        return 'Woodcut';
+    }
+
+    return skill.slice(0, 1).toUpperCase() + skill.slice(1, skill.length);
+}
+
+module.exports = { experienceToLevel, formatSkillName };

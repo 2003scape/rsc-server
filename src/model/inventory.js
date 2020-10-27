@@ -1,4 +1,3 @@
-const GroundItem = require('./ground-item');
 const Item = require('./item');
 const items = require('@2003scape/rsc-data/config/items');
 
@@ -204,7 +203,7 @@ class Inventory {
         this.player.sendEquipmentBonuses();
 
         this.player.localEntities.characterUpdates.playerAppearances.push(
-            this.player.formatAppearanceUpdate()
+            this.player.getAppearanceUpdate()
         );
         this.player.broadcastPlayerAppearance();
     }
@@ -252,7 +251,7 @@ class Inventory {
 
         // TODO this is ugly make a function
         this.player.localEntities.characterUpdates.playerAppearances.push(
-            this.player.formatAppearanceUpdate()
+            this.player.getAppearanceUpdate()
         );
         this.player.broadcastPlayerAppearance();
     }

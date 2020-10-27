@@ -6,7 +6,7 @@ async function appearance({ player }, message) {
     player.broadcastPlayerAppearance();
 
     player.localEntities.characterUpdates.playerAppearances.push(
-        player.formatAppearanceUpdate()
+        player.getAppearanceUpdate()
     );
 
     delete player.cache.sendAppearance;
