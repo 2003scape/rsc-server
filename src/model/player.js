@@ -421,6 +421,19 @@ class Player extends Character {
 
     // add experience to a skill, optionally with fatigue
     addExperience(skill, experience, fatigueRate = 4) {
+        if (fatigueRate > 0) {
+            if (this.fatigue >= MAX_FATIGUE) {
+                this.message(
+                    '@gre@You are too tired to gain experience, get some rest!'
+                );
+
+                return false;
+            }
+
+            this.fatigue += fatigueRate * experience;
+            this.sendFatigue();
+        }
+
         const nextLevel = experienceToLevel(
             this.skills[skill].experience + experience
         );
@@ -442,19 +455,6 @@ class Player extends Character {
             this.sendSound('advance');
         } else {
             this.sendExperience(skill);
-        }
-
-        if (fatigueRate > 0) {
-            if (this.fatigue === MAX_FATIGUE) {
-                player.message(
-                    '@gre@You are too tired to gain experience, get some rest!'
-                );
-
-                return false;
-            }
-
-            this.fatigue += fatigueRate * experience;
-            this.sendFatigue();
         }
 
         return true;
