@@ -243,7 +243,7 @@ class Player extends Character {
     // white server-sided message in the chat box
     message(...messages) {
         for (const message of messages) {
-            this.send({ type: 'message', message });
+            this.send({ type: 'message', message: '' + message });
         }
     }
 
@@ -340,9 +340,28 @@ class Player extends Character {
             options
         });
 
-        if (repeat) {
-            await this.say();
+        const choice = await new Promise((resolve, reject) => {
+            this.answer = resolve;
+
+            this.dontAnswer = function () {
+                reject(new Error('interrupted ask'));
+            };
+        });
+
+        this.answer = null;
+        this.dontAnswer = null;
+
+        if (choice > options.length) {
+            throw new RangeError(
+                `invalid option selected (${choice}/${options.length})`
+            );
         }
+
+        /*if (repeat) {
+            await this.say();
+        }*/
+
+        return choice;
     }
 
     // open the welcome box
@@ -617,6 +636,10 @@ class Player extends Character {
         this.localEntities.updateNearby('groundItems');
 
         if (this.walkQueue.length) {
+            if (this.dontAnswer) {
+                this.dontAnswer();
+            }
+
             const { deltaX, deltaY } = this.walkQueue.shift();
 
             if (this.canWalk(deltaX, deltaY)) {
@@ -650,6 +673,10 @@ class Player extends Character {
         }
 
         if (!this.walkQueue.length && this.endWalkFunction) {
+            if (this.dontAnswer) {
+                this.dontAnswer();
+            }
+
             this.endWalkFunction();
             this.endWalkFunction = null;
         }
