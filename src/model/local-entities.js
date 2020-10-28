@@ -75,6 +75,15 @@ class LocalEntities {
         }
     }
 
+    // used for teleporting or going up/down stairs
+    clear() {
+        for (const type of Object.keys(this.known)) {
+            for (const entity of this.known[type]) {
+                this.removed[type].add(entity);
+            }
+        }
+    }
+
     // mark out-of-range entities as removed and queue new ones
     updateNearby(type) {
         for (const entity of this.known[type]) {

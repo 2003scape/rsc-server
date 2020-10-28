@@ -379,6 +379,16 @@ class Player extends Character {
         }
     }
 
+    // send the blue or red teleport bubbles to the nearby players
+    sendTeleportBubble(x, y, type) {
+        this.send({
+            type: 'teleportBubble',
+            bubbleType: +(type === 'telegrab'),
+            x: x - this.x,
+            y: y - this.y
+        });
+    }
+
     // update the player's avatar
     setAppearance(appearance) {
         this.appearanceIndex += 1;
@@ -448,7 +458,7 @@ class Player extends Character {
 
             this.message(
                 `@gre@You just advanced ${levelDelta} ` +
-                `${formatSkillName(skill).toLowerCase()} level!`
+                    `${formatSkillName(skill).toLowerCase()} level!`
             );
 
             this.sendStats();
@@ -552,14 +562,6 @@ class Player extends Character {
         return true;
     }
 
-    walkTo(deltaX, deltaY) {
-        super.walkTo(deltaX, deltaY);
-
-        for (const player of this.localEntities.known.players) {
-            player.localEntities.movedCharacters.players.add(this);
-        }
-    }
-
     faceDirection(deltaX, deltaY) {
         const direction = super.faceDirection(deltaX, deltaY);
 
@@ -570,7 +572,39 @@ class Player extends Character {
         return direction;
     }
 
+    walkTo(deltaX, deltaY) {
+        super.walkTo(deltaX, deltaY);
+
+        for (const player of this.localEntities.known.players) {
+            player.localEntities.movedCharacters.players.add(this);
+        }
+    }
+
+    teleport(x, y, bubble = false) {
+        if (bubble) {
+            this.sendTeleportBubble(this.x, this.y);
+
+            for (const player of this.localEntities.known.players) {
+                player.sendTeleportBubble(this.x, this.y);
+            }
+        }
+
+        this.localEntities.clear();
+        this.x = x;
+        this.y = y;
+
+        this.localEntities.updateNearby('npcs');
+        this.localEntities.updateNearby('gameObjects');
+        this.localEntities.updateNearby('wallObjects');
+    }
+
     tick() {
+        // regions need to be sent first or we encounter desyncs
+        this.localEntities.sendRegions();
+
+        this.localEntities.updateNearby('players');
+        this.localEntities.updateNearby('groundItems');
+
         if (this.walkQueue.length) {
             const { deltaX, deltaY } = this.walkQueue.shift();
 
@@ -603,10 +637,6 @@ class Player extends Character {
                 this.faceDirection(deltaX * -1, deltaY * -1);
             }
         }
-
-        this.localEntities.sendRegions();
-        this.localEntities.updateNearby('players');
-        this.localEntities.updateNearby('groundItems');
 
         if (!this.walkQueue.length && this.endWalkFunction) {
             this.endWalkFunction();

@@ -1,6 +1,7 @@
 // :: commands
 
 const NPC = require('../model/npc');
+const regions = require('@2003scape/rsc-data/regions');
 
 async function command({ player }, { command, args }) {
     if (!player.isAdministrator()) {
@@ -46,6 +47,25 @@ async function command({ player }, { command, args }) {
             break;
         case 'addexp':
             player.addExperience(args[0], +args[1] * 4, 0);
+            break;
+        case 'clearentities':
+            player.localEntities.clear();
+            break;
+        case 'coords':
+            player.message(`${player.x}, ${player.y}`);
+            break;
+        case 'teleport':
+            if (Number.isNaN(+args[0])) {
+                const { spawnX, spawnY } = regions[args[0]];
+
+                if (spawnX && spawnY) {
+                    player.teleport(spawnX, spawnY, true);
+                }
+
+                break;
+            }
+
+            player.teleport(+args[0], +args[1], true);
             break;
     }
 }

@@ -29,7 +29,7 @@
     "@2003scape/rsc-data": "^1.0.2",
     "@2003scape/rsc-landscape": "^2.0.0",
     "@2003scape/rsc-path-finder": "^1.0.0",
-    "@2003scape/rsc-socket": "^1.0.1",
+    "@2003scape/rsc-socket": "^1.0.2",
     "bole": "^4.0.0",
     "bulk-require": "^1.0.1",
     "flat": "^5.0.2",
