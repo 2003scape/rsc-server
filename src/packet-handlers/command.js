@@ -71,6 +71,9 @@ async function command({ player }, { command, args }) {
             const choice = await player.ask(['hey?', 'sup?']);
             player.message('you chose ', choice);
             break;
+        case 'say':
+            await player.say(...args);
+            break;
     }
 }
 

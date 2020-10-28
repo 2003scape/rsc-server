@@ -236,7 +236,8 @@ class Player extends Character {
     // between messages
     async say(...messages) {
         for (const message of messages) {
-            await this.world.sleepTicks(2);
+            this.broadcastChat(message, true);
+            await this.world.sleepTicks(1);
         }
     }
 
@@ -343,7 +344,9 @@ class Player extends Character {
         const choice = await new Promise((resolve, reject) => {
             this.answer = resolve;
 
-            this.dontAnswer = function () {
+            this.dontAnswer = () => {
+                this.answer = null;
+                this.dontAnswer = null;
                 reject(new Error('interrupted ask'));
             };
         });
@@ -438,12 +441,23 @@ class Player extends Character {
         }
     }
 
-    // let everyone around us know about a message (don't send to self)
-    broadcastChat(message) {
+    // let everyone around us know about a message (don't send to self). if
+    // dialogue is true, don't record the message in chat logs to the nearby
+    // players.
+    broadcastChat(message, dialogue = false) {
+        if (dialogue) {
+            this.localEntities.characterUpdates.playerChat.push({
+                index: this.index,
+                message,
+                type: 6
+            });
+        }
+
         for (const player of this.localEntities.known.players) {
             player.localEntities.characterUpdates.playerChat.push({
                 index: this.index,
-                message
+                message,
+                type: dialogue ? 6 : 1
             });
         }
     }
