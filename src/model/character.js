@@ -57,10 +57,6 @@ class Character extends Entity {
     }
 
     faceDirection(deltaX, deltaY) {
-        if (deltaX === 0 && deltaY === 0) {
-            return this.direction;
-        }
-
         this.direction = deltaDirections[deltaX + 1][deltaY + 1];
         return this.direction;
     }

@@ -581,6 +581,9 @@ class Player extends Character {
     }
 
     teleport(x, y, bubble = false) {
+        this.endWalkFunction = null;
+        this.walkQueue.length = 0;
+
         if (bubble) {
             this.sendTeleportBubble(this.x, this.y);
 
@@ -589,13 +592,21 @@ class Player extends Character {
             }
         }
 
+        this.faceDirection(0, 0);
+
+        if (this.x === x && this.y === y) {
+            return;
+        }
+
         this.localEntities.clear();
         this.x = x;
         this.y = y;
 
-        this.localEntities.updateNearby('npcs');
-        this.localEntities.updateNearby('gameObjects');
-        this.localEntities.updateNearby('wallObjects');
+        this.world.setTickTimeout(() => {
+            this.localEntities.updateNearby('npcs');
+            this.localEntities.updateNearby('gameObjects');
+            this.localEntities.updateNearby('wallObjects');
+        }, 2);
     }
 
     tick() {
