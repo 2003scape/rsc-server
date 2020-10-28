@@ -1,5 +1,7 @@
 const EntityList = require('./entity-list');
 const Shop = require('./shop');
+const bulk = require('bulk-require');
+const flat = require('flat');
 const fs = require('fs').promises;
 const log = require('bole')('world');
 const objects = require('@2003scape/rsc-data/config/objects');
@@ -23,9 +25,6 @@ const entityConstructors = {
     groundItems: require('./ground-item')
 };
 
-// defaults has a function for every type of plugin, so use it to get a list
-const PLUGIN_TYPES = Object.keys(pluginDefaults);
-
 // ms per each cycle of player/entity movement and delay updates
 const TICK_INTERVAL = 640;
 
@@ -45,12 +44,15 @@ class World {
         this.id = this.server.config.worldID;
         this.members = this.server.config.members;
 
-        this.shops = new Map(); // { name: Shop }
-        this.plugins = new Map(); // { pluginType: [function() {}, ...], ... }
-
         this.planeWidth = 2304;
         this.planeHeight = 1776;
         this.planeElevation = 944;
+
+        // { pluginType: [function() {}, ...], ... }
+        this.pluginDefaults = new Map(Object.entries(pluginDefaults));
+        this.plugins = new Map();
+
+        this.shops = new Map(); // { name: Shop }
 
         this.players = new EntityList(this.planeWidth, this.planeHeight);
         this.npcs = new EntityList(this.planeWidth, this.planeHeight);
@@ -62,7 +64,7 @@ class World {
         this.tickFunctions = new Map();
 
         // used to calculate average ms per tick
-        this.deltaTimes = [];
+        this.deltaTickTimes = [];
 
         this.boundTick = this.tick.bind(this);
         this.boundSaveAllPlayers = this.saveAllPlayers.bind(this);
@@ -152,15 +154,46 @@ class World {
             const entity = new Entity(this, entityLocation);
             this.addEntity(type, entity);
         }
+
+        log.info(`loaded ${this[type].length} ${type.slice(0, -1)} locations`);
     }
 
     loadShops() {
         for (const shopName of Shop.names) {
             this.shops.set(shopName, new Shop(this, shopName));
         }
+
+        log.info(`loaded ${this.shops.size} shops`);
     }
 
-    loadPlugins() {}
+    loadPlugins() {
+        for (const [handlerName] of this.pluginDefaults) {
+            this.plugins.set(handlerName, []);
+        }
+
+        let totalPlugins = 0;
+        let pluginFiles = bulk(`${__dirname}/../plugins`, ['*.js', '**/*.js']);
+        delete pluginFiles.default;
+        pluginFiles = flat(pluginFiles);
+
+        for (const pluginName of Object.keys(pluginFiles)) {
+            const handler = pluginFiles[pluginName];
+
+            if (
+                typeof handler === 'function' &&
+                this.pluginDefaults.has(handler.name)
+            ) {
+                const handlers = this.plugins.get(handler.name);
+                handlers.push(handler);
+                totalPlugins += 1;
+            }
+        }
+
+        log.info(
+            `loaded ${totalPlugins} plugin handlers from ` +
+                `${Object.keys(pluginFiles).length} files`
+        );
+    }
 
     // load the definitions and locations required for the game
     async loadData() {
@@ -168,14 +201,10 @@ class World {
 
         for (const type of Object.keys(entityLocations)) {
             this.loadEntities(type);
-
-            log.info(
-                `loaded ${this[type].length} ${type.slice(0, -1)} locations`
-            );
         }
 
         this.loadShops();
-        log.info(`loaded ${this.shops.size} shops`);
+        this.loadPlugins();
     }
 
     // add a new ground item owned by a certain player (temporarily)
@@ -308,10 +337,10 @@ class World {
 
         const deltaTime = Date.now() - startTime;
 
-        this.deltaTimes.push(deltaTime);
+        this.deltaTickTimes.push(deltaTime);
 
-        if (this.deltaTimes.length === 100) {
-            const averageTick = this.deltaTimes.reduce((sum, ms) => {
+        if (this.deltaTickTimes.length === 100) {
+            const averageTick = this.deltaTickTimes.reduce((sum, ms) => {
                 return sum + ms;
             }, 0);
 
@@ -319,7 +348,7 @@ class World {
                 `average tick time is: ~${(averageTick / 100).toFixed(2)}ms`
             );
 
-            this.deltaTimes.length = 0;
+            this.deltaTickTimes.length = 0;
         }
 
         setTimeout(this.boundTick, TICK_INTERVAL - deltaTime);

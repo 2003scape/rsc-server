@@ -2,11 +2,7 @@ function noop(player) {
     player.message('Nothing interesting happens');
 }
 
-async function onLogin() {}
-
 async function onTeleport() {}
-
-async function onCommand() {}
 
 async function onSpellCast() {}
 
@@ -46,9 +42,7 @@ async function onGameObjectCommand(player) {
 }
 
 module.exports = {
-    onLogin,
     onTeleport,
-    onCommand,
     onSpellCast,
     onKilledNPC,
     onTalkToNPC,
