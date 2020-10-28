@@ -445,20 +445,14 @@ class Player extends Character {
     // dialogue is true, don't record the message in chat logs to the nearby
     // players.
     broadcastChat(message, dialogue = false) {
+        const update = { index: this.index, message, dialogue };
+
         if (dialogue) {
-            this.localEntities.characterUpdates.playerChat.push({
-                index: this.index,
-                message,
-                type: 6
-            });
+            this.localEntities.characterUpdates.playerChat.push(update);
         }
 
         for (const player of this.localEntities.known.players) {
-            player.localEntities.characterUpdates.playerChat.push({
-                index: this.index,
-                message,
-                type: dialogue ? 6 : 1
-            });
+            player.localEntities.characterUpdates.playerChat.push(update);
         }
     }
 

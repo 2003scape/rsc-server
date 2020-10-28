@@ -42,7 +42,8 @@ class NPC extends Character {
         this.knownPlayers = new Set();
     }
 
-    async say() {}
+    async say(...messages) {
+    }
 
     attack(player) {}
 
@@ -142,6 +143,15 @@ class NPC extends Character {
             if (Math.random() > 0.75) {
                 this.stepsLeft = Math.floor(Math.random() * 25) + 1;
             }
+        }
+    }
+
+    broadcastChat(message) {
+        for (const player of this.knownPlayers) {
+            player.localEntities.characterUpdates.npcChat.push({
+                index: this.index,
+                message
+            });
         }
     }
 
