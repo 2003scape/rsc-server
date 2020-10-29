@@ -43,6 +43,12 @@ class NPC extends Character {
     }
 
     async say(...messages) {
+        for (const message of messages) {
+            this.broadcastChat(message);
+            await this.world.sleepTicks(2);
+        }
+
+        await this.world.sleepTicks(1);
     }
 
     attack(player) {}
@@ -112,6 +118,16 @@ class NPC extends Character {
         return super.canWalk(deltaX, deltaY);
     }
 
+    faceDirection(deltaX, deltaY) {
+        const direction = super.faceDirection(deltaX, deltaY);
+
+        for (const player of this.knownPlayers) {
+            player.localEntities.spriteChangedCharacters.npcs.add(this);
+        }
+
+        return direction;
+    }
+
     walkTo(deltaX, deltaY) {
         super.walkTo(deltaX, deltaY);
 
@@ -149,7 +165,8 @@ class NPC extends Character {
     broadcastChat(message) {
         for (const player of this.knownPlayers) {
             player.localEntities.characterUpdates.npcChat.push({
-                index: this.index,
+                npcIndex: this.index,
+                playerIndex: this.interlocutor.index,
                 message
             });
         }
@@ -157,7 +174,7 @@ class NPC extends Character {
 
     tick() {
         if (
-            !this.stationary &&
+            !this.stationary && !this.locked &&
             (this.knownPlayers.size || this.stepsLeft > 0)
         ) {
             this.walkNextRandomStep();

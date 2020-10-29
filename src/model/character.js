@@ -57,20 +57,47 @@ class Character extends Entity {
     }
 
     faceDirection(deltaX, deltaY) {
+        const direction = deltaDirections[deltaX + 1][deltaY + 1];
+
+        if (this.direction === direction) {
+            return this.direction;
+        }
+
         this.direction = deltaDirections[deltaX + 1][deltaY + 1];
+
         return this.direction;
     }
 
-    // set our direction to face character
-    faceCharacter(character) {
+    // set our direction to face an entity (when we talk to an NPC or pick up
+    // a ground item for instance)
+    faceEntity(entity) {
+        let deltaX = this.x - entity.x;
+
+        if (deltaX > 0) {
+            deltaX = 1;
+        } else if (deltaX < 0) {
+            deltaX = -1;
+        }
+
+        let deltaY = this.y - entity.y;
+
+        if (deltaY > 0) {
+            deltaY = 1;
+        } else if (deltaY < 0) {
+            deltaY = -1;
+        }
+
+        this.faceDirection(deltaX, deltaY);
     }
 
     // face and set our engager to this character, as well as busy status
     engage(character) {
+        this.faceEntity(character);
         this.lock();
-        character.lock();
-
         this.interlocutor = character;
+
+        character.faceEntity(this);
+        character.lock();
         character.interlocutor = this;
     }
 

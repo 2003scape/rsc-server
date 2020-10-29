@@ -5,7 +5,6 @@ const flat = require('flat');
 const fs = require('fs').promises;
 const log = require('bole')('world');
 const objects = require('@2003scape/rsc-data/config/objects');
-const pluginDefaults = require('../plugins/defaults');
 const tiles = require('@2003scape/rsc-data/config/tiles');
 const wallObjects = require('@2003scape/rsc-data/config/wall-objects');
 const { Landscape } = require('@2003scape/rsc-landscape');
@@ -37,6 +36,10 @@ const DROP_OWNER_TIMEOUT = 1000 * 60; // 1 min
 // when does a drop disappear entirely?
 const DROP_DISAPPEAR_TIMEOUT = 1000 * 60 * 2; // 2 mins
 
+const PLUGIN_TYPES = [
+    'onTalkToNPC'
+];
+
 class World {
     constructor(server) {
         this.server = server;
@@ -49,7 +52,6 @@ class World {
         this.planeElevation = 944;
 
         // { pluginType: [function() {}, ...], ... }
-        this.pluginDefaults = new Map(Object.entries(pluginDefaults));
         this.plugins = new Map();
 
         this.shops = new Map(); // { name: Shop }
@@ -167,21 +169,22 @@ class World {
     }
 
     loadPlugins() {
-        for (const [handlerName] of this.pluginDefaults) {
+        for (const handlerName of PLUGIN_TYPES) {
             this.plugins.set(handlerName, []);
         }
 
         let totalPlugins = 0;
-        let pluginFiles = bulk(`${__dirname}/../plugins`, ['*.js', '**/*.js']);
-        delete pluginFiles.default;
-        pluginFiles = flat(pluginFiles);
+
+        const pluginFiles = flat(
+            bulk(`${__dirname}/../plugins`, ['*.js', '**/*.js'])
+        );
 
         for (const pluginName of Object.keys(pluginFiles)) {
             const handler = pluginFiles[pluginName];
 
             if (
                 typeof handler === 'function' &&
-                this.pluginDefaults.has(handler.name)
+                this.plugins.has(handler.name)
             ) {
                 const handlers = this.plugins.get(handler.name);
                 handlers.push(handler);
@@ -189,10 +192,7 @@ class World {
             }
         }
 
-        log.info(
-            `loaded ${totalPlugins} plugin handlers from ` +
-                `${Object.keys(pluginFiles).length} files`
-        );
+        log.info(`loaded ${totalPlugins} plugin handlers`);
     }
 
     // load the definitions and locations required for the game
@@ -205,6 +205,29 @@ class World {
 
         this.loadShops();
         this.loadPlugins();
+    }
+
+    async callPlugin(handlerName, ...args) {
+        for (const handler of this.plugins.get(handlerName)) {
+            try {
+                const blocked = await handler.apply(this, args);
+
+                if (blocked) {
+                    return true;
+                }
+            } catch (e) {
+                switch (handlerName) {
+                    case 'onTalkToNPC':
+                        args[0].disengage();
+                        break;
+                }
+
+                log.error(e);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // add a new ground item owned by a certain player (temporarily)
@@ -220,9 +243,7 @@ class World {
         // if we never delete the owner property, it never shows up to other
         // players and still disappears after DROP_DISAPPEAR_TIMEOUT
         if (!groundItem.definition.untradeable) {
-            this.setTimeout(() => {
-                delete groundItem.owner;
-            }, DROP_OWNER_TIMEOUT);
+            this.setTimeout(() => delete groundItem.owner, DROP_OWNER_TIMEOUT);
         }
 
         this.setTimeout(() => {

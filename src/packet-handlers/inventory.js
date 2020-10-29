@@ -6,18 +6,22 @@ async function groundItemTake({ player }, { x, y, id }) {
             return;
         }
 
-        const items = world.groundItems.getAtPoint(x, y);
+        const groundItems = world.groundItems.getAtPoint(x, y);
 
-        for (const item of items) {
-            if (!item.withinRange(player, 2)) {
+        for (const groundItem of groundItems) {
+            if (!groundItem.withinRange(player, 2)) {
                 player.message("I can't reach that!");
                 return;
             }
 
-            if (item.id === id && (!item.owner || item.owner === player.id)) {
+            if (
+                groundItem.id === id &&
+                (!groundItem.owner || groundItem.owner === player.id)
+            ) {
+                player.faceEntity(groundItem);
+                player.inventory.add(groundItem);
+                world.removeEntity('groundItems', groundItem);
                 player.sendSound('takeobject');
-                player.inventory.add(item);
-                world.removeEntity('groundItems', item);
                 return;
             }
         }

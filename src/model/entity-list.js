@@ -72,9 +72,20 @@ class EntityList {
         return this.quadTree.query(new Box(x, y, 0, 0));
     }
 
-    *getAllByID(id) {}
+    *getAllByID(id) {
+        for (const entity of this.entities) {
+            if (entity.id === id) {
+                yield entity;
+            }
+        }
 
-    getByID(id) {}
+        return [];
+    }
+
+    getByID(id) {
+        const [entity] = this.getAllByID(id);
+        return entity;
+    }
 }
 
 module.exports = EntityList;

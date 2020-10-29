@@ -1,5 +1,7 @@
 async function chooseOption({ player }, { option }) {
-    player.answer(option);
+    if (player.answer) {
+        player.answer(option);
+    }
 }
 
 module.exports = { chooseOption };

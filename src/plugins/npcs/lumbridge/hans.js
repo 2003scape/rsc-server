@@ -6,6 +6,7 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.engage(npc);
+
     await npc.say('Hello what are you doing here?');
 
     const choice = await player.ask(

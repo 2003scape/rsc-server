@@ -237,7 +237,7 @@ class Player extends Character {
     async say(...messages) {
         for (const message of messages) {
             this.broadcastChat(message, true);
-            await this.world.sleepTicks(1);
+            await this.world.sleepTicks(2);
         }
     }
 
@@ -360,9 +360,11 @@ class Player extends Character {
             );
         }
 
-        /*if (repeat) {
-            await this.say();
-        }*/
+        if (repeat) {
+            await this.say(options[choice]);
+        }
+
+        await this.world.sleepTicks(1);
 
         return choice;
     }
@@ -483,6 +485,7 @@ class Player extends Character {
             this.skills[skill].base = nextLevel;
             this.skills[skill].current += levelDelta;
 
+            // sic
             this.message(
                 `@gre@You just advanced ${levelDelta} ` +
                     `${formatSkillName(skill).toLowerCase()} level!`
@@ -569,6 +572,11 @@ class Player extends Character {
         return this.rank >= 3;
     }
 
+    lock() {
+        super.lock();
+        this.walkQueue.length = 0;
+    }
+
     canWalk(deltaX, deltaY) {
         if (!super.canWalk(deltaX, deltaY)) {
             return false;
@@ -605,6 +613,10 @@ class Player extends Character {
         for (const player of this.localEntities.known.players) {
             player.localEntities.movedCharacters.players.add(this);
         }
+
+        for (const player of this.localEntities.added.players) {
+            player.localEntities.movedCharacters.players.add(this);
+        }
     }
 
     teleport(x, y, bubble = false) {
@@ -637,13 +649,7 @@ class Player extends Character {
     }
 
     tick() {
-        // regions need to be sent first or we encounter desyncs
-        this.localEntities.sendRegions();
-
-        this.localEntities.updateNearby('players');
-        this.localEntities.updateNearby('groundItems');
-
-        if (this.walkQueue.length) {
+        if (!this.locked && this.walkQueue.length) {
             if (this.dontAnswer) {
                 this.dontAnswer();
             }
@@ -679,6 +685,11 @@ class Player extends Character {
                 this.faceDirection(deltaX * -1, deltaY * -1);
             }
         }
+
+        this.localEntities.sendRegions();
+
+        this.localEntities.updateNearby('players');
+        this.localEntities.updateNearby('groundItems');
 
         if (!this.walkQueue.length && this.endWalkFunction) {
             if (this.dontAnswer) {

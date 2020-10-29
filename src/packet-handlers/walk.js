@@ -32,6 +32,14 @@ function createSteps(startX, startY, endX, endY) {
 }
 
 async function walk({ player }, { targetX, targetY, steps }) {
+    if (player.locked) {
+        if (player.dontAnswer) {
+            player.dontAnswer();
+        }
+
+        return;
+    }
+
     player.walkQueue.length = 0;
 
     let currentX = player.x;

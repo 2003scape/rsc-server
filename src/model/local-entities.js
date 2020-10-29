@@ -226,6 +226,20 @@ class LocalEntities {
         this.spriteChangedCharacters.npcs.clear();
     }
 
+    sendRegionNPCUpdates() {
+        if (!this.characterUpdates.npcChat.length) {
+            return;
+        }
+
+        this.player.send({
+            type: 'regionNPCUpdate',
+            chats: this.characterUpdates.npcChat,
+            hits: []
+        });
+
+        this.characterUpdates.npcChat.length = 0;
+    }
+
     sendRegionObjects() {
         if (!this.added.gameObjects.size && !this.removed.gameObjects.size) {
             return;
@@ -293,6 +307,7 @@ class LocalEntities {
         this.sendRegionObjects();
         this.sendRegionWallObjects();
         this.sendRegionNPCs();
+        this.sendRegionNPCUpdates();
         this.sendRegionGroundItems();
         this.sendRegionPlayerUpdate();
     }
