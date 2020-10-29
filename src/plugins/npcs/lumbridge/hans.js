@@ -1,3 +1,5 @@
+// https://classic.runescape.wiki/w/Transcript:Hans
+
 const HANS_ID = 5;
 
 async function onTalkToNPC(player, npc) {
@@ -12,7 +14,7 @@ async function onTalkToNPC(player, npc) {
     const choice = await player.ask(
         [
             "I'm looking for whoever is in charge of this place",
-            'I have come to kill everyone in this castle ',
+            'I have come to kill everyone in this castle',
             "I don't know. I'm lost. Where am i?"
         ],
         true

@@ -18,7 +18,11 @@ async function groundItemTake({ player }, { x, y, id }) {
                 groundItem.id === id &&
                 (!groundItem.owner || groundItem.owner === player.id)
             ) {
-                player.faceEntity(groundItem);
+                // if the item is on a table or something, face it
+                if (player.x !== x || player.y !== y) {
+                    player.faceEntity(groundItem);
+                }
+
                 player.inventory.add(groundItem);
                 world.removeEntity('groundItems', groundItem);
                 player.sendSound('takeobject');
