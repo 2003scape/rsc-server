@@ -610,12 +610,16 @@ class Player extends Character {
     walkTo(deltaX, deltaY) {
         super.walkTo(deltaX, deltaY);
 
-        for (const player of this.localEntities.known.players) {
-            player.localEntities.movedCharacters.players.add(this);
-        }
+        for (const player of this.getNearbyEntities('players', 16)) {
+            if (!player.loggedIn) {
+                break;
+            }
 
-        for (const player of this.localEntities.added.players) {
-            player.localEntities.movedCharacters.players.add(this);
+            if (!player.localEntities.known.players.has(this)) {
+                player.localEntities.added.players.add(this);
+            } else {
+                player.localEntities.movedCharacters.players.add(this);
+            }
         }
     }
 
