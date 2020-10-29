@@ -12,6 +12,11 @@ async function npcTalk({ player }, { index }) {
             return;
         }
 
+        if (npc.interlocutor) {
+            player.message(`The ${npc.definition.name} is busy at the moment`);
+            return;
+        }
+
         const blocked = await world.callPlugin('onTalkToNPC', player, npc);
 
         if (!blocked) {

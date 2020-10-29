@@ -107,6 +107,8 @@ class Character extends Entity {
 
         if (this.interlocutor) {
             this.interlocutor.unlock();
+            this.interlocutor.interlocutor = null;
+            this.interlocutor = null;
         }
     }
 
