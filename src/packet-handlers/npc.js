@@ -19,12 +19,13 @@ async function npcTalk({ player }, { index }) {
 
         const blocked = await world.callPlugin('onTalkToNPC', player, npc);
 
-        if (!blocked) {
-            player.message(
-                `The ${npc.definition.name} does not appear interested in ` +
-                    'talking'
-            );
+        if (blocked) {
+            return;
         }
+
+        player.message(
+            `The ${npc.definition.name} does not appear interested in talking`
+        );
     };
 }
 

@@ -601,7 +601,12 @@ class Player extends Character {
         const direction = super.faceDirection(deltaX, deltaY);
 
         for (const player of this.localEntities.known.players) {
-            player.localEntities.spriteChangedCharacters.players.add(this);
+            if (
+                !player.localEntities.added.players.has(this) &&
+                !player.localEntities.removed.players.has(this)
+            ) {
+                player.localEntities.spriteChangedCharacters.players.add(this);
+            }
         }
 
         return direction;
@@ -653,6 +658,9 @@ class Player extends Character {
     }
 
     tick() {
+        this.localEntities.updateNearby('players');
+        this.localEntities.updateNearby('groundItems');
+
         if (!this.locked && this.walkQueue.length) {
             if (this.dontAnswer) {
                 this.dontAnswer();
@@ -692,15 +700,26 @@ class Player extends Character {
 
         this.localEntities.sendRegions();
 
-        this.localEntities.updateNearby('players');
-        this.localEntities.updateNearby('groundItems');
-
         if (!this.walkQueue.length && this.endWalkFunction) {
             if (this.dontAnswer) {
                 this.dontAnswer();
             }
 
-            this.endWalkFunction();
+            if (this.locked) {
+                this.endWalkFunction = null;
+                return;
+            }
+
+            if (this.endWalkFunction.constructor.name === 'AsyncFunction') {
+                this.endWalkFunction().catch(e => log.error(e));
+            } else {
+                try {
+                    this.endWalkFunction();
+                } catch (e) {
+                    log.error(e);
+                }
+            }
+
             this.endWalkFunction = null;
         }
     }

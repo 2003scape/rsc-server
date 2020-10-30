@@ -37,7 +37,10 @@ const DROP_OWNER_TIMEOUT = 1000 * 60; // 1 min
 const DROP_DISAPPEAR_TIMEOUT = 1000 * 60 * 2; // 2 mins
 
 const PLUGIN_TYPES = [
-    'onTalkToNPC'
+    'onTalkToNPC',
+    'onWallObjectCommandOne',
+    'onWallObjectCommandTwo',
+    'onGroundItemTake'
 ];
 
 class World {
@@ -100,13 +103,21 @@ class World {
     }
 
     addEntity(type, entity) {
-        this[type].add(entity);
-
         if (type === 'gameObjects') {
             this.pathFinder.addObject(entity);
         } else if (type === 'wallObjects') {
+            // always overwrite wallobjects
+            const exisiting =
+                this.wallObjects.getAtPoint(entity.x, entity.y);
+
+            for (const wallObject of exisiting) {
+                this.wallObjects.remove(wallObject);
+            }
+
             this.pathFinder.addWallObject(entity);
         }
+
+        this[type].add(entity);
 
         if (!this.players.length) {
             return;

@@ -71,6 +71,10 @@ class Character extends Entity {
     // set our direction to face an entity (when we talk to an NPC or pick up
     // a ground item for instance)
     faceEntity(entity) {
+        if (this.x === entity.x && this.y === entity.y) {
+            return;
+        }
+
         let deltaX = this.x - entity.x;
 
         if (deltaX > 0) {

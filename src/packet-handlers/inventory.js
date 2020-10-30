@@ -1,5 +1,5 @@
 async function groundItemTake({ player }, { x, y, id }) {
-    player.endWalkFunction = () => {
+    player.endWalkFunction = async () => {
         const { world } = player;
 
         if (player.inventory.items.length >= 30) {
@@ -18,9 +18,16 @@ async function groundItemTake({ player }, { x, y, id }) {
                 groundItem.id === id &&
                 (!groundItem.owner || groundItem.owner === player.id)
             ) {
-                // if the item is on a table or something, face it
-                if (player.x !== x || player.y !== y) {
-                    player.faceEntity(groundItem);
+                player.faceEntity(groundItem);
+
+                const blocked = await world.callPlugin(
+                    'onGroundItemTake',
+                    player,
+                    groundItem
+                );
+
+                if (blocked) {
+                    return;
                 }
 
                 player.inventory.add(groundItem);
