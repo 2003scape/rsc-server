@@ -458,6 +458,17 @@ class Player extends Character {
         }
     }
 
+    broadcastDirection() {
+        for (const player of this.localEntities.known.players) {
+            if (
+                !player.localEntities.added.players.has(this) &&
+                !player.localEntities.removed.players.has(this)
+            ) {
+                player.localEntities.spriteChangedCharacters.players.add(this);
+            }
+        }
+    }
+
     // add experience to a skill, optionally with fatigue
     addExperience(skill, experience, fatigueRate = 4) {
         if (fatigueRate > 0) {
@@ -599,16 +610,13 @@ class Player extends Character {
 
     faceDirection(deltaX, deltaY) {
         const direction = super.faceDirection(deltaX, deltaY);
+        this.broadcastDirection();
+        return direction;
+    }
 
-        for (const player of this.localEntities.known.players) {
-            if (
-                !player.localEntities.added.players.has(this) &&
-                !player.localEntities.removed.players.has(this)
-            ) {
-                player.localEntities.spriteChangedCharacters.players.add(this);
-            }
-        }
-
+    faceEntity(entity) {
+        const direction = super.faceEntity(entity);
+        this.broadcastDirection();
         return direction;
     }
 

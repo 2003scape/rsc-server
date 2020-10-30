@@ -76,7 +76,7 @@ class Character extends Entity {
                 this.direction = entity.direction;
             }
 
-            return;
+            return this.direction;
         }
 
         let deltaX = this.x - entity.x;
@@ -95,7 +95,8 @@ class Character extends Entity {
             deltaY = -1;
         }
 
-        this.faceDirection(deltaX, deltaY);
+        this.direction = deltaDirections[deltaX + 1][deltaY + 1];
+        return this.direction;
     }
 
     // face and set our engager to this character, as well as busy status
