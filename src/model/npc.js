@@ -120,11 +120,13 @@ class NPC extends Character {
 
     faceDirection(deltaX, deltaY) {
         const direction = super.faceDirection(deltaX, deltaY);
+        this.broadcastDirection();
+        return direction;
+    }
 
-        for (const player of this.knownPlayers) {
-            player.localEntities.spriteChangedCharacters.npcs.add(this);
-        }
-
+    faceEntity(entity) {
+        const direction = super.faceEntity(entity);
+        this.broadcastDirection();
         return direction;
     }
 
@@ -169,6 +171,12 @@ class NPC extends Character {
                 playerIndex: this.interlocutor.index,
                 message
             });
+        }
+    }
+
+    broadcastDirection() {
+        for (const player of this.knownPlayers) {
+            player.localEntities.spriteChangedCharacters.npcs.add(this);
         }
     }
 

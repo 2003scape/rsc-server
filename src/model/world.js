@@ -40,7 +40,8 @@ const PLUGIN_TYPES = [
     'onTalkToNPC',
     'onWallObjectCommandOne',
     'onWallObjectCommandTwo',
-    'onGroundItemTake'
+    'onGroundItemTake',
+    'onUseWithNPC'
 ];
 
 class World {

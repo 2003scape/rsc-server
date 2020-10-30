@@ -135,7 +135,7 @@ class Inventory {
         if (foundIndex > -1) {
             const item = this.items[foundIndex];
 
-            if (item.amount === amount) {
+            if (!item.stackable || item.amount === amount) {
                 this.items.splice(foundIndex, 1);
                 this.sendRemove(foundIndex);
             } else {
