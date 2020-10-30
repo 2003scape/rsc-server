@@ -1,14 +1,14 @@
-const WallObject = require('../model/wall-object');
+const WallObject = require('../../model/wall-object');
 
 const DOORFRAME_ID = 1;
 const DOOR_ID = 2;
 
 async function onWallObjectCommandOne(player, wallObject) {
-    const { world } = player;
-
     if (wallObject.id !== DOOR_ID) {
         return false;
     }
+
+    const { world } = player;
 
     const doorframe = new WallObject(world, {
         id: DOORFRAME_ID,
@@ -23,11 +23,11 @@ async function onWallObjectCommandOne(player, wallObject) {
 }
 
 async function onWallObjectCommandTwo(player, wallObject) {
-    const { world } = player;
-
     if (wallObject.id !== DOORFRAME_ID) {
         return false;
     }
+
+    const { world } = player;
 
     const door = new WallObject(world, {
         id: DOOR_ID,

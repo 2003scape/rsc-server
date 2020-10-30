@@ -72,6 +72,10 @@ class Character extends Entity {
     // a ground item for instance)
     faceEntity(entity) {
         if (this.x === entity.x && this.y === entity.y) {
+            if (!Number.isNaN(+entity.direction)) {
+                this.direction = entity.direction;
+            }
+
             return;
         }
 

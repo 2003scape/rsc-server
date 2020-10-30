@@ -1,9 +1,10 @@
 // https://classic.runescape.wiki/w/Transcript:Barbarian
 
-const BARBARIAN_IDS = [76, 78];
+// also handles gunthor the brave
+const BARBARIAN_IDS = new Set([76, 78]);
 
 async function onTalkToNPC(player, npc) {
-    if (BARBARIAN_IDS.indexOf(npc.id) < 0) {
+    if (!BARBARIAN_IDS.has(npc.id)) {
         return false;
     }
 
@@ -18,6 +19,7 @@ async function onTalkToNPC(player, npc) {
             break;
         case 1:
             player.message('The barbarian grunts');
+            await player.world.sleepTicks(1);
             break;
         case 2:
             await npc.say('Good day, my dear fellow');
