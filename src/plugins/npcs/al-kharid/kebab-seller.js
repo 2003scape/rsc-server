@@ -13,6 +13,7 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.engage(npc);
+
     await npc.say('Would you like to buy a nice kebab?', 'Only 1 gold');
 
     const choices = ["I think I'll give it a miss", 'Yes please'];
@@ -29,8 +30,9 @@ async function onTalkToNPC(player, npc) {
             break;
         case 1: // yes
             if (player.inventory.has(10, 1)) {
+                player.inventory.remove(10, 1);
+                player.inventory.add(KEBAB_ID, 1);
                 player.message('You buy a kebab');
-                player.inventory.addItem(KEBAB_ID, 1);
             } else {
                 await player.say('Oops I forgot to bring any money with me');
                 await npc.say('Come back when you have some');

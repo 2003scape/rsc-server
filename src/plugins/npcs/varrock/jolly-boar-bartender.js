@@ -14,6 +14,7 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.engage(npc);
+
     await npc.say('Yes please?');
 
     const choices = [
@@ -22,7 +23,7 @@ async function onTalkToNPC(player, npc) {
         'Heard any good gossip?'
     ];
 
-    if (shouldHandleBar('jollyBoar')) {
+    if (shouldHandleBar(player, 'jollyBoar')) {
         choices.push("I'm doing Alfred Grimhand's barcrawl");
     }
 
@@ -35,8 +36,7 @@ async function onTalkToNPC(player, npc) {
 
             if (player.inventory.has(10, 2)) {
                 player.inventory.remove(10, 2);
-                player.inventory.addItem(BEER_ID);
-                await player.sendInventory();
+                player.inventory.add(BEER_ID);
                 player.message('You buy a pint of beer');
             } else {
                 await player.say("Oh dear. I don't seem to have enough money");

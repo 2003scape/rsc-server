@@ -52,7 +52,9 @@ async function command({ player }, { command, args }) {
             player.localEntities.clear();
             break;
         case 'coords':
-            player.message(`${player.x}, ${player.y}`);
+            player.message(
+                `${player.x}, ${player.y}, facing=${player.direction}`
+            );
             break;
         case 'teleport':
             if (Number.isNaN(+args[0])) {

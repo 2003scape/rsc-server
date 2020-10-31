@@ -47,7 +47,7 @@ async function onTalkToNPC(player, npc) {
 
                 player.inventory.remove(10);
                 player.inventory.remove(HIDE_ID);
-                player.inventory.addItem(LEATHER_ID);
+                player.inventory.add(LEATHER_ID);
                 await player.sendInventory();
                 player.message('You swap a cow hide for a piece of leather');
                 await world.sleepTicks(1);

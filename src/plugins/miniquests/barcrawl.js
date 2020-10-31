@@ -3,7 +3,7 @@
 const BARCRAWL_CARD_ID = 668;
 
 // have we started barcrawl, but haven't completed this part yet?
-async function shouldHandleBar(player, barName) {
+function shouldHandleBar(player, barName) {
     return (
         player.inventory.has(BARCRAWL_CARD_ID) &&
         player.cache.barcrawl &&

@@ -11,7 +11,7 @@ async function yesPlease(player, npc) {
         player.inventory.remove(10, 2);
         await player.sendInventory();
         player.message('he gives you a cold beer');
-        player.inventory.addItem(BEER_ID);
+        player.inventory.add(BEER_ID);
         await player.sendInventory();
         await npc.say('cheers');
         await player.say('cheers');

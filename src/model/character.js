@@ -72,8 +72,10 @@ class Character extends Entity {
     // a ground item for instance)
     faceEntity(entity) {
         if (this.x === entity.x && this.y === entity.y) {
-            if (!Number.isNaN(+entity.direction)) {
-                this.direction = entity.direction;
+            if (entity.direction === 0) {
+                this.direction = 0;
+            } else if (entity.direction === 1) {
+                this.direction = 6;
             }
 
             return this.direction;
@@ -226,10 +228,6 @@ class Character extends Entity {
         }
 
         return true;
-    }
-
-    getElevation() {
-        return Math.floor(this.y / this.world.planeElevation);
     }
 }
 

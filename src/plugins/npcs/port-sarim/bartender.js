@@ -38,7 +38,7 @@ async function onTalkToNPC(player, npc) {
         if (player.inventory.has(10, 2)) {
             await player.say('Ok here you go thanks');
             player.inventory.remove(10, 2);
-            player.inventory.addItem(BEER_ID);
+            player.inventory.add(BEER_ID);
             player.message('you buy a pint of beer');
         } else {
             player.message('You dont have enough coins for the beer');

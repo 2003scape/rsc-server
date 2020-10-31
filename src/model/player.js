@@ -255,7 +255,8 @@ class Player extends Character {
             index: this.index,
             planeWidth: this.world.planeWidth,
             planeHeight: this.world.planeHeight,
-            planeIndex: this.getElevation()
+            planeIndex: this.getElevation(),
+            planeMultiplier: this.world.planeElevation
         });
     }
 
@@ -558,6 +559,10 @@ class Player extends Character {
         return Math.floor(defense + magic + Math.max(offence, ranged));
     }
 
+    getElevation() {
+        return Math.floor(this.y / this.world.planeElevation);
+    }
+
     isMale() {
         return this.appearance.bodySprite === 2;
     }
@@ -655,10 +660,12 @@ class Player extends Character {
         }
 
         this.localEntities.clear();
-        this.x = x;
-        this.y = y;
 
         this.world.setTickTimeout(() => {
+            this.x = x;
+            this.y = y;
+
+            this.sendWorldInfo();
             this.localEntities.updateNearby('npcs');
             this.localEntities.updateNearby('gameObjects');
             this.localEntities.updateNearby('wallObjects');

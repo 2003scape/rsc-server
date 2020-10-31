@@ -36,8 +36,12 @@ const DROP_OWNER_TIMEOUT = 1000 * 60; // 1 min
 // when does a drop disappear entirely?
 const DROP_DISAPPEAR_TIMEOUT = 1000 * 60 * 2; // 2 mins
 
+// function names that can be used in files within the ../plugins/ directory
+// that will potentially block default behaviour
 const PLUGIN_TYPES = [
     'onTalkToNPC',
+    'onGameObjectCommandOne',
+    'onGameObjectCommandTwo',
     'onWallObjectCommandOne',
     'onWallObjectCommandTwo',
     'onGroundItemTake',
@@ -60,11 +64,13 @@ class World {
 
         this.shops = new Map(); // { name: Shop }
 
-        this.players = new EntityList(this.planeWidth, this.planeHeight);
-        this.npcs = new EntityList(this.planeWidth, this.planeHeight);
-        this.gameObjects = new EntityList(this.planeWidth, this.planeHeight);
-        this.wallObjects = new EntityList(this.planeWidth, this.planeHeight);
-        this.groundItems = new EntityList(this.planeWidth, this.planeHeight);
+        const totalHeight = this.planeHeight * 4;
+
+        this.players = new EntityList(this.planeWidth, totalHeight);
+        this.npcs = new EntityList(this.planeWidth, totalHeight);
+        this.gameObjects = new EntityList(this.planeWidth, totalHeight);
+        this.wallObjects = new EntityList(this.planeWidth, totalHeight);
+        this.groundItems = new EntityList(this.planeWidth, totalHeight);
 
         this.tickIndex = 0;
         this.tickFunctions = new Map();
@@ -166,6 +172,12 @@ class World {
         for (const entityLocation of entityLocations[type]) {
             const Entity = entityConstructors[type];
             const entity = new Entity(this, entityLocation);
+
+            // prevents doogle leaves and such showing up in free-to-play
+            if (!this.members && entity.definition.members) {
+                break;
+            }
+
             this.addEntity(type, entity);
         }
 

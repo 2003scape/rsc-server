@@ -45,7 +45,11 @@ class NPC extends Character {
     async say(...messages) {
         for (const message of messages) {
             this.broadcastChat(message);
-            await this.world.sleepTicks(2);
+            await this.world.sleepTicks(1);
+
+            if (message.length >= 25) {
+                await this.world.sleepTicks(2);
+            }
         }
 
         await this.world.sleepTicks(1);

@@ -11,7 +11,7 @@ async function onItemCommand(player, item) {
     player.message('you open the oyster shell');
 
     const roll = Math.floor(Math.random() * 10);
-    player.inventory.addItem(roll == 0 ? OYSTER_PEARLS_ID : OYSTER_EMPTY_ID);
+    player.inventory.add(roll == 0 ? OYSTER_PEARLS_ID : OYSTER_EMPTY_ID);
     await player.sendInventory();
 
     return true;

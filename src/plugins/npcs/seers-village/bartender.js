@@ -26,7 +26,7 @@ async function beerPlease(player, npc) {
     await npc.say('one beer coming up', "Ok, that'll be two coins");
 
     if (await handleCoins(player, 2)) {
-        player.inventory.addItem(BEER_ID);
+        player.inventory.add(BEER_ID);
         await player.sendInventory();
         player.message('You buy a pint of beer');
     }
@@ -76,7 +76,7 @@ async function onTalkToNPC(player, npc) {
                 await npc.say("Ok, that'll be 16 gold");
 
                 if (await handleCoins(player, 16)) {
-                    player.inventory.addItem(PIE_ID);
+                    player.inventory.add(PIE_ID);
                     player.message('You buy a nice hot meat pie');
                 }
                 break;
@@ -84,7 +84,7 @@ async function onTalkToNPC(player, npc) {
                 await npc.say("Ok, that'll be 16 gold");
 
                 if (await handleCoins(player, 16)) {
-                    player.inventory.addItem(STEW_ID);
+                    player.inventory.add(STEW_ID);
                     player.message('You buy a bowl of home made stew');
                 }
                 break;
