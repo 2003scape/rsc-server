@@ -137,6 +137,7 @@ class Inventory {
 
             if (!item.definition.stackable || item.amount === amount) {
                 this.items.splice(foundIndex, 1);
+                this.updateEquipmentIndexes(index);
                 this.sendRemove(foundIndex);
             } else {
                 item.amount -= amount;
@@ -157,12 +158,7 @@ class Inventory {
         }
 
         this.items.splice(index, 1);
-
-        for (const type of Object.keys(this.equipmentSlots)) {
-            if (this.equipmentSlots[type] > index) {
-                this.equipmentSlots[type] -= 1;
-            }
-        }
+        this.updateEquipmentIndexes(index);
 
         this.player.world.addPlayerDrop(this.player, item);
 
@@ -200,7 +196,6 @@ class Inventory {
         this.sendUpdate(index, item);
 
         this.updateEquipmentBonuses();
-        this.player.sendEquipmentBonuses();
 
         this.player.localEntities.characterUpdates.playerAppearances.push(
             this.player.getAppearanceUpdate()
@@ -247,13 +242,7 @@ class Inventory {
         this.sendUpdate(index, item);
 
         this.updateEquipmentBonuses();
-        this.player.sendEquipmentBonuses();
-
-        // TODO this is ugly make a function
-        this.player.localEntities.characterUpdates.playerAppearances.push(
-            this.player.getAppearanceUpdate()
-        );
-        this.player.broadcastPlayerAppearance();
+        this.player.broadcastPlayerAppearance(true);
     }
 
     updateEquipmentSlots() {
@@ -288,6 +277,16 @@ class Inventory {
         }
 
         this.player.equipmentBonuses = equipmentBonuses;
+        this.player.sendEquipmentBonuses();
+    }
+
+    // when we remove an item from the inventory
+    updateEquipmentIndexes(fromIndex) {
+        for (const type of Object.keys(this.equipmentSlots)) {
+            if (this.equipmentSlots[type] > fromIndex) {
+                this.equipmentSlots[type] -= 1;
+            }
+        }
     }
 
     // send the entire inventory contents (used on login and death)
@@ -295,11 +294,13 @@ class Inventory {
         this.player.send({
             type: 'inventoryItems',
             items: this.items.map((item) => {
+                const i = { ...item };
+
                 if (!item.definition.stackable) {
-                    delete item.amount;
+                    delete i.amount;
                 }
 
-                return item;
+                return i;
             })
         });
     }
@@ -323,6 +324,33 @@ class Inventory {
 
     sendRemove(index) {
         this.player.send({ type: 'inventoryItemRemove', index });
+    }
+
+    // remove and return the 3-4 most valuable items on death
+    removeMostValuable(amount = 3) {
+        for (const item of this.items) {
+            if (item.equipped) {
+                this.unequip(index);
+            }
+        }
+
+        return this.items.sort((a, b) => {
+            if (a.definition.price > b.definition.price) {
+                return -1;
+            } else if (b.definition.price < a.definition.price) {
+                return 1;
+            }
+
+            return 0;
+        }).slice(0, amount).map((item) => {
+            if (item.definition.stackable && item.amount > 1) {
+                item.amount -= 1;
+            } else {
+                this.items.splice(this.items.indexOf(item), 1);
+            }
+
+            return new Item({ id: item.id });
+        });
     }
 
     toJSON() {

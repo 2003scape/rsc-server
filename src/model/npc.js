@@ -28,6 +28,25 @@ class NPC extends Character {
 
         this.respawn = npcRespawn[id];
 
+        this.skills = {
+            attack: {
+                current: this.definition.attack,
+                base: this.definition.attack
+            },
+            strength: {
+                current: this.definition.strength,
+                base: this.definition.strength
+            },
+            hits: {
+                current: this.definition.hits,
+                base: this.definition.hits
+            },
+            defense: {
+                current: this.definition.defense,
+                base: this.definition.defense
+            }
+        };
+
         // used for automatic movement
         this.stepsLeft = 0;
 
@@ -57,7 +76,11 @@ class NPC extends Character {
 
     attack(player) {}
 
+    damage(damage) {}
+
     retreat(ticks = 8) {}
+
+    pursue(player) {}
 
     // get a list of GroundItem instances from the NPC's drop table
     getDrops() {

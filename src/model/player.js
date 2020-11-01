@@ -4,6 +4,7 @@ const Character = require('./character');
 const Inventory = require('./inventory');
 const LocalEntities = require('./local-entities');
 const log = require('bole')('player');
+const regions = require('@2003scape/rsc-data/regions');
 const { formatSkillName, experienceToLevel } = require('../skills');
 
 // properties to save in the database
@@ -407,6 +408,12 @@ class Player extends Character {
     // send the red hitsplat
     damage(damage) {
         this.skills.hits.current -= damage;
+
+        if (this.skills.hits.current <= 0) {
+            this.die();
+            return;
+        }
+
         this.sendStats();
 
         const message = {
@@ -453,8 +460,12 @@ class Player extends Character {
 
     // update our sprites, combat level, skull status, etc. to us and the
     // players we know about
-    broadcastPlayerAppearance() {
+    broadcastPlayerAppearance(self = false) {
         const update = this.getAppearanceUpdate();
+
+        if (self) {
+            this.localEntities.characterUpdates.playerAppearances.push(update);
+        }
 
         for (const player of this.localEntities.known.players) {
             player.localEntities.characterUpdates.playerAppearances.push(
@@ -542,6 +553,33 @@ class Player extends Character {
 
         this.sleepWord = word;
         this.sleepImage = Captcha.toByteArray(image);
+    }
+
+    die() {
+        const itemsKept = this.inventory.removeMostValuable(3);
+
+        for (const item of this.inventory.items) {
+            this.world.addPlayerDrop(this, item);
+        }
+
+        this.inventory.items.length = 0;
+
+        const { spawnX, spawnY } = regions.lumbridge;
+        this.teleport(spawnX, spawnY, false);
+
+        for (const skill of Object.keys(this.skills)) {
+            this.skills[skill].current = this.skills[skill].base;
+        }
+
+        this.sendStats();
+
+        this.inventory.sendAll();
+
+        for (const item of itemsKept) {
+            this.inventory.add(item);
+        }
+
+        this.sendDeath();
     }
 
     getAppearanceUpdate() {
@@ -701,7 +739,7 @@ class Player extends Character {
         this.localEntities.updateNearby('players');
         this.localEntities.updateNearby('groundItems');
 
-        if (!this.locked && this.walkQueue.length) {
+        if (this.walkQueue.length) {
             if (this.dontAnswer) {
                 this.dontAnswer();
             }
