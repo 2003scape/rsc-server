@@ -285,7 +285,7 @@ class World {
     getPlayerByUsername(username) {
         username = username.toLowerCase();
 
-        for (const player of this.players) {
+        for (const player of this.players.getAll()) {
             if (player.username === username) {
                 return player;
             }

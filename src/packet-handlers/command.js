@@ -4,9 +4,9 @@ const NPC = require('../model/npc');
 const regions = require('@2003scape/rsc-data/regions');
 
 async function command({ player }, { command, args }) {
-    if (!player.isAdministrator()) {
+    /*if (!player.isAdministrator()) {
         return;
-    }
+    }*/
 
     switch (command) {
         case 'appearance':
@@ -78,6 +78,19 @@ async function command({ player }, { command, args }) {
             break;
         case 'dmg':
             player.damage(+args[0]);
+            break;
+         case 'shop':
+            player.openShop(args[0]);
+            break;
+        case 'give':
+            const other = player.world.getPlayerByUsername(args[0]);
+            if (other) {
+                other.inventory.add(+args[1], +args[2] || 1);
+                other.message(`${player.username} gave you an item`);
+                player.message(`gave ${args[0]} item ${args[1]}`);
+            } else {
+                player.message(`unable to find player ${args[0]}`);
+            }
             break;
     }
 }

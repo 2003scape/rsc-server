@@ -110,6 +110,9 @@ class Player extends Character {
             appearance: false
         };
 
+        // current shop open the player has open, if any
+        this.shop = null;
+
         // incremented every time we change appearance
         this.appearanceIndex = 0;
 
@@ -191,6 +194,8 @@ class Player extends Character {
         if (!this.loggedIn) {
             return;
         }
+
+        this.exitShop(true);
 
         this.loggedIn = false;
 
@@ -438,6 +443,36 @@ class Player extends Character {
             x: x - this.x,
             y: y - this.y
         });
+    }
+
+    openShop(shopName) {
+        const shop = this.world.shops.get(shopName);
+
+        if (!shop) {
+            throw new RangeError(`invalid shop name ${shopName}`);
+        }
+
+        this.lock();
+
+        this.interfaceOpen.shop = true;
+        shop.occupants.add(this);
+        this.shop = shop;
+
+        this.send({ type: 'shopOpen', ...shop });
+    }
+
+    exitShop(send = true) {
+        this.interfaceOpen.shop = false;
+        this.unlock();
+
+        if (this.shop) {
+            this.shop.occupants.delete(this);
+            this.shop = null;
+        }
+
+        if (send) {
+            this.send({ type: 'shopClose' });
+        }
     }
 
     // update the player's avatar
@@ -789,7 +824,7 @@ class Player extends Character {
             }
 
             if (this.endWalkFunction.constructor.name === 'AsyncFunction') {
-                this.endWalkFunction().catch(e => log.error(e));
+                this.endWalkFunction().catch((e) => log.error(e));
             } else {
                 try {
                     this.endWalkFunction();
