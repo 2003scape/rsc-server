@@ -29,8 +29,8 @@ function climb(player, gameObject, up) {
         );
     } else {
         player.teleport(
-            player.x + xOffset,
-            player.y + (world.planeElevation * (up ? 1 : -1)) + yOffset
+            player.x,
+            player.y + (world.planeElevation * (up ? 1 : -1))
         );
     }
 
