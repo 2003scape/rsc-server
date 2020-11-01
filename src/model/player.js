@@ -38,56 +38,56 @@ const SLEEP_BED_RATE = 16500;
 const MAX_FATIGUE = 75000;
 
 class Player extends Character {
-    constructor(world, socket, player) {
+    constructor(world, socket, playerData) {
         super(world);
 
         this.socket = socket;
 
-        this.username = player.username;
-        this.lastIP = player.loginIP;
-        this.loginDate = player.loginDate;
-        this.muteEndDate = player.muteEndDate;
+        this.username = playerData.username;
+        this.lastIP = playerData.loginIP;
+        this.loginDate = playerData.loginDate;
+        this.muteEndDate = playerData.muteEndDate;
 
         // database ID
-        this.id = player.id;
+        this.id = playerData.id;
 
         // moderator or administrator?
-        this.rank = player.rank;
+        this.rank = playerData.rank;
 
-        this.x = player.x;
-        this.y = player.y;
-        this.questPoints = player.questPoints;
+        this.x = playerData.x;
+        this.y = playerData.y;
+        this.questPoints = playerData.questPoints;
 
         // real RSC didn't save this
         if (this.world.server.config.rememberCombatStyle) {
-            this.combatStyle = player.combatStyle;
+            this.combatStyle = playerData.combatStyle;
         } else {
             this.combatStyle = 0;
         }
 
         // 0 - 75000
-        this.fatigue = player.fatigue;
+        this.fatigue = playerData.fatigue;
 
         // game settings
-        this.cameraAuto = player.cameraAuto;
-        this.oneMouseButton = player.oneMouseButton;
-        this.soundOn = player.soundOn;
+        this.cameraAuto = playerData.cameraAuto;
+        this.oneMouseButton = playerData.oneMouseButton;
+        this.soundOn = playerData.soundOn;
 
         // privacy settings
-        this.blockChat = player.blockChat;
-        this.blockPrivateChat = player.blockPrivateChat;
-        this.blockTrade = player.blockTrade;
-        this.blockDuel = player.blockDuel;
+        this.blockChat = playerData.blockChat;
+        this.blockPrivateChat = playerData.blockPrivateChat;
+        this.blockTrade = playerData.blockTrade;
+        this.blockDuel = playerData.blockDuel;
 
         // ticks remaining until unskulled
-        this.skulled = player.skulled;
+        this.skulled = playerData.skulled;
 
-        this.friends = player.friends;
-        this.ignores = player.ignores;
-        this.questStages = player.questStages;
-        this.cache = player.cache;
+        this.friends = playerData.friends;
+        this.ignores = playerData.ignores;
+        this.questStages = playerData.questStages;
+        this.cache = playerData.cache;
 
-        this.skills = player.skills;
+        this.skills = playerData.skills;
 
         for (const skillName of Object.keys(this.skills)) {
             this.skills[skillName].base = experienceToLevel(
@@ -95,10 +95,10 @@ class Player extends Character {
             );
         }
 
-        this.inventory = new Inventory(this, player.inventory);
+        this.inventory = new Inventory(this, playerData.inventory);
         this.inventory.updateEquipmentBonuses();
 
-        this.bank = new Bank(this, player.bank);
+        this.bank = new Bank(this, playerData.bank);
 
         this.combatLevel = this.getCombatLevel();
 
@@ -112,7 +112,7 @@ class Player extends Character {
         // incremented every time we change appearance
         this.appearanceIndex = 0;
 
-        this.setAppearance(player);
+        this.setAppearance(playerData);
         this.inventory.updateEquipmentSlots();
 
         this.localEntities = new LocalEntities(this);
@@ -401,6 +401,25 @@ class Player extends Character {
 
         for (const player of this.localEntities.known.players) {
             player.localEntities.characterUpdates.playerBubbles.push(message);
+        }
+    }
+
+    // send the red hitsplat
+    damage(damage) {
+        this.skills.hits.current -= damage;
+        this.sendStats();
+
+        const message = {
+            index: this.index,
+            damageTaken: damage,
+            currentHealth: this.skills.hits.current,
+            maxHealth: this.skills.hits.base
+        };
+
+        this.localEntities.characterUpdates.playerHits.push(message);
+
+        for (const player of this.localEntities.known.players) {
+            player.localEntities.characterUpdates.playerHits.push(message);
         }
     }
 

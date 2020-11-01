@@ -76,15 +76,8 @@ async function command({ player }, { command, args }) {
         case 'say':
             await player.say(...args);
             break;
-        case 'objtouch':
-            player.message(
-                player.world.gameObjects.quadTree.colliding({
-                    x: player.x - 1,
-                    y: player.y - 1,
-                    width: 3,
-                    height: 3
-                }).length
-            );
+        case 'dmg':
+            player.damage(+args[0]);
             break;
     }
 }

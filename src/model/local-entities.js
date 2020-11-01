@@ -57,6 +57,7 @@ class LocalEntities {
             playerAppearances: [],
             playerChat: [],
             playerBubbles: [],
+            playerHits: [],
             npcChat: []
         };
     }
@@ -192,26 +193,30 @@ class LocalEntities {
 
     // send updates regarding the currently known player entities
     sendRegionPlayerUpdate() {
+        const updates = this.characterUpdates;
+
         if (
-            !this.characterUpdates.playerAppearances.length &&
-            !this.characterUpdates.playerChat.length &&
-            !this.characterUpdates.playerBubbles.length
+            !updates.playerAppearances.length &&
+            !updates.playerChat.length &&
+            !updates.playerHits.length &&
+            !updates.playerBubbles.length
         ) {
             return;
         }
 
         this.player.send({
             type: 'regionPlayerUpdate',
-            bubbles: this.characterUpdates.playerBubbles,
-            chats: this.characterUpdates.playerChat,
-            hits: [],
+            bubbles: updates.playerBubbles,
+            chats: updates.playerChat,
+            hits: updates.playerHits,
             projectiles: [],
-            appearances: this.characterUpdates.playerAppearances
+            appearances: updates.playerAppearances
         });
 
-        this.characterUpdates.playerBubbles.length = 0;
-        this.characterUpdates.playerChat.length = 0;
-        this.characterUpdates.playerAppearances.length = 0;
+        updates.playerBubbles.length = 0;
+        updates.playerChat.length = 0;
+        updates.playerAppearances.length = 0;
+        updates.playerHits.length = 0;
     }
 
     // send the position of new and removed NPCs
