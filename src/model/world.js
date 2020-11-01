@@ -80,6 +80,10 @@ class World {
 
         this.boundTick = this.tick.bind(this);
         this.boundSaveAllPlayers = this.saveAllPlayers.bind(this);
+
+
+        this.maxobjw = 0;
+        this.maxobjh = 0;
     }
 
     async loadLandscape() {

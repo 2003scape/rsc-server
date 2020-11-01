@@ -642,6 +642,12 @@ class Player extends Character {
     }
 
     teleport(x, y, bubble = false) {
+        if (y < 0) {
+            y += this.world.planeElevation * 4;
+        }
+
+        y = y % (this.world.planeElevation * 4);
+
         this.endWalkFunction = null;
         this.walkQueue.length = 0;
 

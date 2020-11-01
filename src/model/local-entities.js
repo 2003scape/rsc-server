@@ -69,6 +69,15 @@ class LocalEntities {
                 if (entity.owner && entity.owner !== this.player.id) {
                     return;
                 }
+
+                const [gameObject] = this.player.world.gameObjects.getAtPoint(
+                    entity.x,
+                    entity.y
+                );
+
+                if (gameObject && !this.known.gameObjects.has(gameObject)) {
+                    this.add('gameObjects', gameObject);
+                }
             }
 
             this.player.localEntities.added[type].add(entity);

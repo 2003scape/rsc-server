@@ -12,9 +12,10 @@ function gameObjectCommand(pluginHandler, { player }, { x, y }) {
             return;
         }
 
+        player.lock();
         player.faceEntity(gameObject);
-
         await world.callPlugin(pluginHandler, player, gameObject);
+        player.unlock();
     };
 }
 

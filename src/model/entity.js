@@ -7,10 +7,18 @@ class Entity {
     }
 
     withinRange(entity, range = 8) {
-        if (
-            Math.abs(entity.x - this.x) > (range / 2) ||
-            Math.abs(entity.y - this.y) > (range / 2)
-        ) {
+        let deltaX = entity.x - this.x;
+        let deltaY = entity.y - this.y;
+
+        if (deltaY > 0 && Math.abs(deltaY) <= this.height) {
+            deltaY = 0;
+        }
+
+        if (deltaX > 0 && Math.abs(deltaX) <= this.width) {
+            deltaX = 0;
+        }
+
+        if (Math.abs(deltaX) > (range / 2) || Math.abs(deltaY) > (range / 2)) {
             return false;
         }
 

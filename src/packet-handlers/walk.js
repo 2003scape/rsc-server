@@ -40,6 +40,7 @@ async function walk({ player }, { targetX, targetY, steps }) {
         return;
     }
 
+    player.endWalkFunction = null;
     player.walkQueue.length = 0;
 
     let currentX = player.x;

@@ -15,6 +15,13 @@ class GameObject extends Entity {
         if (!this.definition) {
             throw new RangeError(`invalid GameObject id ${this.id}`);
         }
+
+        this.width = this.definition.width;
+        this.height = this.definition.height;
+
+        if (this.direction === 2 || this.direction === 6) {
+            [this.width, this.height] = [this.height, this.width];
+        }
     }
 }
 
