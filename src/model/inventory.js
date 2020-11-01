@@ -328,7 +328,7 @@ class Inventory {
 
     // remove and return the 3-4 most valuable items on death
     removeMostValuable(amount = 3) {
-        for (const item of this.items) {
+        for (const [index, item] of this.items.entries()) {
             if (item.equipped) {
                 this.unequip(index);
             }

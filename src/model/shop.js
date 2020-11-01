@@ -47,11 +47,11 @@ class Shop {
         this.boundRestock = this.restock.bind(this);
     }
 
-	// determines whether or not an item is part of a shop's "regular" inventory
-	// returns the object {id, amount} if true, otherwise null
-	isShopInventory(item) {
-		return this.definition.items.find((i) => item.id === i.id);
-	}
+    // determines whether or not an item is part of a shop's "regular" inventory
+    // returns the object {id, amount} if true, otherwise null
+    isShopInventory({ id }) {
+        return this.definition.items.find((item) => item.id === id);
+    }
 
     refreshPrices() {
         for (let i = 0; i < this.items.length; i += 1) {}
