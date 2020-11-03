@@ -9,11 +9,19 @@ async function npcTalk({ player }, { index }) {
         }
 
         if (!npc.withinRange(player, 2)) {
+            //await player.walkToEntity(npc);
+
+            if (npc.withinRange(player, 2)) {
+                return;
+            }
+        }
+
+        if (npc.interlocutor) {
+            player.message(`The ${npc.definition.name} is busy at the moment`);
             return;
         }
 
-        if (npc.locked) {
-            player.message(`The ${npc.definition.name} is busy at the moment`);
+        if (npc.opponent || npc.locked) {
             return;
         }
 

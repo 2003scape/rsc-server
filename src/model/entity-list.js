@@ -2,7 +2,6 @@
 // entities and provides optimized accessor methods using a quadtree
 
 const { QuadTree, Box } = require('js-quadtree');
-//const QuadTree = require('quadtree-lib');
 
 class EntityList {
     constructor(width, height) {
@@ -25,7 +24,6 @@ class EntityList {
 
     add(entity) {
         this.quadTree.insert(entity);
-        //this.quadTree.push(entity, true);
         this.length += 1;
 
         for (let i = 0; i < this.entities.length; i += 1) {
@@ -55,7 +53,7 @@ class EntityList {
 
     *getAll() {
         for (const entity of this.entities) {
-            if (entity !== null) {
+            if (entity) {
                 yield entity;
             }
         }
@@ -70,17 +68,10 @@ class EntityList {
         y -= Math.floor(range / 2);
 
         return this.quadTree.query(new Box(x, y, range, range));
-        /*return this.quadTree.colliding({
-            x,
-            y,
-            width: range,
-            height: range
-        });*/
     }
 
     getAtPoint(x, y) {
         return this.quadTree.query(new Box(x, y, 0, 0));
-        //return this.quadTree.colliding({ x, y });
     }
 
     *getAllByID(id) {

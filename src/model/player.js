@@ -733,6 +733,9 @@ class Player extends Character {
         }
     }
 
+    walkToEntity(entity) {
+    }
+
     teleport(x, y, bubble = false) {
         if (y < 0) {
             y += this.world.planeElevation * 4;
@@ -748,6 +751,7 @@ class Player extends Character {
 
             for (const player of this.localEntities.known.players) {
                 player.sendTeleportBubble(this.x, this.y);
+                player.localEntities.removed.players.add(this);
             }
         }
 
