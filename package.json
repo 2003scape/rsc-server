@@ -27,15 +27,14 @@
   "dependencies": {
     "@2003scape/rsc-captcha": "^1.0.0",
     "@2003scape/rsc-data": "^1.0.2",
-    "@2003scape/rsc-landscape": "^2.0.0",
-    "@2003scape/rsc-path-finder": "^1.0.0",
+    "@2003scape/rsc-landscape": "^2.0.1",
+    "@2003scape/rsc-path-finder": "^1.1.0",
     "@2003scape/rsc-socket": "^1.0.3",
     "bole": "^4.0.0",
     "bulk-require": "^1.0.1",
     "flat": "^5.0.2",
     "js-quadtree": "^3.3.3",
     "json-socket": "^0.3.0",
-    "quadtree-lib": "^1.0.9",
     "rand-token": "^1.0.1",
     "ws": "^7.3.1",
     "yargs": "^16.0.3"

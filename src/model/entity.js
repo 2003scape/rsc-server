@@ -25,6 +25,10 @@ class Entity {
         return true;
     }
 
+    // used for trading/dueling
+    withinLineOfSight(entity, distance = 4) {
+    }
+
     // get the x, y offsets of an entity relative to this one
     getEntityOffsets(entity) {
         return {
@@ -37,9 +41,7 @@ class Entity {
     getNearbyEntities(type, range = 48) {
         return this.world[type]
             .getInArea(this.x, this.y, range)
-            .filter((entity) => {
-                return entity !== this;
-            });
+            .filter((entity) => entity !== this);
     }
 }
 

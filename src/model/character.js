@@ -11,19 +11,6 @@ const deltaDirections = [
     [directions.southEast, directions.east, directions.northEast]
 ];
 
-// used for the collision detection
-function getObstacle(pathFinder, gameX, gameY, offsetX, offsetY) {
-    const {
-        x: obstacleX,
-        y: obstacleY
-    } = pathFinder.gameCoordsToObstacleCoords({
-        x: gameX,
-        y: gameY
-    });
-
-    return pathFinder.obstacles.get(obstacleX + offsetX, obstacleY + offsetY);
-}
-
 class Character extends Entity {
     constructor(world) {
         super(world);
@@ -150,84 +137,10 @@ class Character extends Entity {
             return false;
         }
 
-        const pathFinder = this.world.pathFinder;
-
-        const {
-            x: obstacleX,
-            y: obstacleY
-        } = pathFinder.gameCoordsToObstacleCoords({
-            x: destX,
-            y: destY
-        });
-
-        if (
-            pathFinder.obstacles.get(obstacleX, obstacleY) &&
-            pathFinder.obstacles.get(obstacleX + 1, obstacleY) &&
-            pathFinder.obstacles.get(obstacleX, obstacleY + 1) &&
-            pathFinder.obstacles.get(obstacleX + 1, obstacleY + 1)
-        ) {
-            return false;
-        }
-
-        if (deltaX === 0 && deltaY === -1) {
-            // north
-            if (getObstacle(pathFinder, this.x, this.y, 0, 0)) {
-                return false;
-            }
-        } else if (deltaX === 1 && deltaY === -1) {
-            // northwest
-            if (
-                getObstacle(pathFinder, this.x, this.y, 0, 0) ||
-                getObstacle(pathFinder, destX, this.y, 1, 0) ||
-                getObstacle(pathFinder, destX, destY, 1, 1)
-            ) {
-                return false;
-            }
-        } else if (deltaX === 1 && deltaY === 0) {
-            // west
-            if (getObstacle(pathFinder, destX, this.y, 1, 1)) {
-                return false;
-            }
-        } else if (deltaX === 1 && deltaY === 1) {
-            // southwest
-            if (
-                getObstacle(pathFinder, this.x, destY, 0, 0) ||
-                getObstacle(pathFinder, destX, this.y, 1, 1) ||
-                getObstacle(pathFinder, destX, destY, 1, 0)
-            ) {
-                return false;
-            }
-        } else if (deltaX === 0 && deltaY === 1) {
-            // south
-            if (getObstacle(pathFinder, destX, destY, 0, 0)) {
-                return false;
-            }
-        } else if (deltaX === -1 && deltaY === 1) {
-            // southeast
-            if (
-                getObstacle(pathFinder, this.x, this.y, 1, 1) ||
-                getObstacle(pathFinder, this.x, destY, 1, 0) ||
-                getObstacle(pathFinder, destX, destY, 1, 1)
-            ) {
-                return false;
-            }
-        } else if (deltaX === -1 && deltaY === 0) {
-            // east
-            if (getObstacle(pathFinder, this.x, this.y, 1, 1)) {
-                return false;
-            }
-        } else if (deltaX === -1 && deltaY === -1) {
-            // northeast
-            if (
-                getObstacle(pathFinder, this.x, this.y, 1, 0) ||
-                getObstacle(pathFinder, this.x, destY, 1, 1) ||
-                getObstacle(pathFinder, destX, this.y, 0, 0)
-            ) {
-                return false;
-            }
-        }
-
-        return true;
+        return this.world.pathFinder.isValidGameStep(
+            { x: this.x, y: this.y },
+            { deltaX, deltaY }
+        );
     }
 }
 

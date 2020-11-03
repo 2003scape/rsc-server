@@ -26,6 +26,10 @@ class NPC extends Character {
             throw new RangeError(`invalid NPC id ${this.id}`);
         }
 
+        // store aggressive here because we make every NPC in the wilderness
+        // aggressive
+        this.aggressive = this.definition.aggressive;
+
         this.respawn = npcRespawn[id];
 
         this.skills = {
@@ -78,9 +82,11 @@ class NPC extends Character {
 
     damage(damage) {}
 
+    // run away from the player for a certain number of ticks
     retreat(ticks = 8) {}
 
-    pursue(player) {}
+    // beeline towards the player
+    chase(player) {}
 
     // get a list of GroundItem instances from the NPC's drop table
     getDrops() {
