@@ -65,6 +65,9 @@ class Entity {
             ) {
                 return false;
             }
+
+            x += deltaX;
+            y += deltaY;
         }
 
         return true;

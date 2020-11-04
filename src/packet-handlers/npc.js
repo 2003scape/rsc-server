@@ -9,9 +9,13 @@ async function npcTalk({ player }, { index }) {
         }
 
         if (!npc.withinRange(player, 2)) {
-            //await player.walkToEntity(npc);
+            if (npc.withinRange(player, 8)) {
+                await player.chase(npc);
+            } else {
+                return;
+            }
 
-            if (npc.withinRange(player, 2)) {
+            if (!npc.withinRange(player, 2)) {
                 return;
             }
         }
@@ -24,6 +28,8 @@ async function npcTalk({ player }, { index }) {
         if (npc.opponent || npc.locked) {
             return;
         }
+
+        npc.stepsLeft = 0;
 
         const blocked = await world.callPlugin('onTalkToNPC', player, npc);
 

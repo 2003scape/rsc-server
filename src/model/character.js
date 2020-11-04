@@ -51,7 +51,6 @@ class Character extends Entity {
         }
 
         this.direction = deltaDirections[deltaX + 1][deltaY + 1];
-
         return this.direction;
     }
 
@@ -110,16 +109,6 @@ class Character extends Entity {
         }
     }
 
-    walkTo(deltaX, deltaY) {
-        const oldX = this.x;
-        const oldY = this.y;
-
-        this.x += deltaX;
-        this.y += deltaY;
-
-        this.faceDirection(oldX - this.x, oldY - this.y);
-    }
-
     // collision detection for players and NPCs to determine if next step is
     // valid
     canWalk(deltaX, deltaY) {
@@ -142,6 +131,50 @@ class Character extends Entity {
             { deltaX, deltaY }
         );
     }
+
+    walkTo(deltaX, deltaY) {
+        const oldX = this.x;
+        const oldY = this.y;
+
+        this.x += deltaX;
+        this.y += deltaY;
+
+        this.faceDirection(oldX - this.x, oldY - this.y);
+    }
+
+    async chase(entity) {
+        const { world } = this;
+
+        const path = world.pathFinder.getLineOfSight(
+            { x: this.x, y: this.y },
+            { x: entity.x, y: entity.y }
+        );
+
+        let x = this.x;
+        let y = this.y;
+
+        for (const { x: stepX, y: stepY } of path) {
+            if (stepX === this.x && stepY === this.y) {
+                continue;
+            }
+
+            const deltaX = stepX - x;
+            const deltaY = stepY - y;
+
+            if (
+                world.pathFinder.isValidGameStep({ x, y }, { deltaX, deltaY })
+            ) {
+                this.walkTo(deltaX, deltaY);
+                await world.sleepTicks(1);
+            } else {
+                break;
+            }
+
+            x += deltaX;
+            y += deltaY;
+        }
+    }
+
 }
 
 module.exports = Character;

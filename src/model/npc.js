@@ -165,12 +165,8 @@ class NPC extends Character {
 
     walkTo(deltaX, deltaY) {
         super.walkTo(deltaX, deltaY);
-
         this.updateKnownPlayers();
-
-        for (const player of this.knownPlayers) {
-            player.localEntities.movedCharacters.npcs.add(this);
-        }
+        this.broadcastMove();
     }
 
     walkNextRandomStep() {
@@ -210,6 +206,12 @@ class NPC extends Character {
     broadcastDirection() {
         for (const player of this.knownPlayers) {
             player.localEntities.spriteChangedCharacters.npcs.add(this);
+        }
+    }
+
+    broadcastMove() {
+        for (const player of this.knownPlayers) {
+            player.localEntities.movedCharacters.npcs.add(this);
         }
     }
 

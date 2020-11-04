@@ -524,6 +524,7 @@ class Player extends Character {
         }
     }
 
+    // broadcast the player changing sprites
     broadcastDirection() {
         for (const player of this.localEntities.known.players) {
             if (
@@ -531,6 +532,21 @@ class Player extends Character {
                 !player.localEntities.removed.players.has(this)
             ) {
                 player.localEntities.spriteChangedCharacters.players.add(this);
+            }
+        }
+    }
+
+    // broadcast the player moving in their current direction
+    broadcastMove() {
+        for (const player of this.getNearbyEntities('players', 16)) {
+            if (!player.loggedIn) {
+                break;
+            }
+
+            if (!player.localEntities.known.players.has(this)) {
+                player.localEntities.added.players.add(this);
+            } else {
+                player.localEntities.movedCharacters.players.add(this);
             }
         }
     }
@@ -719,21 +735,7 @@ class Player extends Character {
 
     walkTo(deltaX, deltaY) {
         super.walkTo(deltaX, deltaY);
-
-        for (const player of this.getNearbyEntities('players', 16)) {
-            if (!player.loggedIn) {
-                break;
-            }
-
-            if (!player.localEntities.known.players.has(this)) {
-                player.localEntities.added.players.add(this);
-            } else {
-                player.localEntities.movedCharacters.players.add(this);
-            }
-        }
-    }
-
-    walkToEntity(entity) {
+        this.broadcastMove();
     }
 
     teleport(x, y, bubble = false) {
