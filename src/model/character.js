@@ -24,6 +24,8 @@ class Character extends Entity {
         // the character we're talking to
         this.interlocutor = null;
 
+        this.chasing = null;
+
         // can we move? certain NPCs still have conversation partners, but can
         // walk around (e.g. goblin generals in goblin diplomacy)
         this.locked = false;
@@ -121,9 +123,13 @@ class Character extends Entity {
         const destX = this.x + deltaX;
         const destY = this.y + deltaY;
 
-        // npcs always break our path
-        if (this.world.npcs.getAtPoint(destX, destY).length) {
-            return false;
+        // attackable? npcs always break our path
+        const npcs = this.world.npcs.getAtPoint(destX, destY);
+
+        for (const npc of npcs) {
+            if (npc.definition.hostility) {
+                return false;
+            }
         }
 
         return this.world.pathFinder.isValidGameStep(
@@ -145,6 +151,8 @@ class Character extends Entity {
     async chase(entity) {
         const { world } = this;
 
+        this.chasing = entity;
+
         const path = world.pathFinder.getLineOfSight(
             { x: this.x, y: this.y },
             { x: entity.x, y: entity.y }
@@ -164,7 +172,12 @@ class Character extends Entity {
             if (
                 world.pathFinder.isValidGameStep({ x, y }, { deltaX, deltaY })
             ) {
-                this.walkTo(deltaX, deltaY);
+                if (this.chasing) {
+                    this.walkTo(deltaX, deltaY);
+                } else {
+                    break;
+                }
+
                 await world.sleepTicks(1);
             } else {
                 break;
