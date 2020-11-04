@@ -75,13 +75,11 @@ class EntityList {
     }
 
     *getAllByID(id) {
-        for (const entity of this.entities) {
+        for (const entity of this.getAll()) {
             if (entity.id === id) {
                 yield entity;
             }
         }
-
-        return [];
     }
 
     getByID(id) {

@@ -73,6 +73,12 @@ class Entity {
         return true;
     }
 
+    getDistance(entity) {
+        return Math.sqrt(
+            Math.pow(entity.x - this.x, 2) + Math.pow(entity.y - this.y, 2)
+        );
+    }
+
     // get the x, y offsets of an entity relative to this one
     getEntityOffsets(entity) {
         return {
