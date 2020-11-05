@@ -108,10 +108,21 @@ class Inventory {
             return false;
         }
 
+        let inventoryAmount = 0;
+        const stackable = items[id].stackable;
+
         for (const item of this.items) {
-            if (item.id === id && item.amount >= amount) {
-                return true;
+            if (item.id === id) {
+                if (stackable && item.amount >= amount) {
+                    return true;
+                } else {
+                    inventoryAmount += 1;
+                }
             }
+        }
+
+        if (inventoryAmount >= amount) {
+            return true;
         }
 
         return false;
@@ -139,6 +150,12 @@ class Inventory {
                 this.items.splice(foundIndex, 1);
                 this.updateEquipmentIndexes(foundIndex);
                 this.sendRemove(foundIndex);
+
+                amount -= 1;
+
+                if (amount > 0) {
+                    this.remove(id, amount);
+                }
             } else {
                 item.amount -= amount;
                 this.sendUpdate(foundIndex, item);

@@ -7,9 +7,9 @@
     "tcpPort": 43594,
     "websocketPort": 43595,
     "country": "CAN",
-    "members": true,
+    "members": false,
     "experienceRate": 1,
     "fatigue": true,
     "bankCertificates": false,
-    "rememberCombatStyle": true
+    "rememberCombatStyle": false
 }

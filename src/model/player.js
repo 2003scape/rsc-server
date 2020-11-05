@@ -158,6 +158,7 @@ class Player extends Character {
         // check the cache's sendAppearance in case the player disconnected
         // before they finished
         if (!this.loginDate || this.cache.sendAppearance) {
+            this.lock();
             this.sendAppearance();
         }
 

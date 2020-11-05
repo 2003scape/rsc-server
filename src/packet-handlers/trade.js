@@ -2,7 +2,7 @@ async function playerTrade({ player }, { index }) {
     const { world } = player;
 
     if (player.index === index) {
-        return;
+        throw new RangeError(`${player} trading with self`);
     }
 
     const otherPlayer = world.players.getByIndex(index);
