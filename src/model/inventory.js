@@ -137,7 +137,7 @@ class Inventory {
 
             if (!item.definition.stackable || item.amount === amount) {
                 this.items.splice(foundIndex, 1);
-                this.updateEquipmentIndexes(index);
+                this.updateEquipmentIndexes(foundIndex);
                 this.sendRemove(foundIndex);
             } else {
                 item.amount -= amount;

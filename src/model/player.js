@@ -651,18 +651,18 @@ class Player extends Character {
         return experienceToLevel(this.skills[skillName].experience);
     }
 
+    // https://classic.runescape.wiki/w/Combat_level
     getCombatLevel() {
         const offence =
-            (this.getBaseLevel('attack') + this.getBaseLevel('strength')) *
-            0.25;
+            (this.skills.attack.base + this.skills.strength.base) * 0.25;
 
         const defense =
-            (this.getBaseLevel('defense') + this.getBaseLevel('hits')) * 0.25;
+            (this.skills.defense.base + this.skills.hits.base) * 0.25;
 
         const magic =
-            (this.getBaseLevel('prayer') + this.getBaseLevel('magic')) * 0.125;
+            (this.skills.prayer.base + this.skills.magic.base) * 0.125;
 
-        const ranged = this.getBaseLevel('ranged') * 0.375;
+        const ranged = this.skills.ranged.base * 0.375;
 
         return Math.floor(defense + magic + Math.max(offence, ranged));
     }
@@ -713,7 +713,8 @@ class Player extends Character {
         // them is fine)
         if (
             !this.walkQueue.length &&
-            this.world.players.getAtPoint(destX, destY).length
+            (this.world.players.getAtPoint(destX, destY).length ||
+                this.world.npcs.getAtPoint(destX, destY).length)
         ) {
             return false;
         }

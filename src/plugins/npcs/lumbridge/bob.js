@@ -6,6 +6,7 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.engage(npc);
+
     await npc.say('Hello. How can I help you?');
 
     const choice = await player.ask(
@@ -16,14 +17,14 @@ async function onTalkToNPC(player, npc) {
     switch (choice) {
         case 0:
             await npc.say('Get yer own!');
+            player.disengage();
             break;
         case 1:
             await npc.say('Yes, I buy and sell axes, take you pick! (or axe)');
+            player.disengage();
             player.openShop('bobs-axes');
             break;
     }
-
-    player.disengage();
 
     return true;
 }
