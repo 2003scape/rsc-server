@@ -46,9 +46,12 @@ async function talkToOfficer(player, npc) {
                 if (choice === 0) {
                     if (player.inventory.has(10, 30)) {
                         player.inventory.remove(10, 30);
-                        player.message('You pay 30 gold', 'You board the ship');
+                        player.message('You pay 30 gold');
+                        await world.sleepTicks(2);
+                        player.message('You board the ship');
                         await world.sleepTicks(2);
                         player.teleport(portSarim.spawnX, portSarim.spawnY);
+                        await world.sleepTicks(2);
                         player.message('The ship arrives at Port Sarim');
                     } else {
                         await player.say(

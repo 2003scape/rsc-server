@@ -44,9 +44,12 @@ async function talkToSeaman(player, npc) {
         // yes please
         if (player.inventory.has(10, 30)) {
             player.inventory.remove(10, 30);
-            player.message('You pay 30 gold', 'You board the ship');
+            player.message('You pay 30 gold');
+            await world.sleepTicks(2);
+            player.message('You board the ship');
             await world.sleepTicks(2);
             player.teleport(karamja.spawnX, karamja.spawnY);
+            await world.sleepTicks(2);
             player.message('The ship arrives at Karamja');
         } else {
             await player.say("Oh dear I don't seem to have enough money");
