@@ -8,6 +8,9 @@ const DEFAULT_CURRENCY = 10;
 // (per https://classic.runescape.wiki/w/Shop)
 const ITEM_STACK_CAPACITY = Math.pow(2, 16) - 1;
 
+// maximum number of items a shop can hold
+const ITEM_CAPACITY = 40;
+
 function getMinimumSellPrice(item) {
     return Math.floor(item.definition.price * 0.1);
 }
@@ -33,7 +36,7 @@ class Shop {
         // the items being sold and current prices
         this.items = this.definition.items
             .slice()
-            .map((item) => new Item(item));
+            .map(item => new Item(item));
 
         this.general = this.definition.general;
         this.sellMultiplier = this.definition.sellMultiplier;
@@ -41,8 +44,6 @@ class Shop {
         this.currency = this.definition.currency || DEFAULT_CURRENCY;
 
         this.updateTimeout = null;
-
-        this.refreshPrices();
 
         this.boundRestock = this.restock.bind(this);
     }
@@ -53,8 +54,45 @@ class Shop {
         return this.definition.items.find((item) => item.id === id);
     }
 
-    refreshPrices() {
-        for (let i = 0; i < this.items.length; i += 1) {}
+    getItemPrice(item, isSelling) {
+        const shopItem = this.isShopInventory(item) || { amount: -2 };
+        const equilibrium = shopItem.amount;
+
+        const percent = equilibrium > 100 ? 0.01 : 0.05;
+
+        console.log(item);
+
+        const value = {
+            min: item.definition.price / 4,
+            max: item.definition.price * 2
+        };
+
+        let price = item.definition.price;
+
+        if (isSelling) {
+            price *= 0.5;
+            if (item.amount > equilibrium) {
+                price -= Math.floor(price * (percent * (item.amount - equilibrium)));
+            }
+        } else {
+            // is buying
+            if (item.amount < equilibrium) {
+                price += Math.floor(price * (percent * (equilibrium - item.amount)));
+            }
+        }
+
+        if (price > value.max) {
+            price = value.max;
+        } else if (price < value.min) {
+            price = value.min;
+        }
+
+        if (price === 0 && !isSelling) {
+            // minimum buying price of 1
+            return 1;
+        }
+
+        return price;
     }
 
     // TODO: normalizeStock() seems better since this adds AND removes stock
@@ -62,7 +100,7 @@ class Shop {
         let updated = false;
 
         for (const [index, item] of this.items.entries()) {
-            const shopInventory = this.isShopInventory(this, item);
+            const shopInventory = this.isShopInventory(item);
 
             if (shopInventory) {
                 // regular shop item
@@ -86,7 +124,6 @@ class Shop {
             }
         }
 
-        // "re-open" the shop, this refreshes the shop's stock on the client
         if (updated) {
             this.updateOccupants();
         }
@@ -106,8 +143,6 @@ class Shop {
         }
     }
 
-    // note: Shops cannot contain more than 65,535 (2^16 - 1) of a single type
-    // of item because of Jagex's use of unsigned 16-bit integers.
     sell(player, id, price) {
         if (!this.occupants.has(player)) {
             return;
@@ -118,8 +153,8 @@ class Shop {
             return;
         }
 
-        const item = { id: id };
-        const shopInventory = this.isShopInventory(this, item);
+        const item = new Item({ id });
+        const shopInventory = this.isShopInventory(item);
 
         if (!this.general && !shopInventory) {
             player.message('You cannot sell this item to this shop');
@@ -127,19 +162,34 @@ class Shop {
         }
 
         // TODO check if price is correct
-
-        player.inventory.remove(id);
+        player.message(`sell price: ${this.getItemPrice(item, true)}`);
 
         const shopItem = this.items.find((i) => i.id === id);
 
         if (shopItem) {
-            shopItem.amount += 1;
+            // the shop has this item, now check if the shop's capcity has
+            // been met
+            if (shopItem.amount < ITEM_STACK_CAPACITY) {
+                shopItem.amount += 1;
+            } else {
+                player.message('This shop has enough of that item');
+                return;
+            }
         } else {
-            this.items.push(new Item(id));
+            // shop doesn't already contain the item, check if the shop can
+            // hold new items
+            if (this.items.length < ITEM_CAPACITY) {
+                this.items.push(new Item({ id }));
+            } else {
+                player.message('This shop is full');
+                return;
+            }
         }
 
+        player.inventory.remove(id);
         player.inventory.add(this.currency, price);
 
+        // start a timer to update the shops occupants on the next game tick
         if (this.updateTimeout) {
             this.world.clearTickTimeout(this.updateTimeout);
         }
