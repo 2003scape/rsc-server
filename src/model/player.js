@@ -466,9 +466,9 @@ class Player extends Character {
                 amount: item.amount,
                 price: shop.getItemDeltaPrice(item)
             })),
-            general: shop.general,
-            buyMultiplier: shop.buyMultiplier,
-            sellMultiplier: shop.sellMultiplier
+            general: shop.definition.general,
+            buyMultiplier: shop.definition.buyMultiplier,
+            sellMultiplier: shop.definition.sellMultiplier
         });
     }
 

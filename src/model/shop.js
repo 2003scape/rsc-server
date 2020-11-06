@@ -34,67 +34,20 @@ class Shop {
         this.occupants = new Set();
 
         // the items being sold and current prices
-        this.items = this.definition.items
-            .slice()
-            .map((item) => new Item(item));
+        this.items = this.definition.items.map((item) => new Item(item));
 
-        this.general = this.definition.general;
-        this.sellMultiplier = this.definition.sellMultiplier;
-        this.buyMultiplier = this.definition.buyMultiplier;
         this.currency = this.definition.currency || DEFAULT_CURRENCY;
 
         this.updateTimeout = null;
 
         this.boundRestock = this.restock.bind(this);
+        this.boundUpdate = this.update.bind(this);
     }
 
     // determines whether or not an item is part of a shop's "regular" inventory
-    // returns the object {id, amount} if true, otherwise null
+    // returns the object {id, amount} if true, otherwise undefined
     getShopInventory({ id }) {
         return this.definition.items.find((item) => item.id === id);
-    }
-
-    getItemPrice(item, isSelling) {
-        const shopItem = this.getShopInventory(item) || { amount: -2 };
-        const equilibrium = shopItem.amount;
-
-        const percent = equilibrium > 100 ? 0.01 : 0.05;
-
-        const value = {
-            min: item.definition.price / 4,
-            max: item.definition.price * 2
-        };
-
-        let price = item.definition.price;
-
-        if (isSelling) {
-            price *= 0.5;
-            if (item.amount > equilibrium) {
-                price -= Math.floor(
-                    price * (percent * (item.amount - equilibrium))
-                );
-            }
-        } else {
-            // is buying
-            if (item.amount < equilibrium) {
-                price += Math.floor(
-                    price * (percent * (equilibrium - item.amount))
-                );
-            }
-        }
-
-        if (price > value.max) {
-            price = value.max;
-        } else if (price < value.min) {
-            price = value.min;
-        }
-
-        if (price === 0 && !isSelling) {
-            // minimum buying price of 1
-            return 1;
-        }
-
-        return price;
     }
 
     getItemDeltaPrice(item) {
@@ -108,7 +61,20 @@ class Shop {
         return (stockAmount - item.amount) * this.definition.delta;
     }
 
-    // TODO: normalizeStock() seems better since this adds AND removes stock
+    getItemPrice(item, isSelling) {
+        const multiplier = this.definition[
+            `${isSelling ? 'buy' : 'sell'}Multiplier`
+        ];
+
+        let priceMod = multiplier + this.getItemDeltaPrice(item);
+
+        if (priceMod < 10) {
+            priceMod = 10;
+        }
+
+        return Math.floor((priceMod * item.definition.price) / 100);
+    }
+
     restock() {
         let updated = false;
 
@@ -154,6 +120,48 @@ class Shop {
         if (!this.occupants.has(player)) {
             return;
         }
+
+        const shopItem = this.items.find((i) => i.id === id);
+
+        // trying to buy non-existent item
+        if (!shopItem) {
+            return;
+        }
+
+        if (shopItem.amount <= 0) {
+            player.message('The shop has ran out of stock');
+            return;
+        }
+
+        const itemPrice = this.getItemPrice(shopItem, false);
+
+        if (price !== itemPrice) {
+            return;
+        }
+
+        if (!player.inventory.has(10, itemPrice)) {
+            player.message("You don't have enough coins");
+            return;
+        }
+
+        shopItem.amount -= 1;
+
+        const inInventory = !!this.getShopInventory(shopItem);
+
+        if (shopItem.amount <= 0 && !inInventory) {
+            this.items.splice(this.items.indexOf(shopItem), 1);
+        }
+
+        player.inventory.remove(this.currency, price);
+        player.inventory.add(shopItem.id);
+        player.sendSound('coins');
+
+        // start a timer to update the shops occupants on the next game tick
+        if (this.updateTimeout) {
+            this.world.clearTickTimeout(this.updateTimeout);
+        }
+
+        this.updateTimeout = this.world.nextTick(this.boundUpdate);
     }
 
     sell(player, id, price) {
@@ -167,17 +175,27 @@ class Shop {
         }
 
         const item = new Item({ id });
-        const shopInventory = this.getShopInventory(item);
+        const shopInventoryItem = this.getShopInventory(item);
 
-        if (!this.general && !shopInventory) {
+        if (!this.definition.general && !shopInventoryItem) {
             player.message('You cannot sell this item to this shop');
             return;
         }
 
-        // TODO check if price is correct
-        player.message(`sell price: ${this.getItemPrice(item, true)}`);
-
         const shopItem = this.items.find((i) => i.id === id);
+
+        item.amount = 0;
+
+        // get the price of the shop item with amount, otherwise
+        const itemPrice = shopItem
+            ? this.getItemPrice(shopItem, true)
+            : this.getItemPrice(item, true);
+
+        if (price !== itemPrice) {
+            return;
+        }
+
+        item.amount = 1;
 
         if (shopItem) {
             // the shop has this item, now check if the shop's capcity has
@@ -193,7 +211,7 @@ class Shop {
             // shop doesn't already contain the item, check if the shop can
             // hold new items
             if (this.items.length < ITEM_CAPACITY) {
-                this.items.push(new Item({ id }));
+                this.items.push(item);
             } else {
                 player.message('This shop is full');
                 return;
@@ -202,16 +220,19 @@ class Shop {
 
         player.inventory.remove(id);
         player.inventory.add(this.currency, price);
+        player.sendSound('coins');
 
         // start a timer to update the shops occupants on the next game tick
         if (this.updateTimeout) {
             this.world.clearTickTimeout(this.updateTimeout);
         }
 
-        this.updateTimeout = this.world.nextTick(() => {
-            this.updateOccupants();
-            this.updateTimeout = null;
-        });
+        this.updateTimeout = this.world.nextTick(this.boundUpdate);
+    }
+
+    update() {
+        this.updateOccupants();
+        this.updateTimeout = null;
     }
 }
 
