@@ -459,7 +459,17 @@ class Player extends Character {
         shop.occupants.add(this);
         this.shop = shop;
 
-        this.send({ type: 'shopOpen', ...shop });
+        this.send({
+            type: 'shopOpen',
+            items: shop.items.map((item) => ({
+                id: item.id,
+                amount: item.amount,
+                price: shop.getItemDeltaPrice(item)
+            })),
+            general: shop.general,
+            buyMultiplier: shop.buyMultiplier,
+            sellMultiplier: shop.sellMultiplier
+        });
     }
 
     exitShop(send = true) {

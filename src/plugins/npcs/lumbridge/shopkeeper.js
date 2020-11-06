@@ -1,7 +1,7 @@
-const LUMBRIDGE_SHOPKEEPERS = [55, 83];
+const SHOPKEEPER_IDS = new Set([55, 83]);
 
 async function onTalkToNPC(player, npc) {
-    if (!LUMBRIDGE_SHOPKEEPERS.includes(npc.id)) {
+    if (!SHOPKEEPER_IDS.has(npc.id)) {
         return false;
     }
 
@@ -24,6 +24,7 @@ async function onTalkToNPC(player, npc) {
             player.disengage();
             break;
     }
+
     return true;
 }
 

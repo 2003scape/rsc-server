@@ -36,7 +36,7 @@ class Shop {
         // the items being sold and current prices
         this.items = this.definition.items
             .slice()
-            .map(item => new Item(item));
+            .map((item) => new Item(item));
 
         this.general = this.definition.general;
         this.sellMultiplier = this.definition.sellMultiplier;
@@ -50,17 +50,15 @@ class Shop {
 
     // determines whether or not an item is part of a shop's "regular" inventory
     // returns the object {id, amount} if true, otherwise null
-    isShopInventory({ id }) {
+    getShopInventory({ id }) {
         return this.definition.items.find((item) => item.id === id);
     }
 
     getItemPrice(item, isSelling) {
-        const shopItem = this.isShopInventory(item) || { amount: -2 };
+        const shopItem = this.getShopInventory(item) || { amount: -2 };
         const equilibrium = shopItem.amount;
 
         const percent = equilibrium > 100 ? 0.01 : 0.05;
-
-        console.log(item);
 
         const value = {
             min: item.definition.price / 4,
@@ -72,12 +70,16 @@ class Shop {
         if (isSelling) {
             price *= 0.5;
             if (item.amount > equilibrium) {
-                price -= Math.floor(price * (percent * (item.amount - equilibrium)));
+                price -= Math.floor(
+                    price * (percent * (item.amount - equilibrium))
+                );
             }
         } else {
             // is buying
             if (item.amount < equilibrium) {
-                price += Math.floor(price * (percent * (equilibrium - item.amount)));
+                price += Math.floor(
+                    price * (percent * (equilibrium - item.amount))
+                );
             }
         }
 
@@ -95,12 +97,23 @@ class Shop {
         return price;
     }
 
+    getItemDeltaPrice(item) {
+        const shopItem = this.getShopInventory(item);
+        let stockAmount = 0;
+
+        if (shopItem) {
+            stockAmount = shopItem.amount;
+        }
+
+        return (stockAmount - item.amount) * this.definition.delta;
+    }
+
     // TODO: normalizeStock() seems better since this adds AND removes stock
     restock() {
         let updated = false;
 
         for (const [index, item] of this.items.entries()) {
-            const shopInventory = this.isShopInventory(item);
+            const shopInventory = this.getShopInventory(item);
 
             if (shopInventory) {
                 // regular shop item
@@ -154,7 +167,7 @@ class Shop {
         }
 
         const item = new Item({ id });
-        const shopInventory = this.isShopInventory(item);
+        const shopInventory = this.getShopInventory(item);
 
         if (!this.general && !shopInventory) {
             player.message('You cannot sell this item to this shop');
@@ -172,6 +185,7 @@ class Shop {
             if (shopItem.amount < ITEM_STACK_CAPACITY) {
                 shopItem.amount += 1;
             } else {
+                // NOT KOSHER
                 player.message('This shop has enough of that item');
                 return;
             }
