@@ -9,28 +9,21 @@ function shopOpen(player) {
 }
 
 async function shopBuy({ player }, { id, price }) {
-    if (!shopOpen(player)) {
-        return;
+    if (shopOpen(player)) {
+        player.shop.buy(player, id, price);
     }
-
-    player.shop.buy(player, id, price);
 }
 
 async function shopSell({ player }, { id, price }) {
-    if (!shopOpen(player)) {
-        return;
+    if (shopOpen(player)) {
+        player.shop.sell(player, id, price);
     }
-
-    player.shop.sell(player, id, price);
 }
 
 async function shopClose({ player }) {
-    if (!player.interfaceOpen.shop) {
-        return;
+    if (player.interfaceOpen.shop) {
+        player.exitShop(false);
     }
-
-    player.exitShop(false);
-    player.unlock();
 }
 
 module.exports = { shopBuy, shopSell, shopClose };

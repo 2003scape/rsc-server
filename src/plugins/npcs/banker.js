@@ -18,8 +18,9 @@ async function onTalkToNPC(player, npc) {
     switch (choice) {
         case 0: // access
             await npc.say(`Certainly ${player.isMale() ? 'Sir' : 'Miss'}`);
-            player.openBank();
-            break;
+            player.disengage();
+            player.bank.open();
+            return true;
         // what is this?
         case 1: {
             await npc.say(

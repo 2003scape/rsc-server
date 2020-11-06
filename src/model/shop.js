@@ -11,14 +11,6 @@ const ITEM_STACK_CAPACITY = Math.pow(2, 16) - 1;
 // maximum number of items a shop can hold
 const ITEM_CAPACITY = 40;
 
-function getMinimumSellPrice(item) {
-    return Math.floor(item.definition.price * 0.1);
-}
-
-function getMinimumBuyPrice(item) {
-    return Math.floor(item.definition.price * 0.3);
-}
-
 class Shop {
     constructor(world, name) {
         this.world = world;

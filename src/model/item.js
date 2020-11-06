@@ -21,7 +21,7 @@ class Item {
     toJSON() {
         const json = { id: this.id };
 
-        if (this.definition.stackable) {
+        if (this.definition.stackable || this.amount > 1) {
             json.amount = this.amount || 1;
         }
 

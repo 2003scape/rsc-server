@@ -92,6 +92,9 @@ async function command({ player }, { command, args }) {
                 player.message(`unable to find player ${args[0]}`);
             }
             break;
+        case 'bank':
+            player.bank.open();
+            break;
     }
 }
 
