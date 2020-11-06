@@ -24,6 +24,7 @@ async function onGameObjectCommandTwo(player, gameObject) {
             const { x, y, direction } = gameObject;
 
             player.message('you pick the last banana');
+
             world.removeEntity('gameObjects', gameObject);
 
             const emptyBananaTree = new GameObject(world, {

@@ -45,6 +45,7 @@ const PLUGIN_TYPES = [
     'onWallObjectCommandOne',
     'onWallObjectCommandTwo',
     'onGroundItemTake',
+    'onUseWithGroundItem',
     'onUseWithGameObject',
     'onUseWithNPC'
 ];
