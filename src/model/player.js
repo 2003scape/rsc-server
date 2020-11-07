@@ -135,6 +135,9 @@ class Player extends Character {
         // Date.now() of last chat to prevent chat spam
         this.lastChat = 0;
 
+        // Date.now() of last sleep word request
+        this.lastSleepWord = 0;
+
         // how many ticks left until we re-generate 1 health again
         this.healTicks = HEAL_TICKS;
 
@@ -504,6 +507,44 @@ class Player extends Character {
         }
     }
 
+    refreshSleepWord() {
+        const { world } = this;
+        const { word, image } = world.captcha.generate();
+
+        this.sleepWord = word;
+        this.sleepImage = Captcha.toByteArray(image);
+    }
+
+    openSleep(bed = true) {
+        this.walkQueue.length = 0;
+        this.lock();
+        this.interfaceOpen.sleep = true;
+
+        this.sleepBed = bed;
+        this.refreshSleepWord();
+
+        this.send({ type: 'sleepOpen', captchaBytes: this.sleepImage });
+    }
+
+    exitSleep(refreshed = true) {
+        this.unlock();
+        this.interfaceOpen.sleep = false;
+
+        if (refreshed) {
+            this.fatigue = this.displayFatigue;
+            this.sendFatigue();
+            this.message('You wake up - feeling refreshed');
+        } else {
+            this.message('You are unexpectedly awoken! You still feel tired');
+        }
+
+        this.send({ type: 'sleepClose' });
+    }
+
+    sendSleepIncorrect() {
+        this.send({ type: 'sleepIncorrect' });
+    }
+
     // update the player's avatar
     setAppearance(appearance) {
         this.appearanceIndex += 1;
@@ -592,8 +633,13 @@ class Player extends Character {
             }
 
             this.fatigue += fatigueRate * experience;
+            this.fatigue = Math.min(MAX_FATIGUE, this.fatigue);
             this.sendFatigue();
         }
+
+        const { world } = this;
+
+        experience *= world.config.experienceRate;
 
         const nextLevel = experienceToLevel(
             this.skills[skill].experience + experience
@@ -626,14 +672,6 @@ class Player extends Character {
         this.questPoints += questPoints;
         this.sendStats();
         this.sendQuestList();
-    }
-
-    refreshSleepWord() {
-        const captcha = new Captcha();
-        const { word, image } = captcha.generate();
-
-        this.sleepWord = word;
-        this.sleepImage = Captcha.toByteArray(image);
     }
 
     die() {
@@ -815,8 +853,33 @@ class Player extends Character {
         }
     }
 
-    tick() {
+    normalizeStats() {
         this.regenerateHealth();
+    }
+
+    refreshDisplayFatigue() {
+        if (this.displayFatigue > 0) {
+            this.displayFatigue -= this.sleepBed
+                ? SLEEP_BED_RATE
+                : SLEEP_BAG_RATE;
+
+            if (this.displayFatigue < 0) {
+                this.displayFatigue = 0;
+            }
+        }
+
+        this.send({
+            type: 'playerStatFatigueAsleep',
+            fatigue: Math.floor(this.displayFatigue / 100)
+        });
+    }
+
+    tick() {
+        this.normalizeStats();
+
+        if (this.interfaceOpen.sleep) {
+            this.refreshDisplayFatigue();
+        }
 
         this.localEntities.updateNearby('players');
         this.localEntities.updateNearby('groundItems');

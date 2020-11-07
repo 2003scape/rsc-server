@@ -1,3 +1,4 @@
+const Captcha = require('@2003scape/rsc-captcha');
 const EntityList = require('./entity-list');
 const Shop = require('./shop');
 const bulk = require('bulk-require');
@@ -74,6 +75,8 @@ class World {
         this.gameObjects = new EntityList(this.planeWidth, totalHeight);
         this.wallObjects = new EntityList(this.planeWidth, totalHeight);
         this.groundItems = new EntityList(this.planeWidth, totalHeight);
+
+        this.captcha = new Captcha();
 
         // used for clearTickTimeout
         this.tickIndex = 0;
@@ -235,6 +238,7 @@ class World {
 
         this.loadShops();
         this.loadPlugins();
+        await this.captcha.loadFonts();
     }
 
     async callPlugin(handlerName, ...args) {

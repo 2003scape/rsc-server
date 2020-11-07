@@ -95,6 +95,10 @@ async function command({ player }, { command, args }) {
         case 'bank':
             player.bank.open();
             break;
+        case 'fatigue':
+            player.fatigue = 75000;
+            player.sendFatigue();
+            break;
     }
 }
 
