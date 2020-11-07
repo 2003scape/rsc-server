@@ -4,6 +4,7 @@ const Character = require('./character');
 const Inventory = require('./inventory');
 const LocalEntities = require('./local-entities');
 const log = require('bole')('player');
+const quests = require('@2003scape/rsc-data/quests');
 const regions = require('@2003scape/rsc-data/regions');
 const { formatSkillName, experienceToLevel } = require('../skills');
 
@@ -34,9 +35,13 @@ const SAVE_PROPERTIES = [
     'muteEndDate'
 ];
 
+// amounts fatigue goes down by with sleeping bags or beds
 const SLEEP_BAG_RATE = 4125;
 const SLEEP_BED_RATE = 16500;
 const MAX_FATIGUE = 75000;
+
+// how many ticks to wait before re-generating health
+const HEAL_TICKS = 100;
 
 class Player extends Character {
     constructor(world, socket, playerData) {
@@ -130,6 +135,9 @@ class Player extends Character {
         // Date.now() of last chat to prevent chat spam
         this.lastChat = 0;
 
+        // how many ticks left until we re-generate 1 health again
+        this.healTicks = HEAL_TICKS;
+
         this.loggedIn = false;
     }
 
@@ -151,6 +159,7 @@ class Player extends Character {
         this.sendGameSettings();
         this.sendPrivacySettings();
         this.sendStats();
+        this.sendQuestList();
         this.sendFatigue();
         this.inventory.sendAll();
         this.sendEquipmentBonuses();
@@ -306,6 +315,15 @@ class Player extends Character {
             type: 'playerStatList',
             skills: this.skills,
             questPoints: this.questPoints
+        });
+    }
+
+    sendQuestList() {
+        this.send({
+            type: 'playerQuestList',
+            questCompletion: quests.map((name) => {
+                return this.questStages[name] && this.questStages[name] === -1;
+            })
         });
     }
 
@@ -607,6 +625,7 @@ class Player extends Character {
     addQuestPoints(questPoints) {
         this.questPoints += questPoints;
         this.sendStats();
+        this.sendQuestList();
     }
 
     refreshSleepWord() {
@@ -618,6 +637,8 @@ class Player extends Character {
     }
 
     die() {
+        this.healTicks = 0;
+
         const itemsKept = this.inventory.removeMostValuable(3);
 
         for (const item of this.inventory.items) {
@@ -634,7 +655,6 @@ class Player extends Character {
         }
 
         this.sendStats();
-
         this.inventory.sendAll();
 
         for (const item of itemsKept) {
@@ -705,11 +725,6 @@ class Player extends Character {
 
     isAdministrator() {
         return this.rank >= 3;
-    }
-
-    lock() {
-        super.lock();
-        this.walkQueue.length = 0;
     }
 
     canWalk(deltaX, deltaY) {
@@ -788,7 +803,21 @@ class Player extends Character {
         }, 2);
     }
 
+    regenerateHealth() {
+        if (this.skills.hits.current < this.skills.hits.base) {
+            if (this.healTicks === 0) {
+                this.healTicks = HEAL_TICKS;
+                this.skills.hits.current += 1;
+                this.sendStats();
+            } else {
+                this.healTicks -= 1;
+            }
+        }
+    }
+
     tick() {
+        this.regenerateHealth();
+
         this.localEntities.updateNearby('players');
         this.localEntities.updateNearby('groundItems');
 

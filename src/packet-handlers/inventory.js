@@ -99,10 +99,23 @@ async function useWithGroundItem({ player }, { x, y, groundItemID, index }) {
     };
 }
 
+async function inventoryCommand({ player }, { index }) {
+    const item = player.inventory.items[index];
+
+    if (!item) {
+        throw new RangeError(`${player} used invalid item index for command`);
+    }
+
+    const { world } = player;
+
+    await world.callPlugin('onInventoryCommand', player, item);
+}
+
 module.exports = {
     groundItemTake,
     inventoryDrop,
     inventoryWear,
     inventoryUnequip,
-    useWithGroundItem
+    useWithGroundItem,
+    inventoryCommand
 };

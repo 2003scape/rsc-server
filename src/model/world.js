@@ -47,7 +47,8 @@ const PLUGIN_TYPES = [
     'onGroundItemTake',
     'onUseWithGroundItem',
     'onUseWithGameObject',
-    'onUseWithNPC'
+    'onUseWithNPC',
+    'onInventoryCommand'
 ];
 
 class World {
@@ -74,18 +75,17 @@ class World {
         this.wallObjects = new EntityList(this.planeWidth, totalHeight);
         this.groundItems = new EntityList(this.planeWidth, totalHeight);
 
+        // used for clearTickTimeout
         this.tickIndex = 0;
+
+        // { tickIndex: function() {} }
         this.tickFunctions = new Map();
 
-        // used to calculate average ms per tick
+        // used to calculate average ms per tick (every 100 ticks)
         this.deltaTickTimes = [];
 
         this.boundTick = this.tick.bind(this);
         this.boundSaveAllPlayers = this.saveAllPlayers.bind(this);
-
-
-        this.maxobjw = 0;
-        this.maxobjh = 0;
     }
 
     async loadLandscape() {
