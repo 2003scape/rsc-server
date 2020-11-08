@@ -1,3 +1,5 @@
+// https://classic.runescape.wiki/w/Cow
+
 const COW_IDS = new Set([6, 217]);
 const BUCKET_ID = 21;
 const MILK_ID = 22;

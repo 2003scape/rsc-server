@@ -65,7 +65,7 @@ async function useWithNPC({ player }, { npcIndex, index }) {
 
         const { world } = player;
 
-        const npc = await getNPC(npcIndex);
+        const npc = await getNPC(player, npcIndex);
 
         if (!npc || npc.locked) {
             return;

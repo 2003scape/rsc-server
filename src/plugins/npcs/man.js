@@ -1,8 +1,9 @@
 // https://classic.runescape.wiki/w/Transcript:Man
 
 // handle the darker-skinned men and farmers
-const NPC_IDS = [11, 63, 72];
+const MAN_IDS = new Set([11, 63, 72]);
 
+// export these so thieves can also use them
 async function killingCitizens(npc) {
     await npc.say(
         "I'm a little worried",
@@ -16,11 +17,13 @@ async function worriedAboutGoblins(player, npc) {
         'Not too bad',
         "I'm a little worried about the increase in Goblins these days"
     );
+
     await player.say("Don't worry. I'll kill them");
 }
 
 async function wishToTrade(player, npc) {
     await player.say('Do you wish to trade?');
+
     await npc.say(
         'No, I have nothing I wish to get rid of',
         'If you want to do some trading,',
@@ -35,6 +38,7 @@ async function searchOfQuest(player, npc) {
 
 async function enemiesToKill(player, npc) {
     await player.say("I'm in search of enemies to kill");
+
     await npc.say(
         "I've heard there are many fearsome creatures under the ground"
     );
@@ -63,11 +67,12 @@ async function howCanIHelp(player, npc) {
 }
 
 async function onTalkToNPC(player, npc) {
-    if (NPC_IDS.indexOf(npc.id) < 0) {
+    if (!MAN_IDS.has(npc.id)) {
         return false;
     }
 
     player.engage(npc);
+
     await player.say('Hello', "How's it going?");
 
     const roll = Math.floor(Math.random() * 14);

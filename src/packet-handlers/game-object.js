@@ -40,35 +40,37 @@ async function objectCommandTwo(socket, message) {
 }
 
 async function useWithObject({ player }, { x, y, index }) {
-    const item = player.inventory.items[index];
+    player.endWalkFunction = async () => {
+        const item = player.inventory.items[index];
 
-    if (!item) {
-        throw new RangeError(`invalid inventory index ${index}`);
-    }
+        if (!item) {
+            throw new RangeError(`invalid inventory index ${index}`);
+        }
 
-    const gameObject = getGameObject(player, x, y);
+        const gameObject = getGameObject(player, x, y);
 
-    if (!gameObject) {
-        return;
-    }
+        if (!gameObject) {
+            return;
+        }
 
-    const { world } = player;
+        const { world } = player;
 
-    player.lock();
-    player.faceEntity(gameObject);
+        player.lock();
+        player.faceEntity(gameObject);
 
-    const blocked = await world.callPlugin(
-        'onUseWithGameObject',
-        player,
-        gameObject,
-        item
-    );
+        const blocked = await world.callPlugin(
+            'onUseWithGameObject',
+            player,
+            gameObject,
+            item
+        );
 
-    player.unlock();
+        player.unlock();
 
-    if (!blocked) {
-        player.message('Nothing interesting happens');
-    }
+        if (!blocked) {
+            player.message('Nothing interesting happens');
+        }
+    };
 }
 
 module.exports = { objectCommandOne, objectCommandTwo, useWithObject };

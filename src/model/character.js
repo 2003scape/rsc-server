@@ -145,7 +145,7 @@ class Character extends Entity {
         this.unlock();
         this.fightStage = -1;
 
-        this.opponent.fightStage = 0;
+        this.opponent.fightStage = -1;
         this.opponent.direction = 0;
         this.opponent.broadcastDirection();
         this.opponent.opponent = null;

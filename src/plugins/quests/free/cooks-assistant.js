@@ -1,3 +1,6 @@
+// https://classic.runescape.wiki/w/Transcript:Cook
+// https://classic.runescape.wiki/w/Cook%27s_assistant
+
 const COOK_ID = 7;
 const EGG_ID = 19;
 const FLOUR_ID = 23;
@@ -134,7 +137,7 @@ async function onTalkToNPC(player, npc) {
             player.addQuestPoints(1);
             player.addExperience(
                 'cooking',
-                player.getBaseLevel('cooking') * 50 + 250,
+                player.skills.cooking.base * 50 + 250,
                 0
             );
         } else {

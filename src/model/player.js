@@ -642,7 +642,7 @@ class Player extends Character {
 
         const { world } = this;
 
-        experience *= world.config.experienceRate;
+        experience *= world.server.config.experienceRate;
 
         const nextLevel = experienceToLevel(
             this.skills[skill].experience + experience

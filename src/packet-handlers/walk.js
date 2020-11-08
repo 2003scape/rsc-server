@@ -32,22 +32,22 @@ function createSteps(startX, startY, endX, endY) {
 }
 
 async function walk({ player }, { targetX, targetY, steps }) {
-    if (player.locked) {
+    if (player.locked && player.opponent) {
+        if (player.combatRounds < 3) {
+            player.message(
+                "You can't retreat during the first 3 rounds of combat"
+            );
+
+            return;
+        } else {
+            player.retreat();
+        }
+    } else if (player.locked) {
         if (player.dontAnswer) {
             player.dontAnswer();
         }
 
-        if (player.opponent) {
-            if (player.combatRounds < 3) {
-                player.message(
-                    "You can't retreat during the first 3 rounds of combat"
-                );
-
-                return;
-            } else {
-                player.retreat();
-            }
-        }
+        return;
     }
 
     player.chasing = null;
