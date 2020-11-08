@@ -10,7 +10,7 @@ async function heal(player, amount) {
         player.skills.hits.base
     );
 
-    await world.sleepTicks(2);
+    await world.sleepTicks(1);
 
     if (oldHits < player.skills.hits.current) {
         player.message('@que@It heals some health');

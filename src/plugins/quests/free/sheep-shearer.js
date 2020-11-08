@@ -151,6 +151,12 @@ async function onTalkToNPC(player, npc) {
             while (player.inventory.has(BALL_OF_WOOL_ID)) {
                 const fredWool = player.cache.fredWool || 0;
 
+                player.message('You give Fred a ball of wool');
+                player.inventory.remove(BALL_OF_WOOL_ID);
+                player.cache.fredWool = fredWool + 1;
+
+                await world.sleepTicks(5);
+
                 if (fredWool >= 20) {
                     delete player.cache.fredWool;
                     await player.say('Thats all of them');
@@ -176,11 +182,6 @@ async function onTalkToNPC(player, npc) {
                     player.disengage();
                     return true;
                 }
-
-                player.message('You give Fred a ball of wool');
-                player.inventory.remove(BALL_OF_WOOL_ID);
-                player.cache.fredWool = fredWool + 1;
-                await world.sleepTicks(5);
             }
 
             await player.say("That's all I've got so far");
@@ -219,7 +220,6 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.disengage();
-
     return true;
 }
 

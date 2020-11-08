@@ -99,6 +99,9 @@ async function command({ player }, { command, args }) {
             player.fatigue = 75000;
             player.sendFatigue();
             break;
+        case 'chaseobj':
+            await player.chase(player.world.gameObjects.getByID(+args[0]));
+            break;
     }
 }
 

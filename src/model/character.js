@@ -117,7 +117,7 @@ class Character extends Entity {
         const { world } = this;
 
         const deltaX = character.x - this.x;
-        const deltaY =character.y - this.y;
+        const deltaY = character.y - this.y;
 
         if (deltaX !== 0 || deltaY !== 0) {
             this.walkTo(deltaX, deltaY);
@@ -203,6 +203,8 @@ class Character extends Entity {
             { x: entity.x, y: entity.y }
         );
 
+        path.push({ x: entity.x, y: entity.y });
+
         let x = this.x;
         let y = this.y;
 
@@ -214,9 +216,12 @@ class Character extends Entity {
             const deltaX = stepX - x;
             const deltaY = stepY - y;
 
-            if (
-                world.pathFinder.isValidGameStep({ x, y }, { deltaX, deltaY })
-            ) {
+            const validStep = world.pathFinder.isValidGameStep(
+                { x, y },
+                { deltaX, deltaY }
+            );
+
+            if (validStep) {
                 if (this.chasing) {
                     this.walkTo(deltaX, deltaY);
                 } else {
@@ -231,8 +236,9 @@ class Character extends Entity {
             x += deltaX;
             y += deltaY;
         }
-    }
 
+        this.chasing = null;
+    }
 }
 
 module.exports = Character;
