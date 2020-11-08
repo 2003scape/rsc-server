@@ -90,6 +90,7 @@ class Inventory {
             );
 
             this.player.world.addPlayerDrop(this.player, { id, amount });
+            this.player.sendSound('dropobject');
             return;
         }
 
@@ -178,6 +179,7 @@ class Inventory {
         this.updateEquipmentIndexes(index);
 
         this.player.world.addPlayerDrop(this.player, item);
+        this.player.sendSound('dropobject');
 
         this.sendRemove(index);
     }
@@ -213,11 +215,7 @@ class Inventory {
         this.sendUpdate(index, item);
 
         this.updateEquipmentBonuses();
-
-        this.player.localEntities.characterUpdates.playerAppearances.push(
-            this.player.getAppearanceUpdate()
-        );
-        this.player.broadcastPlayerAppearance();
+        this.player.broadcastPlayerAppearance(true);
     }
 
     equip(index) {

@@ -442,19 +442,7 @@ class Player extends Character {
         }
 
         this.sendStats();
-
-        const message = {
-            index: this.index,
-            damageTaken: damage,
-            currentHealth: this.skills.hits.current,
-            maxHealth: this.skills.hits.base
-        };
-
-        this.localEntities.characterUpdates.playerHits.push(message);
-
-        for (const player of this.localEntities.known.players) {
-            player.localEntities.characterUpdates.playerHits.push(message);
-        }
+        this.broadcastDamage(damage);
     }
 
     // send the blue or red teleport bubbles to the nearby players
@@ -601,7 +589,7 @@ class Player extends Character {
                 !player.localEntities.added.players.has(this) &&
                 !player.localEntities.removed.players.has(this)
             ) {
-                player.localEntities.spriteChangedCharacters.players.add(this);
+                player.localEntities.spriteChanged.players.add(this);
             }
         }
     }
@@ -616,8 +604,23 @@ class Player extends Character {
             if (!player.localEntities.known.players.has(this)) {
                 player.localEntities.added.players.add(this);
             } else {
-                player.localEntities.movedCharacters.players.add(this);
+                player.localEntities.moved.players.add(this);
             }
+        }
+    }
+
+    broadcastDamage(damage) {
+        const message = {
+            index: this.index,
+            damageTaken: damage,
+            currentHealth: this.skills.hits.current,
+            maxHealth: this.skills.hits.base
+        };
+
+        this.localEntities.characterUpdates.playerHits.push(message);
+
+        for (const player of this.localEntities.known.players) {
+            player.localEntities.characterUpdates.playerHits.push(message);
         }
     }
 
@@ -879,6 +882,16 @@ class Player extends Character {
 
         if (this.interfaceOpen.sleep) {
             this.refreshDisplayFatigue();
+        }
+
+        if (this.opponent) {
+            if (this.fightStage % 3 === 0) {
+                this.opponent.damage(0);
+                this.fightStage = 1;
+                this.combatRounds += 1;
+            } else {
+                this.fightStage += 1;
+            }
         }
 
         this.localEntities.updateNearby('players');

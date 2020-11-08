@@ -37,7 +37,17 @@ async function walk({ player }, { targetX, targetY, steps }) {
             player.dontAnswer();
         }
 
-        return;
+        if (player.opponent) {
+            if (player.combatRounds < 3) {
+                player.message(
+                    "You can't retreat during the first 3 rounds of combat"
+                );
+
+                return;
+            } else {
+                player.retreat();
+            }
+        }
     }
 
     player.chasing = null;

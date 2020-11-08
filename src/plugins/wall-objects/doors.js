@@ -17,8 +17,10 @@ async function onWallObjectCommandOne(player, wallObject) {
         y: wallObject.y
     });
 
-    player.sendSound('opendoor');
+    world.removeEntity('wallObjects', wallObject);
     world.addEntity('wallObjects', doorframe);
+    player.sendSound('opendoor');
+
     return true;
 }
 
@@ -36,8 +38,10 @@ async function onWallObjectCommandTwo(player, wallObject) {
         y: wallObject.y
     });
 
-    player.sendSound('closedoor');
+    world.removeEntity('wallObjects', wallObject);
     world.addEntity('wallObjects', door);
+    player.sendSound('closedoor');
+
     return true;
 }
 

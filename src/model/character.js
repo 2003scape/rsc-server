@@ -21,6 +21,8 @@ class Character extends Entity {
         // the character we're fighting
         this.opponent = null;
 
+        this.fightStage = -1;
+
         // the character we're talking to
         this.interlocutor = null;
 
@@ -109,6 +111,49 @@ class Character extends Entity {
             this.interlocutor.interlocutor = null;
             this.interlocutor = null;
         }
+    }
+
+    async attack(character) {
+        const { world } = this;
+
+        const deltaX = character.x - this.x;
+        const deltaY =character.y - this.y;
+
+        if (deltaX !== 0 || deltaY !== 0) {
+            this.walkTo(deltaX, deltaY);
+            await world.sleepTicks(1);
+        }
+
+        this.lock();
+        this.opponent = character;
+        this.combatRounds = 0;
+        this.fightStage = 0;
+        this.direction = 9;
+        this.broadcastDirection();
+
+        character.lock();
+        character.opponent = this;
+        character.combatRounds = 0;
+        character.fightStage = 1;
+        character.direction = 8;
+        character.broadcastDirection();
+    }
+
+    async retreat() {
+        const { world } = this;
+
+        this.unlock();
+        this.fightStage = -1;
+
+        this.opponent.fightStage = 0;
+        this.opponent.direction = 0;
+        this.opponent.broadcastDirection();
+        this.opponent.opponent = null;
+
+        await world.sleepTicks(1);
+
+        this.opponent.unlock();
+        this.opponent = null;
     }
 
     // collision detection for players and NPCs to determine if next step is

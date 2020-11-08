@@ -49,7 +49,8 @@ const PLUGIN_TYPES = [
     'onUseWithGroundItem',
     'onUseWithGameObject',
     'onUseWithNPC',
-    'onInventoryCommand'
+    'onInventoryCommand',
+    'onNPCAttack'
 ];
 
 class World {
@@ -284,7 +285,6 @@ class World {
             this.removeEntity('groundItems', groundItem);
         }, DROP_DISAPPEAR_TIMEOUT);
 
-        player.sendSound('dropobject');
         this.addEntity('groundItems', groundItem);
     }
 

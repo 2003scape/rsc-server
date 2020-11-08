@@ -41,14 +41,14 @@ class LocalEntities {
         };
 
         // characters that have changed position
-        this.movedCharacters = {
+        this.moved = {
             players: new Set(),
             npcs: new Set()
         };
 
         // used when character changes sprite angle but not direction (for
         // entering combat or facing a different direction)
-        this.spriteChangedCharacters = {
+        this.spriteChanged = {
             players: new Set(),
             npcs: new Set()
         };
@@ -58,7 +58,8 @@ class LocalEntities {
             playerChat: [],
             playerBubbles: [],
             playerHits: [],
-            npcChat: []
+            npcChat: [],
+            npcHits: []
         };
     }
 
@@ -160,9 +161,9 @@ class LocalEntities {
         for (const entity of this.known[type]) {
             if (this.removed[type].has(entity)) {
                 known.push({ removing: true });
-            } else if (this.movedCharacters[type].has(entity)) {
+            } else if (this.moved[type].has(entity)) {
                 known.push({ moved: true, sprite: entity.direction });
-            } else if (this.spriteChangedCharacters[type].has(entity)) {
+            } else if (this.spriteChanged[type].has(entity)) {
                 known.push({ spriteChanged: true, sprite: entity.direction });
             } else {
                 known.push({});
@@ -187,8 +188,8 @@ class LocalEntities {
 
         this.updateKnown('players');
 
-        this.movedCharacters.players.clear();
-        this.spriteChangedCharacters.players.clear();
+        this.moved.players.clear();
+        this.spriteChanged.players.clear();
     }
 
     // send updates regarding the currently known player entities
@@ -236,22 +237,25 @@ class LocalEntities {
         }
 
         this.updateKnown('npcs');
-        this.movedCharacters.npcs.clear();
-        this.spriteChangedCharacters.npcs.clear();
+        this.moved.npcs.clear();
+        this.spriteChanged.npcs.clear();
     }
 
     sendRegionNPCUpdates() {
-        if (!this.characterUpdates.npcChat.length) {
+        const updates = this.characterUpdates;
+
+        if (!updates.npcChat.length && !updates.npcHits.length) {
             return;
         }
 
         this.player.send({
             type: 'regionNPCUpdate',
-            chats: this.characterUpdates.npcChat,
-            hits: []
+            chats: updates.npcChat,
+            hits: updates.npcHits
         });
 
-        this.characterUpdates.npcChat.length = 0;
+        updates.npcChat.length = 0;
+        updates.npcHits.length = 0;
     }
 
     sendRegionObjects() {

@@ -74,13 +74,17 @@ async function useWithGroundItem({ player }, { x, y, groundItemID, index }) {
             );
         }
 
+        const { world } = player;
+
+        if (item.definition.members && !world.members) {
+            return;
+        }
+
         const groundItem = getGroundItem(player, groundItemID, x, y);
 
         if (!groundItem) {
             return;
         }
-
-        const { world } = player;
 
         player.faceEntity(groundItem);
 
@@ -107,6 +111,11 @@ async function inventoryCommand({ player }, { index }) {
     }
 
     const { world } = player;
+
+    // prevent burying dragon bones on f2p worlds etc.
+    if (item.definition.members && !world.members) {
+        return;
+    }
 
     await world.callPlugin('onInventoryCommand', player, item);
 }

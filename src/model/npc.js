@@ -63,6 +63,10 @@ class NPC extends Character {
 
         // we only need to know which players can see the NPC
         this.knownPlayers = new Set();
+
+        // used to calculate who should get the drop
+        // { player.id: damage }
+        this.playerDamage = new Map();
     }
 
     async say(...messages) {
@@ -78,12 +82,19 @@ class NPC extends Character {
         await this.world.sleepTicks(1);
     }
 
-    attack(player) {}
+    damage(damage) {
+        this.skills.hits.current -= damage;
 
-    damage(damage) {}
+        if (this.skills.hits.current <= 0) {
+            this.die();
+            return;
+        }
 
-    // run away from the player for a certain number of ticks
-    retreat(ticks = 8) {}
+        this.broadcastDamage(damage);
+    }
+
+    die() {
+    }
 
     // beeline towards the player
     chase(player) {}
@@ -117,7 +128,7 @@ class NPC extends Character {
         for (const player of this.knownPlayers) {
             if (!player.loggedIn || !player.withinRange(this, 16)) {
                 player.localEntities.removed.npcs.add(this);
-                player.localEntities.movedCharacters.npcs.delete(this);
+                player.localEntities.moved.npcs.delete(this);
                 this.knownPlayers.delete(player);
             }
         }
@@ -205,17 +216,40 @@ class NPC extends Character {
 
     broadcastDirection() {
         for (const player of this.knownPlayers) {
-            player.localEntities.spriteChangedCharacters.npcs.add(this);
+            player.localEntities.spriteChanged.npcs.add(this);
         }
     }
 
     broadcastMove() {
         for (const player of this.knownPlayers) {
-            player.localEntities.movedCharacters.npcs.add(this);
+            player.localEntities.moved.npcs.add(this);
+        }
+    }
+
+    broadcastDamage(damage) {
+        const message = {
+            index: this.index,
+            damageTaken: damage,
+            currentHealth: this.skills.hits.current,
+            maxHealth: this.skills.hits.base
+        };
+
+        for (const player of this.knownPlayers) {
+            player.localEntities.characterUpdates.npcHits.push(message);
         }
     }
 
     tick() {
+        if (this.opponent) {
+            if (this.fightStage % 3 === 0) {
+                this.opponent.damage(0);
+                this.fightStage = 1;
+                this.combatRounds += 1;
+            } else {
+                this.fightStage += 1;
+            }
+        }
+
         if (
             !this.stationary && !this.locked &&
             (this.knownPlayers.size || this.stepsLeft > 0)
