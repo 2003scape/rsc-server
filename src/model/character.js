@@ -114,14 +114,11 @@ class Character extends Entity {
     }
 
     async attack(character) {
-        const { world } = this;
-
         const deltaX = character.x - this.x;
         const deltaY = character.y - this.y;
 
         if (deltaX !== 0 || deltaY !== 0) {
-            this.walkTo(deltaX, deltaY);
-            await world.sleepTicks(1);
+            await this.chase(character);
         }
 
         this.lock();
@@ -193,17 +190,15 @@ class Character extends Entity {
         this.faceDirection(oldX - this.x, oldY - this.y);
     }
 
-    async chase(entity) {
+    async walkToPosition(destX, destY) {
         const { world } = this;
-
-        this.chasing = entity;
 
         const path = world.pathFinder.getLineOfSight(
             { x: this.x, y: this.y },
-            { x: entity.x, y: entity.y }
+            { x: destX, y: destY }
         );
 
-        path.push({ x: entity.x, y: entity.y });
+        path.push({ x: destX, y: destY });
 
         let x = this.x;
         let y = this.y;
@@ -222,13 +217,10 @@ class Character extends Entity {
             );
 
             if (validStep) {
-                if (this.chasing) {
+                if (!this.walkQueue.length) {
                     this.walkTo(deltaX, deltaY);
-                } else {
-                    break;
+                    await world.sleepTicks(1);
                 }
-
-                await world.sleepTicks(1);
             } else {
                 break;
             }
@@ -236,7 +228,11 @@ class Character extends Entity {
             x += deltaX;
             y += deltaY;
         }
+    }
 
+    async chase(entity) {
+        this.chasing = entity;
+        await this.walkToPosition(entity.x, entity.y);
         this.chasing = null;
     }
 }

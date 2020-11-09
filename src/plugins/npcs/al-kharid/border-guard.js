@@ -1,4 +1,5 @@
 // https://classic.runescape.wiki/w/Transcript:Border_Guard
+
 const GameObject = require('../../../model/game-object');
 
 const CLOSED_GATE_ID = 180;
@@ -15,13 +16,14 @@ const BORDER_GUARD_EXIT = 162;
 async function handleGate(player, entry) {
     const { world } = player;
 
-    const gameObject =
-        world.gameObjects.getByID(CLOSED_GATE_ID) ||
-        world.gameObjects.getByID(OPEN_GATE_ID);
-
-    await player.chase(gameObject);
-
+    const gameObject = world.gameObjects.getByID(CLOSED_GATE_ID);
     const { x, y, direction } = gameObject;
+
+    if (entry) {
+        await player.walkToPosition(92, 649);
+    } else {
+        await player.walkToPosition(91, 649);
+    }
 
     world.removeEntity('gameObjects', gameObject);
 

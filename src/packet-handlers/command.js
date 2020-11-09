@@ -82,8 +82,9 @@ async function command({ player }, { command, args }) {
          case 'shop':
             player.openShop(args[0]);
             break;
-        case 'give':
+        case 'give': {
             const other = player.world.getPlayerByUsername(args[0]);
+
             if (other) {
                 other.inventory.add(+args[1], +args[2] || 1);
                 other.message(`${player.username} gave you an item`);
@@ -92,6 +93,7 @@ async function command({ player }, { command, args }) {
                 player.message(`unable to find player ${args[0]}`);
             }
             break;
+        }
         case 'bank':
             player.bank.open();
             break;
@@ -100,7 +102,7 @@ async function command({ player }, { command, args }) {
             player.sendFatigue();
             break;
         case 'chaseobj':
-            await player.chase(player.world.gameObjects.getByID(+args[0]));
+            await player.chase(player.world.gameObjects.getByID(+args[0]), false);
             break;
     }
 }
