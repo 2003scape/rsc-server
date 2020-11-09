@@ -270,17 +270,20 @@ class NPC extends Character {
         }
     }
 
+    fight() {
+        if (this.fightStage % 3 === 0) {
+            const damage = rollNPCDamage(this, this.opponent);
+            this.opponent.damage(damage);
+            this.fightStage = 1;
+            this.combatRounds += 1;
+        } else {
+            this.fightStage += 1;
+        }
+    }
+
     tick() {
         if (this.opponent) {
-            if (this.fightStage % 3 === 0) {
-                const damage = rollNPCDamage(this, this.opponent);
-                console.log('npc doing', damage);
-                this.opponent.damage(damage);
-                this.fightStage = 1;
-                this.combatRounds += 1;
-            } else {
-                this.fightStage += 1;
-            }
+            this.fight();
         }
 
         if (

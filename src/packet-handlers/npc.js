@@ -96,6 +96,10 @@ async function npcAttack({ player }, { index }) {
             return;
         }
 
+        if (!npc.definition.hostility) {
+            throw new Error(`${player} trying to attack unattackable NPC`);
+        }
+
         if (npc.opponent || npc.locked) {
             return;
         }

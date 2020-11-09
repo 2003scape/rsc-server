@@ -130,21 +130,19 @@ function rollPlayerNPCDamage(player, npc) {
     const maxHit = getMaxHit(player);
     const protection = npc.skills.defense.current * (1 / 600 + 0.1);
 
-    console.log('our accuracy', accuracy);
-    console.log('our max hit', maxHit);
-
     return rollDamage(accuracy, maxHit, protection);
+}
+
+function rollPlayerPlayerDamage(player, player) {
+    return 0;
 }
 
 function rollNPCDamage(npc, player) {
     const accuracy = npc.skills.attack.current * (1 / 600 + 0.1);
-    const maxHit = npc.skills.strength.current * (1 / 600 + 0.1);
+    const maxHit = Math.ceil(npc.skills.strength.current * (1 / 600 + 0.1));
     const protection = getProtection(player);
-
-    console.log('npc accuracy', accuracy);
-    console.log('npc max hit', maxHit);
 
     return rollDamage(accuracy, maxHit, protection);
 }
 
-module.exports = { rollPlayerNPCDamage, rollNPCDamage };
+module.exports = { rollPlayerNPCDamage, rollPlayerPlayerDamage, rollNPCDamage };
