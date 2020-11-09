@@ -52,28 +52,11 @@ function getPrayerBonuses(player) {
     return bonuses;
 }
 
-function getGaussian(meanModifier, maximum) {
-    const mean = maximum * meanModifier;
-    const deviation = mean * 1.79;
-    const normal = random.normal(mean, deviation);
-
-    let value;
-
-    do {
-        value = Math.floor(mean + normal() * deviation);
-    } while (value < 0 || value > maximum);
-
-    return value;
-}
-
 function getAccuracy(player) {
     const styleBonus = getStyleBonus(player, 'attack');
     const prayerBonus = getPrayerBonuses(player).attack;
-
-    const attackLevel =
-        Math.floor(player.skills.attack.current * prayerBonus) + styleBonus + 8;
-
-    const bonusMultiplier = player.equipmentBonuses.weaponAim + 64;
+    const attackLevel = player.skills.attack.current * prayerBonus + styleBonus;
+    const bonusMultiplier = player.equipmentBonuses.weaponAim * (1 / 600) + 0.1;
 
     return attackLevel * bonusMultiplier;
 }
@@ -83,11 +66,9 @@ function getProtection(player) {
     const prayerBonus = getPrayerBonuses(player).defense;
 
     const defenseLevel =
-        Math.floor(player.skills.defense.current * prayerBonus) +
-        styleBonus +
-        8;
+        player.skills.defense.current * prayerBonus + styleBonus;
 
-    const bonusMultiplier = player.equipmentBonuses.armour + 64;
+    const bonusMultiplier = player.equipmentBonuses.armour * (1 / 600) + 0.1;
 
     return defenseLevel * bonusMultiplier;
 }
@@ -97,37 +78,57 @@ function getMaxHit(player) {
     const prayerBonus = getPrayerBonuses(player).strength;
 
     const strengthLevel =
-        Math.floor(player.skills.strength.current * prayerBonus) +
-        styleBonus +
-        8;
+        player.skills.strength.current * prayerBonus + styleBonus;
 
-    const bonusMultiplier = (player.equipmentBonuses.weaponPower + 64) / 640;
+    const bonusMultiplier =
+        player.equipmentBonuses.weaponPower * (1 / 600) + 0.1;
 
-    return Math.floor(strengthLevel * bonusMultiplier + 0.5);
+    return Math.ceil(strengthLevel * bonusMultiplier);
 }
 
 function rollDamage(accuracy, maxHit, protection) {
-    if (accuracy * 10 < protection) {
+    const odds = Math.floor(Math.min(212, (255 * accuracy) / (protection * 4)));
+    const roll = Math.random() * 256;
+
+    if (roll > odds) {
         return 0;
     }
 
-    if (accuracy > protection) {
-        accuracy = 1.0 - (protection + 2.0) / (2.0 * (accuracy + 1.0))
-    } else {
-        accuracy /= 2.0 * (protection + 1.0);
+    if (maxHit === 0 || maxHit === 1) {
+        return maxHit;
     }
 
-    if (accuracy > Math.random()) {
-        return Math.floor(getGaussian(1.0, maxHit));
+    const mean = maxHit / 2;
+    const deviation = maxHit / 3;
+    const normal = random.normal(mean, deviation);
+
+    let i = 0;
+    let value;
+
+    do {
+        value = Math.floor(mean + normal() * deviation);
+        i += 1;
+
+        if (i >= 25) {
+            break;
+        }
+    } while (value < 1 || value > maxHit);
+
+    if (value > maxHit) {
+        return maxHit;
     }
 
-    return 0;
+    if (value < 1) {
+        return 1;
+    }
+
+    return Math.floor(value);
 }
 
 function rollPlayerNPCDamage(player, npc) {
     const accuracy = getAccuracy(player);
     const maxHit = getMaxHit(player);
-    const protection = npc.skills.defense.current + 65 * 0.9;
+    const protection = npc.skills.defense.current * (1 / 600 + 0.1);
 
     console.log('our accuracy', accuracy);
     console.log('our max hit', maxHit);
@@ -136,12 +137,8 @@ function rollPlayerNPCDamage(player, npc) {
 }
 
 function rollNPCDamage(npc, player) {
-    const accuracy = npc.skills.attack.current * (65 * 0.9);
-
-    const maxHit = Math.max(0, Math.floor(
-        (npc.skills.strength.current + 8) * (65 / 640) + 0.5
-    ) - 1);
-
+    const accuracy = npc.skills.attack.current * (1 / 600 + 0.1);
+    const maxHit = npc.skills.strength.current * (1 / 600 + 0.1);
     const protection = getProtection(player);
 
     console.log('npc accuracy', accuracy);

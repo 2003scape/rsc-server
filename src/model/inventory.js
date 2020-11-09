@@ -280,7 +280,7 @@ class Inventory {
 
     updateEquipmentBonuses() {
         for (const bonus of EQUIPMENT_BONUS_NAMES) {
-            this.player.equipmentBonuses[bonus] = 0;
+            this.player.equipmentBonuses[bonus] = 1;
         }
 
         for (const item of this.items) {
