@@ -9,7 +9,7 @@ function addItemDrop(drops, currentDrops, entry) {
             for (let i = 0; i < entry.id.length; i += 1) {
                 currentDrops.push({
                     id: entry.id[i],
-                    amount: entry.amount[i] || 1
+                    amount: Array.isArray(entry.amount) ? entry.amount[i] : 1
                 });
             }
         } else {

@@ -37,6 +37,10 @@ class Character extends Entity {
         this.animations = [];
         this.animations.length = 12;
         this.animations.fill(0, this.animations.length);
+
+        // used to calculate who should get the drop
+        // { player.id: damage }
+        this.playerDamage = new Map();
     }
 
     lock() {
@@ -45,6 +49,22 @@ class Character extends Entity {
 
     unlock() {
         this.locked = false;
+    }
+
+    damage(damage, player) {
+        if (player) {
+            const totalDamage = this.playerDamage.get(player.id) || 0;
+            this.playerDamage.set(player.id, totalDamage + damage);
+        }
+
+        this.skills.hits.current -= damage;
+
+        if (this.skills.hits.current <= 0) {
+            this.die();
+            return;
+        }
+
+        this.broadcastDamage(damage);
     }
 
     faceDirection(deltaX, deltaY) {
@@ -141,6 +161,7 @@ class Character extends Entity {
 
         this.unlock();
         this.fightStage = -1;
+        this.direction = 0;
 
         this.opponent.fightStage = -1;
         this.opponent.direction = 0;
@@ -190,7 +211,7 @@ class Character extends Entity {
         this.faceDirection(oldX - this.x, oldY - this.y);
     }
 
-    async walkToPosition(destX, destY) {
+    async walkToPosition(destX, destY, overlap = true) {
         const { world } = this;
 
         const path = world.pathFinder.getLineOfSight(
@@ -198,7 +219,9 @@ class Character extends Entity {
             { x: destX, y: destY }
         );
 
-        path.push({ x: destX, y: destY });
+        if (overlap) {
+            path.push({ x: destX, y: destY });
+        }
 
         let x = this.x;
         let y = this.y;
@@ -232,7 +255,7 @@ class Character extends Entity {
 
     async chase(entity) {
         this.chasing = entity;
-        await this.walkToPosition(entity.x, entity.y);
+        await this.walkToPosition(entity.x, entity.y, true);
         this.chasing = null;
     }
 }

@@ -19,6 +19,10 @@ function getGroundItem(player, id, x, y) {
 }
 
 async function groundItemTake({ player }, { x, y, id }) {
+    if (player.locked) {
+        return;
+    }
+
     player.endWalkFunction = async () => {
         const { world } = player;
 
@@ -65,6 +69,10 @@ async function inventoryUnequip({ player }, { index }) {
 }
 
 async function useWithGroundItem({ player }, { x, y, groundItemID, index }) {
+    if (player.locked) {
+        return;
+    }
+
     player.endWalkFunction = async () => {
         const item = player.inventory.items[index];
 

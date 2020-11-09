@@ -79,7 +79,7 @@ async function command({ player }, { command, args }) {
         case 'dmg':
             player.damage(+args[0]);
             break;
-         case 'shop':
+        case 'shop':
             player.openShop(args[0]);
             break;
         case 'give': {
@@ -102,8 +102,19 @@ async function command({ player }, { command, args }) {
             player.sendFatigue();
             break;
         case 'chaseobj':
-            await player.chase(player.world.gameObjects.getByID(+args[0]), false);
+            await player.chase(
+                player.world.gameObjects.getByID(+args[0]),
+                false
+            );
             break;
+        case 'gotoentity': {
+            const [entity] = player.world[args[0]].getByID(+args[1]);
+
+            if (entity) {
+                player.teleport(entity.x, entity.y, true);
+            }
+            break;
+        }
     }
 }
 

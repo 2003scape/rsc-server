@@ -1,24 +1,27 @@
 const Character = require('./character');
-const GroundItem = require('./ground-item');
-const drops = require('@2003scape/rsc-data/rolls/drops');
+const dropDefinitions = require('@2003scape/rsc-data/rolls/drops');
+const items = require('@2003scape/rsc-data/config/items');
 const npcRespawn = require('@2003scape/rsc-data/npc-respawn');
 const npcs = require('@2003scape/rsc-data/config/npcs');
-const items = require('@2003scape/rsc-data/config/items');
 const { rollItemDrop } = require('../rolls');
+const { rollNPCDamage } = require('../combat');
 
-const HERB_IDS = new Set(drops.herb.map((entry) => entry.id));
+const HERB_IDS = new Set(dropDefinitions.herb.map((entry) => entry.id));
 
 class NPC extends Character {
     constructor(world, { id, x, y, minX, maxX, minY, maxY }) {
         super(world);
 
         this.id = id;
-        this.x = x;
-        this.y = y;
+        this.spawnX = x;
+        this.spawnY = y;
         this.minX = minX;
         this.maxX = maxX;
         this.minY = minY;
         this.maxY = maxY;
+
+        this.x = this.spawnX;
+        this.y = this.spawnY;
 
         this.definition = npcs[id];
 
@@ -63,10 +66,6 @@ class NPC extends Character {
 
         // we only need to know which players can see the NPC
         this.knownPlayers = new Set();
-
-        // used to calculate who should get the drop
-        // { player.id: damage }
-        this.playerDamage = new Map();
     }
 
     async say(...messages) {
@@ -82,26 +81,8 @@ class NPC extends Character {
         await this.world.sleepTicks(1);
     }
 
-    damage(damage) {
-        this.skills.hits.current -= damage;
-
-        if (this.skills.hits.current <= 0) {
-            this.die();
-            return;
-        }
-
-        this.broadcastDamage(damage);
-    }
-
-    die() {
-    }
-
-    // beeline towards the player
-    chase(player) {}
-
-    // get a list of GroundItem instances from the NPC's drop table
     getDrops() {
-        let drops = rollItemDrop(drops, this.id);
+        let drops = rollItemDrop(dropDefinitions, this.id);
 
         if (!this.world.members) {
             // on free-to-play worlds, drop 10 coins instead of unid'd herbs
@@ -115,14 +96,64 @@ class NPC extends Character {
             drops = drops.filter((drop) => !items[drop.id].members);
         }
 
-        return drops.map((drop) => {
-            return new GroundItem(this.world, {
-                ...drop,
-                x: this.x,
-                y: this.y
-            });
-        });
+        return drops;
     }
+
+    die() {
+        const { world, aggressive, respawn } = this;
+
+        let maxDamage = 0;
+        let victorID = -1;
+
+        for (const [playerID, damage] of this.playerDamage.entries()) {
+            if (damage > maxDamage) {
+                maxDamage = damage;
+                victorID = playerID;
+            }
+        }
+
+        world.setTimeout(() => {
+            const npc = new NPC(world, {
+                id: this.id,
+                x: this.spawnX,
+                y: this.spawnY,
+                minX: this.minX,
+                maxX: this.maxX,
+                minY: this.minY,
+                maxY: this.maxY
+            });
+
+            npc.aggressive = aggressive;
+
+            world.addEntity('npcs', npc);
+        }, respawn);
+
+        world.removeEntity('npcs', this);
+
+        let victor;
+
+        if (victorID === -1) {
+            return;
+        }
+
+        victor = world.players.getByID(victorID);
+
+        if (!victor) {
+            victor = this.opponent;
+        }
+
+        victor.retreat();
+
+        const drops = this.getDrops();
+
+        for (const item of drops) {
+            world.addPlayerDrop(victor, item);
+        }
+
+        victor.sendSound('victory');
+    }
+
+    chase() {}
 
     updateKnownPlayers() {
         for (const player of this.knownPlayers) {
@@ -242,7 +273,9 @@ class NPC extends Character {
     tick() {
         if (this.opponent) {
             if (this.fightStage % 3 === 0) {
-                this.opponent.damage(0);
+                const damage = rollNPCDamage(this, this.opponent);
+                console.log('npc doing', damage);
+                this.opponent.damage(damage);
                 this.fightStage = 1;
                 this.combatRounds += 1;
             } else {
@@ -251,7 +284,8 @@ class NPC extends Character {
         }
 
         if (
-            !this.stationary && !this.locked &&
+            !this.stationary &&
+            !this.locked &&
             (this.knownPlayers.size || this.stepsLeft > 0)
         ) {
             this.walkNextRandomStep();

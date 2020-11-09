@@ -279,19 +279,19 @@ class Inventory {
     }
 
     updateEquipmentBonuses() {
-        const equipmentBonuses = {};
+        for (const bonus of EQUIPMENT_BONUS_NAMES) {
+            this.player.equipmentBonuses[bonus] = 0;
+        }
 
         for (const item of this.items) {
             if (item.equipped && item.definition.wieldable) {
                 for (const bonus of EQUIPMENT_BONUS_NAMES) {
-                    equipmentBonuses[bonus] =
-                        (equipmentBonuses[bonus] || 0) +
+                    this.player.equipmentBonuses[bonus] +=
                         item.definition.wieldable[bonus];
                 }
             }
         }
 
-        this.player.equipmentBonuses = equipmentBonuses;
         this.player.sendEquipmentBonuses();
     }
 
@@ -349,23 +349,26 @@ class Inventory {
             }
         }
 
-        return this.items.sort((a, b) => {
-            if (a.definition.price > b.definition.price) {
-                return -1;
-            } else if (b.definition.price < a.definition.price) {
-                return 1;
-            }
+        return this.items
+            .sort((a, b) => {
+                if (a.definition.price > b.definition.price) {
+                    return -1;
+                } else if (b.definition.price < a.definition.price) {
+                    return 1;
+                }
 
-            return 0;
-        }).slice(0, amount).map((item) => {
-            if (item.definition.stackable && item.amount > 1) {
-                item.amount -= 1;
-            } else {
-                this.items.splice(this.items.indexOf(item), 1);
-            }
+                return 0;
+            })
+            .slice(0, amount)
+            .map((item) => {
+                if (item.definition.stackable && item.amount > 1) {
+                    item.amount -= 1;
+                } else {
+                    this.items.splice(this.items.indexOf(item), 1);
+                }
 
-            return new Item({ id: item.id });
-        });
+                return new Item({ id: item.id });
+            });
     }
 
     toJSON() {

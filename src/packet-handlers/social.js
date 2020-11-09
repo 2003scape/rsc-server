@@ -1,4 +1,8 @@
 async function friendAdd({ player }, { username }) {
+    if (username.toLowerCase() === player.username) {
+        return;
+    }
+
     player.addFriend(username);
 }
 

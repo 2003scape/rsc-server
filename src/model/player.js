@@ -4,9 +4,11 @@ const Character = require('./character');
 const Inventory = require('./inventory');
 const LocalEntities = require('./local-entities');
 const log = require('bole')('player');
+const prayers = require('@2003scape/rsc-data/config/prayers');
 const quests = require('@2003scape/rsc-data/quests');
 const regions = require('@2003scape/rsc-data/regions');
 const { formatSkillName, experienceToLevel } = require('../skills');
+const { rollPlayerNPCDamage, rollPlayerPlayerDamage } = require('../combat');
 
 // properties to save in the database
 const SAVE_PROPERTIES = [
@@ -41,7 +43,7 @@ const SLEEP_BED_RATE = 16500;
 const MAX_FATIGUE = 75000;
 
 // how many ticks to wait before re-generating health
-const HEAL_TICKS = 100;
+const RESTORE_TICKS = 100;
 
 class Player extends Character {
     constructor(world, socket, playerData) {
@@ -102,11 +104,17 @@ class Player extends Character {
         }
 
         this.inventory = new Inventory(this, playerData.inventory);
+
+        this.equipmentBonuses = {};
         this.inventory.updateEquipmentBonuses();
 
         this.bank = new Bank(this, playerData.bank);
 
         this.combatLevel = this.getCombatLevel();
+
+        this.prayers = [];
+        this.prayers.length = prayers.length;
+        this.prayers.fill(false);
 
         this.interfaceOpen = {
             bank: false,
@@ -139,7 +147,7 @@ class Player extends Character {
         this.lastSleepWord = 0;
 
         // how many ticks left until we re-generate 1 health again
-        this.healTicks = HEAL_TICKS;
+        this.healTicks = RESTORE_TICKS;
 
         this.loggedIn = false;
     }
@@ -434,15 +442,8 @@ class Player extends Character {
 
     // send the red hitsplat
     damage(damage) {
-        this.skills.hits.current -= damage;
-
-        if (this.skills.hits.current <= 0) {
-            this.die();
-            return;
-        }
-
+        super.damage(damage);
         this.sendStats();
-        this.broadcastDamage(damage);
     }
 
     // send the blue or red teleport bubbles to the nearby players
@@ -664,6 +665,13 @@ class Player extends Character {
 
             this.sendStats();
             this.sendSound('advance');
+
+            const combatLevel = this.getCombatLevel();
+
+            if (this.combatLevel !== combatLevel) {
+                this.combatLevel = combatLevel;
+                this.broadcastPlayerAppearance(true);
+            }
         } else {
             this.sendExperience(skill);
         }
@@ -678,12 +686,20 @@ class Player extends Character {
     }
 
     die() {
+        const { world } = this;
+
+        const victor = this.opponent;
+
+        victor.retreat();
+
         this.healTicks = 0;
 
-        const itemsKept = this.inventory.removeMostValuable(3);
+        const itemsKept = this.inventory.removeMostValuable(
+            3 + (this.prayers[8] ? 1 : 0)
+        );
 
         for (const item of this.inventory.items) {
-            this.world.addPlayerDrop(this, item);
+            world.addPlayerDrop(this, item);
         }
 
         this.inventory.items.length = 0;
@@ -846,12 +862,12 @@ class Player extends Character {
 
     regenerateHealth() {
         if (this.skills.hits.current < this.skills.hits.base) {
-            if (this.healTicks === 0) {
-                this.healTicks = HEAL_TICKS;
+            if (this.healTicks <= 0) {
+                this.healTicks = RESTORE_TICKS;
                 this.skills.hits.current += 1;
                 this.sendStats();
             } else {
-                this.healTicks -= 1;
+                this.healTicks -= 1 + (this.prayers[7] ? 1 : 0);
             }
         }
     }
@@ -877,6 +893,20 @@ class Player extends Character {
         });
     }
 
+    fight() {
+        if (this.fightStage % 3 === 0) {
+            const damage = !!this.opponent.username
+                ? rollPlayerPlayerDamage(this, this.opponent)
+                : rollPlayerNPCDamage(this, this.opponent);
+
+            this.opponent.damage(damage, this);
+            this.fightStage = 1;
+            this.combatRounds += 1;
+        } else {
+            this.fightStage += 1;
+        }
+    }
+
     tick() {
         this.normalizeStats();
 
@@ -885,13 +915,7 @@ class Player extends Character {
         }
 
         if (this.opponent) {
-            if (this.fightStage % 3 === 0) {
-                this.opponent.damage(0);
-                this.fightStage = 1;
-                this.combatRounds += 1;
-            } else {
-                this.fightStage += 1;
-            }
+            this.fight();
         }
 
         this.localEntities.updateNearby('players');

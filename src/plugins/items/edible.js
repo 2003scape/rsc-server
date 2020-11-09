@@ -3,6 +3,8 @@ const edible = require('@2003scape/rsc-data/edible');
 async function heal(player, amount) {
     const { world } = player;
 
+    player.sendSound('eat');
+
     const oldHits = player.skills.hits.current;
 
     player.skills.hits.current = Math.min(

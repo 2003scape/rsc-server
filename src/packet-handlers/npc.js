@@ -9,7 +9,7 @@ async function getNPC(player, index) {
 
     if (!npc.withinRange(player, 2)) {
         if (npc.withinRange(player, 8)) {
-            await player.chase(npc);
+            await player.chase(npc, false);
         } else {
             return;
         }
