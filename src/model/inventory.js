@@ -35,7 +35,7 @@ function getAnimationIndex(equip) {
         }
     }
 
-    throw new Error(`unable to find animation index for ${equip}`);
+    throw new RangeError(`unable to find animation index for ${equip}`);
 }
 
 class Inventory {
@@ -96,6 +96,7 @@ class Inventory {
 
         const item = new Item({ id, amount });
         const index = this.items.push(item) - 1;
+
         this.sendUpdate(index, item);
     }
 
@@ -369,6 +370,26 @@ class Inventory {
 
                 return new Item({ id: item.id });
             });
+    }
+
+    isEquipped(id) {
+        if (typeof id !== 'number') {
+            id = id.id;
+        }
+
+        if (!this.has(id)) {
+            return false;
+        }
+
+        for (const [, index] of Object.entries(this.equipmentSlots)) {
+            const item = this.items[index];
+
+            if (item.id === id) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     toJSON() {
