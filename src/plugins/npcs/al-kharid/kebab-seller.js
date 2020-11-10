@@ -44,6 +44,8 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.disengage();
+
+    return true;
 }
 
 module.exports = { onTalkToNPC };

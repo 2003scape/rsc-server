@@ -193,24 +193,6 @@ class NPC extends Character {
         return super.canWalk(deltaX, deltaY);
     }
 
-    faceDirection(deltaX, deltaY) {
-        const direction = super.faceDirection(deltaX, deltaY);
-        this.broadcastDirection();
-        return direction;
-    }
-
-    faceEntity(entity) {
-        const direction = super.faceEntity(entity);
-        this.broadcastDirection();
-        return direction;
-    }
-
-    walkTo(deltaX, deltaY) {
-        super.walkTo(deltaX, deltaY);
-        this.updateKnownPlayers();
-        this.broadcastMove();
-    }
-
     walkNextRandomStep() {
         if (this.stepsLeft > 0) {
             let deltaX = 0;
@@ -291,6 +273,7 @@ class NPC extends Character {
             !this.locked &&
             (this.knownPlayers.size || this.stepsLeft > 0)
         ) {
+            this.updateKnownPlayers();
             this.walkNextRandomStep();
         }
     }

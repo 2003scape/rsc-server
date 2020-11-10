@@ -1,7 +1,7 @@
 // https://classic.runescape.wiki/w/Transcript:Tanner
 
 const HIDE_ID = 147;
-const LEATHER_ID = 147;
+const LEATHER_ID = 148;
 const TANNER_ID = 172;
 
 async function onTalkToNPC(player, npc) {
@@ -18,10 +18,11 @@ async function onTalkToNPC(player, npc) {
         'Can I buy some leather then?',
         "Here's some cow hides, can I buy some leather now?",
         'Leather is rather weak stuff'
-    ]);
+    ], false);
 
     switch (choice) {
         case 0: // buy
+            await player.say('Can I buy some leather then?');
             await npc.say(
                 'I make leather from cow hides',
                 'Bring me some of them and a gold coin per hide'
@@ -45,12 +46,11 @@ async function onTalkToNPC(player, npc) {
                     break;
                 }
 
-                player.inventory.remove(10);
+                player.inventory.remove(10, 1);
                 player.inventory.remove(HIDE_ID);
                 player.inventory.add(LEATHER_ID);
-                await player.sendInventory();
                 player.message('You swap a cow hide for a piece of leather');
-                await world.sleepTicks(1);
+                await world.sleepTicks(2);
             } while (true);
             break;
         case 2: // weak stuff

@@ -24,6 +24,8 @@ function gameObjectCommand(pluginHandler, { player }, { x, y }) {
 
         const { world } = player;
 
+        await world.sleepTicks(1);
+
         player.lock();
         player.faceEntity(gameObject);
         await world.callPlugin(pluginHandler, player, gameObject);
@@ -54,6 +56,8 @@ async function useWithObject({ player }, { x, y, index }) {
         }
 
         const { world } = player;
+
+        await world.sleepTicks(1);
 
         player.lock();
         player.faceEntity(gameObject);

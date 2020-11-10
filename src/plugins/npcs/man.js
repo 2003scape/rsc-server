@@ -3,7 +3,6 @@
 // handle the darker-skinned men and farmers
 const MAN_IDS = new Set([11, 63, 72]);
 
-// export these so thieves can also use them
 async function killingCitizens(npc) {
     await npc.say(
         "I'm a little worried",
@@ -66,6 +65,25 @@ async function howCanIHelp(player, npc) {
     }
 }
 
+async function inAHurry(npc) {
+    await npc.say('Get out of my way', "I'm in a hurry");
+}
+
+async function imFine(player, npc) {
+    await npc.say("I'm fine", 'How are you?');
+    await player.say('Very well, thank you');
+}
+
+async function askingForFight(player, npc) {
+    await npc.say('Are you asking for a fight?');
+    player.disengage();
+    await player.attack(npc);
+}
+
+async function niceWeather(npc) {
+    await npc.say('Hello', "Nice weather we've been having");
+}
+
 async function onTalkToNPC(player, npc) {
     if (!MAN_IDS.has(npc.id)) {
         return false;
@@ -109,21 +127,19 @@ async function onTalkToNPC(player, npc) {
             await npc.say('None of your business');
             break;
         case 9:
-            await npc.say('Get out of my way', "I'm in a hurry");
+            await inAHurry(npc);
             break;
         case 10:
-            await npc.say("I'm fine", 'How are you?');
-            await player.say('Very well, thank you');
+            await imFine(player, npc);
             break;
         case 11:
-            await npc.say('Are you asking for a fight?');
-            await npc.attack(player);
+            await askingForFight(player, npc);
             break;
         case 12:
             await npc.say('Hello');
             break;
         case 13:
-            await npc.say('Hello', "Nice weather we've been having");
+            await niceWeather(npc);
             break;
     }
 
@@ -137,5 +153,9 @@ module.exports = {
     worriedAboutGoblins,
     searchOfQuest,
     howCanIHelp,
+    inAHurry,
+    imFine,
+    askingForFight,
+    niceWeather,
     onTalkToNPC
 };

@@ -1,4 +1,4 @@
-const SHOPKEEPER_IDS = new Set([55, 83]);
+const SHOPKEEPER_IDS = new Set([87, 88]);
 
 async function onTalkToNPC(player, npc) {
     if (!SHOPKEEPER_IDS.has(npc.id)) {
@@ -17,7 +17,7 @@ async function onTalkToNPC(player, npc) {
     if (choice === 0) {
         await npc.say('Take a look');
         player.disengage();
-        player.openShop('lumbridge-general');
+        player.openShop('al-kharid-general');
         return true;
     }
 

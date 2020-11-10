@@ -1,23 +1,25 @@
-const SHOPKEEPER_IDS = new Set([55, 83]);
+// https://classic.runescape.wiki/w/Louie_Legs
+
+const LOUIE_ID = 85;
 
 async function onTalkToNPC(player, npc) {
-    if (!SHOPKEEPER_IDS.has(npc.id)) {
+    if (npc.id !== LOUIE_ID) {
         return false;
     }
 
     player.engage(npc);
 
-    await npc.say('Can I help you at all?');
+    await npc.say('Hey, wanna buy some armour?');
 
     const choice = await player.ask(
-        ['Yes please. What are you selling?', 'No thanks'],
+        ['What have you got?', 'No, thank you'],
         true
     );
 
     if (choice === 0) {
-        await npc.say('Take a look');
+        await npc.say('Take a look, see');
         player.disengage();
-        player.openShop('lumbridge-general');
+        player.openShop('louies-legs');
         return true;
     }
 

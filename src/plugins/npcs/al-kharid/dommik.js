@@ -21,8 +21,9 @@ async function onTalkToNPC(player, npc) {
             await npc.say('Ok fair well on your travels');
             break;
         case 1:
+            player.disengage();
             player.openShop('dommiks-crafting');
-            break;
+            return true;
     }
 
     player.disengage();

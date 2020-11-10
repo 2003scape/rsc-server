@@ -75,6 +75,7 @@ class Character extends Entity {
         }
 
         this.direction = deltaDirections[deltaX + 1][deltaY + 1];
+        this.broadcastDirection();
         return this.direction;
     }
 
@@ -108,6 +109,7 @@ class Character extends Entity {
         }
 
         this.direction = deltaDirections[deltaX + 1][deltaY + 1];
+        this.broadcastDirection();
         return this.direction;
     }
 
@@ -209,6 +211,7 @@ class Character extends Entity {
         this.y += deltaY;
 
         this.faceDirection(oldX - this.x, oldY - this.y);
+        this.broadcastMove();
     }
 
     async walkToPosition(destX, destY, overlap = true) {

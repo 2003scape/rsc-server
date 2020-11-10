@@ -805,23 +805,6 @@ class Player extends Character {
         return true;
     }
 
-    faceDirection(deltaX, deltaY) {
-        const direction = super.faceDirection(deltaX, deltaY);
-        this.broadcastDirection();
-        return direction;
-    }
-
-    faceEntity(entity) {
-        const direction = super.faceEntity(entity);
-        this.broadcastDirection();
-        return direction;
-    }
-
-    walkTo(deltaX, deltaY) {
-        super.walkTo(deltaX, deltaY);
-        this.broadcastMove();
-    }
-
     teleport(x, y, bubble = false) {
         if (y < 0) {
             y += this.world.planeElevation * 4;
