@@ -150,7 +150,9 @@ class World {
     }
 
     removeEntity(type, entity) {
-        this[type].remove(entity);
+        if (!this[type].remove(entity)) {
+            throw new Error(`unable to remove entity ${entity}`);
+        }
 
         if (type === 'players') {
             for (const npc of entity.localEntities.known.npcs) {
@@ -167,6 +169,10 @@ class World {
             }, entity.respawn);
         }
 
+        if (entity.chasing) {
+            entity.chasing.chasedBy = null;
+        }
+
         for (const player of entity.getNearbyEntities('players')) {
             if (entity === player) {
                 return;
@@ -176,6 +182,13 @@ class World {
                 player.localEntities.removed[type].add(entity);
             }
         }
+    }
+
+    replaceEntity(type, entity, newID) {
+        const Entity = entityConstructors[type];
+        const newEntity = new Entity(this, { ...entity, id: newID });
+        this.removeEntity(type, entity);
+        this.addEntity(type, newEntity);
     }
 
     loadEntities(type) {

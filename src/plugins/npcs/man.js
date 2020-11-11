@@ -77,7 +77,7 @@ async function imFine(player, npc) {
 async function askingForFight(player, npc) {
     await npc.say('Are you asking for a fight?');
     player.disengage();
-    await player.attack(npc);
+    await npc.attack(player);
 }
 
 async function niceWeather(npc) {

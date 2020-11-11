@@ -382,6 +382,10 @@ class Inventory {
         }
 
         for (const [, index] of Object.entries(this.equipmentSlots)) {
+            if (index < 0) {
+                continue;
+            }
+
             const item = this.items[index];
 
             if (item.id === id) {

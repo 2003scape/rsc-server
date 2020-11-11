@@ -43,12 +43,14 @@ class EntityList {
         // make sure this is the same entity that was here before, in case
         // we try to remove the same instance twice.
         if (this.entities[entity.index] !== entity) {
-            return;
+            return false;
         }
 
         this.entities[entity.index] = null;
         this.quadTree.remove(entity);
         this.length -= 1;
+
+        return true;
     }
 
     *getAll() {

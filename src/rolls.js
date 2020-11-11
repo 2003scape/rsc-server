@@ -25,6 +25,11 @@ function addItemDrop(drops, currentDrops, entry) {
 // https://github.com/2003scape/rsc-data#rolls/
 function rollItemDrop(drops, index) {
     const npcDrops = drops[index];
+
+    if (!npcDrops) {
+        return [];
+    }
+
     const currentDrops = [];
 
     const roll = Math.floor(Math.random() * 129);

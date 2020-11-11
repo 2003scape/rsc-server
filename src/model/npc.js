@@ -68,19 +68,6 @@ class NPC extends Character {
         this.knownPlayers = new Set();
     }
 
-    async say(...messages) {
-        for (const message of messages) {
-            this.broadcastChat(message);
-            await this.world.sleepTicks(1);
-
-            if (message.length >= 25) {
-                await this.world.sleepTicks(2);
-            }
-        }
-
-        await this.world.sleepTicks(1);
-    }
-
     getDrops() {
         let drops = rollItemDrop(dropDefinitions, this.id);
 
@@ -100,7 +87,7 @@ class NPC extends Character {
     }
 
     die() {
-        const { world, aggressive, respawn } = this;
+        const { world } = this;
 
         let maxDamage = 0;
         let victorID = -1;
@@ -111,22 +98,6 @@ class NPC extends Character {
                 victorID = playerID;
             }
         }
-
-        world.setTimeout(() => {
-            const npc = new NPC(world, {
-                id: this.id,
-                x: this.spawnX,
-                y: this.spawnY,
-                minX: this.minX,
-                maxX: this.maxX,
-                minY: this.minY,
-                maxY: this.maxY
-            });
-
-            npc.aggressive = aggressive;
-
-            world.addEntity('npcs', npc);
-        }, respawn);
 
         world.removeEntity('npcs', this);
 
@@ -153,8 +124,6 @@ class NPC extends Character {
         victor.sendSound('victory');
     }
 
-    chase() {}
-
     updateKnownPlayers() {
         for (const player of this.knownPlayers) {
             if (!player.loggedIn || !player.withinRange(this, 16)) {
@@ -177,16 +146,24 @@ class NPC extends Character {
         }
     }
 
-    canWalk(deltaX, deltaY) {
-        const destX = this.x + deltaX;
-        const destY = this.y + deltaY;
-
+    withinWalkBounds(destX, destY) {
         if (
             destX > this.maxX ||
             destX < this.minX ||
             destY > this.maxY ||
             destY < this.minY
         ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    canWalk(deltaX, deltaY) {
+        const destX = this.x + deltaX;
+        const destY = this.y + deltaY;
+
+        if (!this.withinWalkBounds(destX, destY)) {
             return false;
         }
 
@@ -268,13 +245,12 @@ class NPC extends Character {
             this.fight();
         }
 
-        if (
-            !this.stationary &&
-            !this.locked &&
-            (this.knownPlayers.size || this.stepsLeft > 0)
-        ) {
+        if (!this.stationary && !this.locked && this.knownPlayers.size) {
             this.updateKnownPlayers();
-            this.walkNextRandomStep();
+
+            if (!this.chasing) {
+                this.walkNextRandomStep();
+            }
         }
     }
 

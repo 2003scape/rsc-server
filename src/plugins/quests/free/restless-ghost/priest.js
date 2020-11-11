@@ -1,6 +1,7 @@
 // https://classic.runescape.wiki/w/Transcript:Priest
 
 const PRIEST_ID = 9;
+const SKULL_ID = 27;
 
 async function slimeAndTenticles(player, npc) {
     const choice = await player.ask(
@@ -145,25 +146,26 @@ async function onTalkToNPC(player, npc) {
             );
             break;
         case 3: // spoken to ghost
-            await player.say(
-                "I've found out that the ghost's corpse has lost its skull",
-                'If I can find the skull the ghost will go'
-            );
+            if (player.inventory.has(SKULL_ID)) {
+                await player.say("I've finally found the ghost's skull");
 
-            await npc.say(
-                'That would explain it',
-                "Well I haven't seen any skulls"
-            );
+                await npc.say(
+                    "Great. Put it in the ghost's coffin and see what happens!"
+                );
+            } else {
+                await player.say(
+                    "I've found out that the ghost's corpse has lost its skull",
+                    'If I can find the skull the ghost will go'
+                );
 
-            await player.say('Yes I think a warlock has stolen it');
-            await npc.say('I hate warlocks', 'Ah well good luck');
-            break;
-        case 4: // picked up skull
-            await player.say("I've finally found the ghost's skull");
+                await npc.say(
+                    'That would explain it',
+                    "Well I haven't seen any skulls"
+                );
 
-            await npc.say(
-                "Great. Put it in the ghost's coffin and see what happens!"
-            );
+                await player.say('Yes I think a warlock has stolen it');
+                await npc.say('I hate warlocks', 'Ah well good luck');
+            }
             break;
     }
 

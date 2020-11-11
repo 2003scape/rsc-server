@@ -2,6 +2,7 @@
 
 const NPC = require('../model/npc');
 const regions = require('@2003scape/rsc-data/regions');
+const quests = require('@2003scape/rsc-data/quests');
 
 async function command({ player }, { command, args }) {
     /*if (!player.isAdministrator()) {
@@ -29,6 +30,8 @@ async function command({ player }, { command, args }) {
                 minY: player.y - 4,
                 maxY: player.y + 4
             });
+
+            delete npc.respawn;
 
             player.world.addEntity('npcs', npc);
             break;
@@ -108,11 +111,30 @@ async function command({ player }, { command, args }) {
             );
             break;
         case 'gotoentity': {
-            const [entity] = player.world[args[0]].getByID(+args[1]);
+            const entities = player.world[args[0]];
+            const entity = entities.getByID(+args[1]);
 
             if (entity) {
                 player.teleport(entity.x, entity.y, true);
             }
+
+            break;
+        }
+        case 'setquest': {
+            let questID;
+
+            if (Number.isNaN(+args[0])) {
+                questID = quests
+                    .map((name) => name.toLowerCase())
+                    .indexOf(args[0].toLowerCase());
+            } else {
+                questID = +args[0];
+            }
+
+            if (questID > -1) {
+                player.questStages[quests[questID]] = +args[1];
+            }
+
             break;
         }
     }

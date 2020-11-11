@@ -1,5 +1,3 @@
-const GameObject = require('../../model/game-object');
-
 // { openID: closedID }
 const OPEN_IDS = {
     59: 60,
@@ -11,13 +9,6 @@ const CLOSED_IDS = {};
 
 for (const [openID, closedID] of Object.entries(OPEN_IDS)) {
     CLOSED_IDS[closedID] = openID;
-}
-
-function replaceObject(gameObject, newID) {
-    const { world, x, y, direction } = gameObject;
-    const newGate = new GameObject(world, { id: newID, x, y, direction });
-    world.removeEntity('gameObjects', gameObject);
-    world.addEntity('gameObjects', newGate);
 }
 
 function getMessage(gameObject, open) {
@@ -44,7 +35,9 @@ async function onGameObjectCommandOne(player, gameObject) {
         return false;
     }
 
-    replaceObject(gameObject, CLOSED_IDS[gameObject.id]);
+    const { world } = player;
+
+    world.replaceEntity('gameObjects', gameObject, CLOSED_IDS[gameObject.id]);
     player.message(getMessage(gameObject, true));
     player.sendSound('opendoor');
 
@@ -60,7 +53,7 @@ async function onGameObjectCommandTwo(player, gameObject) {
 
     player.lock();
 
-    replaceObject(gameObject, OPEN_IDS[gameObject.id]);
+    world.replaceEntity('gameObjects', gameObject, OPEN_IDS[gameObject.id]);
     player.message(getMessage(gameObject, false));
     player.sendSound('closedoor');
 

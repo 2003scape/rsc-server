@@ -24,8 +24,7 @@ async function onTalkToNPC(player, npc) {
 
     await player.say('Hello', "How's it going?");
 
-    //const roll = Math.floor(Math.random() * 17);
-    const roll =10;
+    const roll = Math.floor(Math.random() * 17);
 
     switch (roll) {
         case 0:

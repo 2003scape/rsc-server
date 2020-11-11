@@ -259,15 +259,6 @@ class Player extends Character {
         this.message(`@pri@@cya@You tell ${to} ${message}`);
     }
 
-    // make the player emit dialogue, usually with an NPC. automatically delay
-    // between messages
-    async say(...messages) {
-        for (const message of messages) {
-            this.broadcastChat(message, true);
-            await this.world.sleepTicks(2);
-        }
-    }
-
     // white server-sided message in the chat box
     message(...messages) {
         for (const message of messages) {
@@ -400,8 +391,6 @@ class Player extends Character {
         if (repeat) {
             await this.say(options[choice]);
         }
-
-        await this.world.sleepTicks(1);
 
         return choice;
     }

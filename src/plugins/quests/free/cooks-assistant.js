@@ -128,18 +128,18 @@ async function onTalkToNPC(player, npc) {
 
             player.message(
                 'You give some milk, an egg and some flour to the cook',
-                "Well done. You have completed the cook's assistant quest",
-                '@gre@You haved gained 1 quest point!'
+                "Well done. You have completed the cook's assistant quest"
             );
 
-            player.questStages.cooksAssistant = -1;
-
-            player.addQuestPoints(1);
             player.addExperience(
                 'cooking',
                 player.skills.cooking.base * 50 + 250,
                 0
             );
+
+            player.questStages.cooksAssistant = -1;
+            player.addQuestPoints(1);
+            player.message('@gre@You haved gained 1 quest point!');
         } else {
             await player.say('I have found some of the things you asked for:');
 

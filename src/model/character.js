@@ -27,6 +27,7 @@ class Character extends Entity {
         this.interlocutor = null;
 
         this.chasing = null;
+        this.chasedBy = null;
 
         // can we move? certain NPCs still have conversation partners, but can
         // walk around (e.g. goblin generals in goblin diplomacy)
@@ -49,6 +50,19 @@ class Character extends Entity {
 
     unlock() {
         this.locked = false;
+    }
+
+    // make the character emit dialogue, usually with an NPC. automatically delay
+    // between messages
+    async say(...messages) {
+        for (const message of messages) {
+            this.broadcastChat(message, true);
+            await this.world.sleepTicks(2);
+
+            if (message.length >= 25) {
+                await this.world.sleepTicks(2);
+            }
+        }
     }
 
     damage(damage, player) {
@@ -136,6 +150,15 @@ class Character extends Entity {
     }
 
     async attack(character) {
+        if (character.opponent) {
+            return;
+        }
+
+        if (this.chasing) {
+            this.chasing.chasedBy = null;
+            this.chasing = null;
+        }
+
         const deltaX = character.x - this.x;
         const deltaY = character.y - this.y;
 
@@ -165,15 +188,17 @@ class Character extends Entity {
         this.fightStage = -1;
         this.direction = 0;
 
-        this.opponent.fightStage = -1;
-        this.opponent.direction = 0;
-        this.opponent.broadcastDirection();
-        this.opponent.opponent = null;
+        if (this.opponent) {
+            this.opponent.fightStage = -1;
+            this.opponent.direction = 0;
+            this.opponent.broadcastDirection();
+            this.opponent.opponent = null;
 
-        await world.sleepTicks(1);
+            await world.sleepTicks(1);
 
-        this.opponent.unlock();
-        this.opponent = null;
+            this.opponent.unlock();
+            this.opponent = null;
+        }
     }
 
     // collision detection for players and NPCs to determine if next step is
@@ -214,8 +239,10 @@ class Character extends Entity {
         this.broadcastMove();
     }
 
-    async walkToPosition(destX, destY, overlap = true) {
+    getPositionSteps(destX, destY, overlap = true) {
         const { world } = this;
+
+        const steps = [];
 
         const path = world.pathFinder.getLineOfSight(
             { x: this.x, y: this.y },
@@ -243,10 +270,7 @@ class Character extends Entity {
             );
 
             if (validStep) {
-                if (!this.walkQueue.length) {
-                    this.walkTo(deltaX, deltaY);
-                    await world.sleepTicks(1);
-                }
+                steps.push({ deltaX, deltaY });
             } else {
                 break;
             }
@@ -254,12 +278,69 @@ class Character extends Entity {
             x += deltaX;
             y += deltaY;
         }
+
+        return steps;
     }
 
-    async chase(entity) {
+    async walkToPosition(destX, destY, overlap = true) {
+        const { world } = this;
+        const steps = this.getPositionSteps(destX, destY, overlap);
+
+        for (const { deltaX, deltaY } of steps) {
+            if (
+                (this.walkQueue && this.walkQueue.length) ||
+                this.stepsLeft > 0
+            ) {
+                return;
+            }
+
+            this.walkTo(deltaX, deltaY);
+            await world.sleepTicks(1);
+        }
+    }
+
+    async chase(entity, range = 8) {
+        const { world } = this;
+
         this.chasing = entity;
-        await this.walkToPosition(entity.x, entity.y, true);
+        entity.chasedBy = this;
+
+        newSteps: do {
+            const destX = this.chasing.x;
+            const destY = this.chasing.y;
+
+            const steps = this.getPositionSteps(destX, destY, true);
+
+            if (!steps.length) {
+                await world.sleepTicks(1);
+            }
+
+            for (const { deltaX, deltaY } of steps) {
+                if (!this.chasing || this.chasing.getDistance(this) >= range) {
+                    break newSteps;
+                }
+
+                if (this.chasing.x !== destX || this.chasing.y !== destY) {
+                    continue newSteps;
+                }
+
+                if (
+                    this.withinWalkBounds &&
+                    !this.withinWalkBounds(destX, destY)
+                ) {
+                    break newSteps;
+                }
+
+                this.walkTo(deltaX, deltaY);
+                await world.sleepTicks(1);
+            }
+        } while (
+            this.chasing &&
+            (this.x !== this.chasing.x || this.y !== this.chasing.y)
+        );
+
         this.chasing = null;
+        entity.chasedBy = null;
     }
 }
 
