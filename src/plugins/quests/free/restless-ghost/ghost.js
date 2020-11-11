@@ -79,6 +79,7 @@ async function interesting(player, npc) {
 
                     break;
                 case 1: // goodbye
+                    await goodbyeThanks(npc);
                     break;
             }
 
