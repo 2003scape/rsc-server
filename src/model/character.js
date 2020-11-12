@@ -282,7 +282,7 @@ class Character extends Entity {
         return steps;
     }
 
-    async walkToPosition(destX, destY, overlap = true) {
+    async walkToPoint(destX, destY, overlap = true) {
         const { world } = this;
         const steps = this.getPositionSteps(destX, destY, overlap);
 

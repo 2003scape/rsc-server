@@ -3,7 +3,8 @@ const FLOUR_ID = 136;
 const GRAIN_ID = 29;
 const POT_ID = 135;
 
-// sometimes the same hopper ID is used
+// each location uses a different hopper ID
+// { hopperID: locationOfFlourHeap }
 const CHUTE_LOCATIONS = {
     // draynor
     52: { x: 166, y: 599 },

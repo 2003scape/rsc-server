@@ -18,15 +18,15 @@ function gameObjectCommand(pluginHandler, { player }, { x, y }) {
     player.endWalkFunction = async () => {
         const gameObject = getGameObject(player, x, y);
 
-        if (!gameObject) {
+        if (!gameObject || player.locked) {
             return;
         }
 
         const { world } = player;
 
-        await world.sleepTicks(1);
-
         player.lock();
+
+        await world.sleepTicks(1);
         player.faceEntity(gameObject);
         await world.callPlugin(pluginHandler, player, gameObject);
         player.unlock();

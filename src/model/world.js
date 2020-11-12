@@ -151,7 +151,8 @@ class World {
 
     removeEntity(type, entity) {
         if (!this[type].remove(entity)) {
-            throw new Error(`unable to remove entity ${entity}`);
+            //throw new Error(`unable to remove entity ${entity}`);
+            return;
         }
 
         if (type === 'players') {
@@ -189,6 +190,7 @@ class World {
         const newEntity = new Entity(this, { ...entity, id: newID });
         this.removeEntity(type, entity);
         this.addEntity(type, newEntity);
+        return newEntity;
     }
 
     loadEntities(type) {

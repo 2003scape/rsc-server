@@ -20,9 +20,9 @@ async function handleGate(player, entry) {
     const { x, y, direction } = gameObject;
 
     if (entry) {
-        await player.walkToPosition(92, 649);
+        await player.walkToPoint(92, 649);
     } else {
-        await player.walkToPosition(91, 649);
+        await player.walkToPoint(91, 649);
     }
 
     world.removeEntity('gameObjects', gameObject);

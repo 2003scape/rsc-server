@@ -773,6 +773,10 @@ class Player extends Character {
         return this.rank >= 3;
     }
 
+    isTired(offset = 0) {
+        return this.fatigue >= (MAX_FATIGUE - offset);
+    }
+
     canWalk(deltaX, deltaY) {
         if (!super.canWalk(deltaX, deltaY)) {
             return false;

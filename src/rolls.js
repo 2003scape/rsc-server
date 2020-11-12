@@ -61,8 +61,6 @@ function rollItemDrop(drops, index) {
 // and high is x/256 for success at level 99.
 // https://oldschool.runescape.wiki/w/Template:Skilling_success_chart
 function rollSkillSuccess(low, high, level) {
-    level -= 1;
-
     const threshold =
         Math.floor((low * (99 - level)) / 98) +
         Math.floor((high * (level - 1)) / 98) +
