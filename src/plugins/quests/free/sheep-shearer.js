@@ -165,14 +165,14 @@ async function onTalkToNPC(player, npc) {
                     player.message('The farmer hands you some coins');
                     player.inventory.add(10, 60);
 
-                    player.questStages.sheepShearer = -1;
-                    player.addQuestPoints(1);
-
                     player.addExperience(
                         'crafting',
-                        player.skills.crafting.base * 25 + 125,
+                        player.skills.crafting.base * 100 + 500,
                         0
                     );
+
+                    player.questStages.sheepShearer = -1;
+                    player.addQuestPoints(1);
 
                     player.message(
                         'Well done you have completed the sheep shearer quest',

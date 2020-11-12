@@ -63,7 +63,7 @@ async function onGameObjectCommand(player, gameObject) {
     }
 
     if (bestAxeID === -1) {
-        player.message('You need an axe to chop this tree down');
+        player.message('@que@You need an axe to chop this tree down');
         return true;
     }
 
@@ -73,14 +73,13 @@ async function onGameObjectCommand(player, gameObject) {
     }
 
     const { world } = player;
+    const { x, y } = gameObject;
     const axeName = items[bestAxeID].name.toLowerCase();
 
     player.message(`@que@You swing your ${axeName} at the tree...`);
     player.sendBubble(bestAxeID);
 
     await world.sleepTicks(3);
-
-    const { x, y } = gameObject;
 
     const logSuccess = rollSkillSuccess(
         tree.roll[0] * axes[bestAxeID],
