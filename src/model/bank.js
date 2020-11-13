@@ -85,6 +85,25 @@ class Bank {
         this.player.send({ type: 'bankUpdate', index, ...item });
     }
 
+    has(id, amount = 1) {
+        if (typeof id !== 'number') {
+            amount = id.amount;
+            id = id.id;
+        }
+
+        if (!this.player.world.members && items[id].members) {
+            return false;
+        }
+
+        for (const item of this.items) {
+            if (item.id === id && item.amount >= amount) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     toJSON() {
         return this.items;
     }

@@ -99,8 +99,6 @@ class NPC extends Character {
             }
         }
 
-        world.removeEntity('npcs', this);
-
         let victor;
 
         if (victorID === -1) {
@@ -114,14 +112,24 @@ class NPC extends Character {
         }
 
         victor.retreat();
-
-        const drops = this.getDrops();
-
-        for (const item of drops) {
-            world.addPlayerDrop(victor, item);
-        }
-
         victor.sendSound('victory');
+
+        world
+            .callPlugin('onNPCDeath', victor, this)
+            .then((blocked) => {
+                if (blocked) {
+                    return;
+                }
+
+                world.removeEntity('npcs', this);
+
+                const drops = this.getDrops();
+
+                for (const item of drops) {
+                    world.addPlayerDrop(victor, item);
+                }
+            })
+            .catch((e) => log.error(e));
     }
 
     updateKnownPlayers() {

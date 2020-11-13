@@ -66,13 +66,17 @@ async function onTalkToNPC(player, npc) {
                 break;
         }
     } else {
-        await player.say("I've filled a create with bananas");
+        await player.say("I've filled a crate with bananas");
         await npc.say('Well done here is your payment');
 
         player.inventory.add(10, 30);
         player.message('Luthas hands you 30 coins');
 
         delete player.cache.crateBananas;
+
+        if (player.cache.stashedRum) {
+            player.cache.deliveredRum = true;
+        }
 
         const choice = await player.ask(
             [

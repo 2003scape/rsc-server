@@ -30,8 +30,8 @@ async function talkToOfficer(player, npc) {
         case 1: // search away
             if (player.inventory.has(RUM_ID)) {
                 await npc.say('Aha trying to smuggle rum are we?');
-                player.message('The customs officer confiscates your rum');
                 player.inventory.remove(RUM_ID);
+                player.message('@que@The customs officer confiscates your rum');
             } else {
                 await npc.say(
                     "Well you've got some odd stuff, but it's all legal",
@@ -46,13 +46,13 @@ async function talkToOfficer(player, npc) {
                 if (choice === 0) {
                     if (player.inventory.has(10, 30)) {
                         player.inventory.remove(10, 30);
-                        player.message('You pay 30 gold');
+                        player.message('@que@You pay 30 gold');
                         await world.sleepTicks(2);
-                        player.message('You board the ship');
+                        player.message('@que@You board the ship');
                         await world.sleepTicks(2);
                         player.teleport(portSarim.spawnX, portSarim.spawnY);
                         await world.sleepTicks(2);
-                        player.message('The ship arrives at Port Sarim');
+                        player.message('@que@The ship arrives at Port Sarim');
                     } else {
                         await player.say(
                             "Oh dear I don't seem to have enough money"
@@ -101,17 +101,19 @@ async function onGameObjectCommandOne(player, gameObject) {
 
     const { world } = player;
 
-    const [officer] = Array.from(
-        world.npcs.getAllByID(CUSTOMS_OFFICER_ID)
-    ).filter((npc) => {
-        return !npc.interlocutor && player.localEntities.known.npcs.has(npc);
-    }).sort((a, b) => {
-        if (a.getDistance(player) > b.getDistance(player)) {
-            return 1;
-        } else {
-            return -1;
-        }
-    });
+    const [officer] = Array.from(world.npcs.getAllByID(CUSTOMS_OFFICER_ID))
+        .filter((npc) => {
+            return (
+                !npc.interlocutor && player.localEntities.known.npcs.has(npc)
+            );
+        })
+        .sort((a, b) => {
+            if (a.getDistance(player) > b.getDistance(player)) {
+                return 1;
+            } else {
+                return -1;
+            }
+        });
 
     if (officer) {
         player.engage(officer);
@@ -119,7 +121,8 @@ async function onGameObjectCommandOne(player, gameObject) {
         player.disengage();
     } else {
         player.message(
-            'I need to speak to the customs officer before boarding the ship.'
+            '@que@I need to speak to the customs officer before boarding the ' +
+                'ship.'
         );
     }
 

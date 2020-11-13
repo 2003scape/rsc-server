@@ -50,7 +50,8 @@ const PLUGIN_TYPES = [
     'onUseWithGameObject',
     'onUseWithNPC',
     'onInventoryCommand',
-    'onNPCAttack'
+    'onNPCAttack',
+    'onNPCDeath'
 ];
 
 class World {

@@ -8,9 +8,11 @@ function wallObjectCommand(pluginHandler, { player }, { x, y }) {
             throw new RangeError(`invalid wallObject index ${index}`);
         }
 
-        if (!wallObject.withinRange(player, 2)) {
+        if (!wallObject.withinRange(player, 3, true)) {
             return;
         }
+
+        await player.walkToPoint(wallObject.x, wallObject.y);
 
         player.faceEntity(wallObject);
 
