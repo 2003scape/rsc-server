@@ -5,13 +5,19 @@ const SPADE_ID = 211;
 const WYSON_ID = 116;
 
 async function onUseWithGameObject(player, gameObject, item) {
-    if (gameObject.id !== FLOWER_ID || item.id !== SPADE_ID) {
+    const questStage = player.questStages.piratesTreasure;
+
+    if (
+        gameObject.id !== FLOWER_ID ||
+        item.id !== SPADE_ID ||
+        questStage !== 3 ||
+        questStage !== 4
+    ) {
         return false;
     }
 
     const { world } = player;
     const wyson = world.npcs.getByID(WYSON_ID);
-    const questStage = player.questStages.piratesTreasure;
 
     if (
         questStage === 4 ||
@@ -35,7 +41,7 @@ async function onUseWithGameObject(player, gameObject, item) {
         player.questStages.piratesTreasure = -1;
         player.addQuestPoints(2);
         player.message('@gre@You haved gained 2 quest points!');
-    } else {
+    } else if (questStage === 3) {
         player.questStages.piratesTreasure = 4;
 
         player.engage(wyson);

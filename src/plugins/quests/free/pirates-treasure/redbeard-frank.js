@@ -95,6 +95,7 @@ async function onTalkToNPC(player, npc) {
 
             player.inventory.add(CHEST_KEY_ID);
             player.message('Frank hands you a key');
+            player.questStages.piratesTreasure = 2;
             await world.sleepTicks(2);
 
             await npc.say(
@@ -103,8 +104,6 @@ async function onTalkToNPC(player, npc) {
                 'In his old room in the blue moon inn in Varrock',
                 'With any luck his treasure will be in there'
             );
-
-            player.questStages.piratesTreasure = 2;
 
             const choice = await player.ask(
                 [

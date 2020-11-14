@@ -128,11 +128,47 @@ async function inventoryCommand({ player }, { index }) {
     await world.callPlugin('onInventoryCommand', player, item);
 }
 
+async function useWithInventoryItem({ player }, { index, withIndex }) {
+    const item = player.inventory.items[index];
+
+    if (!item) {
+        throw new RangeError(`${player} used invalid item index for useWith`);
+    }
+
+    const target = player.inventory.items[withIndex];
+
+    if (!target) {
+        throw new RangeError(`${player} used invalid target index for useWith`);
+    }
+
+    const { world } = player;
+
+    if (
+        !world.members &&
+        (item.definition.members || target.definition.members)
+    ) {
+        player.message('Nothing interesting happens');
+        return;
+    }
+
+    const blocked = await world.callPlugin(
+        'onUseWithInventory',
+        player,
+        item,
+        target
+    );
+
+    if (!blocked) {
+        player.message('Nothing interesting happens');
+    }
+}
+
 module.exports = {
     groundItemTake,
     inventoryDrop,
     inventoryWear,
     inventoryUnequip,
     useWithGroundItem,
-    inventoryCommand
+    inventoryCommand,
+    useWithInventoryItem
 };

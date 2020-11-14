@@ -1,6 +1,8 @@
 // any type of "thing" within the game world. ground items (but not inventory),
 // monsters, players, objects (such as trees), etc.
 
+const regions = require('@2003scape/rsc-data/regions');
+
 class Entity {
     constructor(world) {
         this.world = world;
@@ -92,6 +94,28 @@ class Entity {
         return this.world[type]
             .getInArea(this.x, this.y, range)
             .filter((entity) => entity !== this);
+    }
+
+    withinRegion(name, multiplePlanes = true) {
+        const region = regions[name];
+
+        if (!region) {
+            throw new Error(`invalid region name ${name}`);
+        }
+
+        const x = this.x;
+        let y = this.y;
+
+        if (multiplePlanes) {
+            y %= this.world.planeElevation;
+        }
+
+        return (
+            x >= region.minX &&
+            x <= region.maxY &&
+            y >= region.minY &&
+            y <= region.maxY
+        );
     }
 }
 

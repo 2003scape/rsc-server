@@ -26,7 +26,6 @@ async function onGameObjectCommandTwo(player, gameObject) {
 
         if (player.cache.deliveredRum) {
             delete player.cache.deliveredRum;
-            delete player.cache.stashedRum;
 
             player.inventory.add(RUM_ID);
 
