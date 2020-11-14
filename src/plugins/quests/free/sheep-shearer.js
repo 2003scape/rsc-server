@@ -157,7 +157,7 @@ async function onTalkToNPC(player, npc) {
 
                 await world.sleepTicks(5);
 
-                if (fredWool >= 20) {
+                if (player.cache.fredWool >= 20) {
                     delete player.cache.fredWool;
                     await player.say('Thats all of them');
                     await npc.say("I guess I'd better pay you then");

@@ -180,24 +180,34 @@ class NPC extends Character {
 
     walkNextRandomStep() {
         if (this.stepsLeft > 0) {
-            let deltaX = 0;
-            let deltaY = 0;
+            if (
+                Math.random() <= (2/3) &&
+                this.canWalk(this.lastDeltaX, this.lastDeltaY)
+            ) {
+                this.walkTo(this.lastDeltaX, this.lastDeltaY);
+            } else {
+                let deltaX = 0;
+                let deltaY = 0;
 
-            if (Math.random() < 0.5) {
-                deltaX = Math.random() > 0.5 ? 1 : -1;
-            }
+                if (Math.random() < 0.5) {
+                    deltaX = Math.random() > 0.5 ? 1 : -1;
+                }
 
-            if (Math.random() < 0.5) {
-                deltaY = Math.random() > 0.5 ? 1 : -1;
-            }
+                if (Math.random() < 0.5) {
+                    deltaY = Math.random() > 0.5 ? 1 : -1;
+                }
 
-            if (this.canWalk(deltaX, deltaY)) {
-                this.stepsLeft -= 1;
-                this.walkTo(deltaX, deltaY);
+                if (this.canWalk(deltaX, deltaY)) {
+                    this.stepsLeft -= 1;
+                    this.lastDeltaX = deltaX;
+                    this.lastDeltaY = deltaY;
+
+                    this.walkTo(deltaX, deltaY);
+                }
             }
         } else {
-            if (Math.random() > 0.75) {
-                this.stepsLeft = Math.floor(Math.random() * 25) + 1;
+            if (Math.random() <= 0.1) {
+                this.stepsLeft = Math.floor(Math.random() * 8) + 1;
             }
         }
     }

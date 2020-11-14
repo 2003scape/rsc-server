@@ -1,7 +1,8 @@
 // https://classic.runescape.wiki/w/Firemaking
+
 // https://oldschool.runescape.wiki/w/Fire#cite_note-1
 // > Mod Ash: "[How long do fires last roughly (or precisely if you wish to be
-// so kind)?] 60-119 secs randomly."
+// > so kind)?] 60-119 secs randomly."
 
 const GameObject = require('../../model/game-object');
 const GroundItem = require('../../model/ground-item');
