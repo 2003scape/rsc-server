@@ -1,8 +1,16 @@
 const GroundItem = require('../../../model/ground-item');
 
+const HETTY_ID = 148;
+
 // the rats that can drop a tail
 const RAT_IDS = [19, 29, 47, 177, 367, 473];
+
+const CAULDRON_ID = 147;
+
 const RAT_TAIL_ID = 271;
+const EYE_OF_NEWT_ID = 270;
+const BURNTMEAT_ID = 134;
+const ONION_ID = 241;
 
 async function onKilledNPC(player, npc) {
     if (player.questStages.witchsPotion === -1 || RAT_IDS.indexOf(npc.id) < 0) {
@@ -20,4 +28,187 @@ async function onKilledNPC(player, npc) {
     return false;
 }
 
-module.exports = { onKilledNPC };
+async function onTalkToNPC(player, npc) {
+    if (npc.id !== HETTY_ID) {
+        return false;
+    }
+
+    const questStage = player.questStages.witchsPotion;
+
+    player.engage(npc);
+
+    if (!questStage) {
+        await npc.say(
+            'Greetings Traveller',
+            'What could you want with an old woman like me?'
+        );
+
+        const choice = await player.ask(
+            [
+                'I am in search of a quest',
+                "I've heard that you're a witch"
+            ],
+            true
+        );
+
+        switch(choice) {
+            case 0: // Looking for a quest
+                await npc.say(
+                    'Hmm maybe I can think of something for you',
+                    'Would you like to become more proficient in the dark arts?'
+                );
+
+                const questOfferReply = await player.ask(
+                    [
+                        'Yes help me become one with my darker side',
+                        'No I have my principles and honour',
+                        'What you mean improve my magic?',
+                    ], true
+                );
+
+                switch (questOfferReply) {
+                    case 1: // Denied quest
+                        await npc.say("Suit yourself, but you're missing out");
+                        break;
+                    case 2: // Improve my magic?
+                        await npc.say(
+                            'Yes improve your magic',
+                            'Do you have no sense of drama?'
+                        );
+
+                        const secondChanceReply = await player.ask(
+                            [
+                                "Yes I'd like to improve my magic",
+                                "No I'm not interested",
+                                'Show me the mysteries of the dark arts'
+                            ], true
+                        );
+
+                        if (secondChanceReply === 2) { // Denied quest
+                            await npc.say(
+                                "Many aren't to start off with",
+                                "But I think you'll be drawn back to this place"
+                            );
+                            break;
+                        }
+
+                        if (secondChanceReply === 0) { // No sense of drama
+                            player.message('The witch sighs');
+                        }
+                    case 0: // Accepted Quest (on first or second opportunity)
+                        await npc.say(
+                            "Ok I'm going to make a potion to help bring out" +
+                                'your darker self',
+                            'So that you can perform acts of dark magic with' +
+                                ' greater ease',
+                            'You will need certain ingredients'
+                        );
+
+                        await player.say('What do I need');
+
+                        await npc.say("You need an eye of newt, a rat's tail,"
+                            + 'an onion and a piece of burnt meat');
+
+                        player.questStages.witchsPotion = 1;
+                }
+                break;
+
+            case 1: // Heard you're a witch
+                await npc.say(
+                    'Yes it does seem to be getting fairly common knowledge',
+                    'I fear I may get a visit from the witch hunters of ' +
+                        'Falador before long'
+                );
+                break;
+        }
+    } else if (questStage === 1) {
+        await npc.say(
+            'Greetings Traveller',
+            'So have you found the things for the potion'
+        );
+
+        const hasItems =
+            player.inventory.has(RAT_TAIL_ID) &&
+            player.inventory.has(EYE_OF_NEWT_ID) &&
+            player.inventory.has(BURNTMEAT_ID) &&
+            player.inventory.has(ONION_ID);
+
+        if (hasItems) {
+            const { world } = player;
+
+            await player.say('Yes I have everything');
+
+            await npc.say('Excellent, can I have them then?');
+
+            player.message('You pass the ingredients to Hetty');
+            player.inventory.remove(RAT_TAIL_ID);
+            player.inventory.remove(EYE_OF_NEWT_ID);
+            player.inventory.remove(BURNTMEAT_ID);
+            player.inventory.remove(ONION_ID);
+
+            player.message("Hetty put's all the ingredients in her cauldron");
+            await world.sleepTicks(5);
+            player.message('Hetty closes her eyes and begins to chant');
+            await world.sleepTicks(5);
+            await npc.say('Ok drink from the cauldron');
+
+            player.questStages.witchsPotion = 2;
+        } else {
+            await player.say('No not yet');
+
+            await npc.say(
+                'Well remember you need to get',
+                "An eye of newt, a rat's tail,some burnt meat and an onion"
+            );
+        }
+    } else if (questStage === 2) {
+        await npc.say(
+            'Greetings Traveller',
+            'Well are you going to drink the potion or not?'
+        );
+    } else {
+        await npc.say(
+            'Greetings Traveller',
+            "How's your magic coming along?",
+        );
+
+        await player.say("I'm practicing and slowly getting better");
+
+        await npc.say('good good');
+    }
+
+    player.disengage();
+    return true;
+}
+
+async function onGameObjectCommandTwo(player, gameObject) {
+    if (gameObject.id !== CAULDRON_ID) {
+        return false;
+    }
+
+    if (player.questStages.witchsPotion !== 2) {
+        await player.say(
+            "I'd rather not",
+            "It doesn't look very tasty",
+        );
+
+        return true;
+    }
+
+    const { world } = player;
+
+    player.message('You drink from the cauldron');
+    await world.sleepTicks(5);
+    player.message('You feel yourself imbued with power');
+    await world.sleepTicks(5);
+    player.message('Well done you have completed the witches potion quest');
+
+    player.addExperience('magic', player.skills.magic.base * 50 + 225, 0);
+    player.questStages.witchsPotion = -1;
+    player.addQuestPoints(1);
+    player.message('@gre@You haved gained 1 quest point');
+
+    return true;
+}
+
+module.exports = { onGameObjectCommandTwo, onKilledNPC, onTalkToNPC };
