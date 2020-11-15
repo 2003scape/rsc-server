@@ -194,7 +194,7 @@ async function onGameObjectCommandTwo(player, gameObject) {
         '@que@Well done you have completed the witches potion quest'
     );
 
-    player.addExperience('magic', player.skills.magic.base * 50 + 225, 0);
+    player.addExperience('magic', player.skills.magic.base * 200 + 900, 0);
     player.questStages.witchsPotion = -1;
     player.addQuestPoints(1);
     player.message('@gre@You haved gained 1 quest point');
