@@ -89,6 +89,8 @@ class NPC extends Character {
     die() {
         const { world } = this;
 
+        world.removeEntity('npcs', this);
+
         let maxDamage = 0;
         let victorID = -1;
 
@@ -114,22 +116,13 @@ class NPC extends Character {
         victor.retreat();
         victor.sendSound('victory');
 
-        world
-            .callPlugin('onNPCDeath', victor, this)
-            .then((blocked) => {
-                if (blocked) {
-                    return;
-                }
+        const drops = this.getDrops();
 
-                world.removeEntity('npcs', this);
+        for (const item of drops) {
+            world.addPlayerDrop(victor, item);
+        }
 
-                const drops = this.getDrops();
-
-                for (const item of drops) {
-                    world.addPlayerDrop(victor, item);
-                }
-            })
-            .catch((e) => log.error(e));
+        world.callPlugin('onNPCDeath', victor, this).catch((e) => log.error(e));
     }
 
     updateKnownPlayers() {
@@ -181,20 +174,22 @@ class NPC extends Character {
     walkNextRandomStep() {
         if (this.stepsLeft > 0) {
             if (
-                Math.random() <= (2/3) &&
+                this.stepsLeft < 3 &&
+                Math.random() <= 2 / 3 &&
                 this.canWalk(this.lastDeltaX, this.lastDeltaY)
             ) {
+                this.stepsLeft -= 1;
                 this.walkTo(this.lastDeltaX, this.lastDeltaY);
             } else {
                 let deltaX = 0;
                 let deltaY = 0;
 
-                if (Math.random() < 0.5) {
-                    deltaX = Math.random() > 0.5 ? 1 : -1;
+                if (Math.random() <= 0.5) {
+                    deltaX = Math.random() <= 0.5 ? 1 : -1;
                 }
 
-                if (Math.random() < 0.5) {
-                    deltaY = Math.random() > 0.5 ? 1 : -1;
+                if (Math.random() <= 0.5) {
+                    deltaY = Math.random() <= 0.5 ? 1 : -1;
                 }
 
                 if (this.canWalk(deltaX, deltaY)) {
@@ -206,8 +201,8 @@ class NPC extends Character {
                 }
             }
         } else {
-            if (Math.random() <= 0.1) {
-                this.stepsLeft = Math.floor(Math.random() * 8) + 1;
+            if (Math.random() <= 0.15) {
+                this.stepsLeft = Math.floor(Math.random() * 10) + 1;
             }
         }
     }

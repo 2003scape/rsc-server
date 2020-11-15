@@ -28,6 +28,12 @@ class Shop {
         // the items being sold and current prices
         this.items = this.definition.items.map((item) => new Item(item));
 
+        if (!world.members) {
+            this.items = this.items.filter((item) => {
+                return !item.definition.members;
+            });
+        }
+
         this.currency = this.definition.currency || DEFAULT_CURRENCY;
 
         this.updateTimeout = null;

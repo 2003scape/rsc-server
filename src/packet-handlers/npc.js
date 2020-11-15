@@ -7,14 +7,14 @@ async function getNPC(player, index) {
         throw new RangeError(`invalid npc index ${index}`);
     }
 
-    if (!npc.withinRange(player, 2)) {
+    if (!npc.withinRange(player, 3, true)) {
         if (npc.withinRange(player, 8)) {
             await player.chase(npc, false);
         } else {
             return;
         }
 
-        if (!npc.withinRange(player, 2)) {
+        if (!npc.withinRange(player, 3, true)) {
             return;
         }
     }
@@ -70,6 +70,8 @@ async function useWithNPC({ player }, { npcIndex, index }) {
         if (!npc || npc.locked) {
             return;
         }
+
+        npcs.stepsLeft = 0;
 
         const blocked = await world.callPlugin(
             'onUseWithNPC',
