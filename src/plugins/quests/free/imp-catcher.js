@@ -101,7 +101,8 @@ async function onTalkToNPC(player, npc) {
 
             await npc.say(
                 'Well get on with it',
-                "I've lost a white bead, a red bead, a black bead and a yellow bead",
+                "I've lost a white bead, a red bead, a black bead and a " +
+                    'yellow bead',
                 'Go kill some imps'
             );
         } else if (beadsFound <= 3) {

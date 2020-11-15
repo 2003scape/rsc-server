@@ -96,7 +96,8 @@ async function onTalkToNPC(player, npc) {
                 "Sorry kiddo, I'm a fur trader not a damsel in distress"
             );
             break;
-        case 2: // buy my fur
+        // buy my fur
+        case 2: {
             await npc.say('Lets have a look at it');
             player.message('Baraek examines the fur');
             await world.sleepTicks(3);
@@ -126,7 +127,9 @@ async function onTalkToNPC(player, npc) {
                     break;
             }
             break;
-        case 3: // buy my wolf fur
+        }
+        // buy my wolf fur
+        case 3: {
             await npc.say(
                 "Grey wolf fur, now you're talking",
                 "Hmm I'll give you 120 per fur, does that sound fair?"
@@ -145,6 +148,7 @@ async function onTalkToNPC(player, npc) {
                 player.inventory.add(10, 120);
             }
             break;
+        }
     }
 
     player.disengage();
