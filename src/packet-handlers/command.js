@@ -49,7 +49,7 @@ async function command({ player }, { command, args }) {
             player.sendBubble(+args[0]);
             break;
         case 'addexp':
-            player.addExperience(args[0], +args[1] * 4, 0);
+            player.addExperience(args[0], +args[1] * 4, false);
             break;
         case 'clearentities':
             player.localEntities.clear();

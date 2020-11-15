@@ -138,7 +138,7 @@ class Inventory {
 
         let foundIndex = -1;
 
-        for (let i = 0; i < this.items.length; i += 1) {
+        for (let i = this.items.length - 1; i >= 0; i -= 1) {
             if (this.items[i].id === id) {
                 foundIndex = i;
                 break;
@@ -147,6 +147,10 @@ class Inventory {
 
         if (foundIndex > -1) {
             const item = this.items[foundIndex];
+
+            if (item.equipped) {
+                this.unequip(foundIndex);
+            }
 
             if (!item.definition.stackable || item.amount === amount) {
                 this.items.splice(foundIndex, 1);

@@ -142,7 +142,7 @@ async function onTalkToNPC(player, npc) {
             player.addExperience(
                 'magic',
                 player.skills.magic.base * 400 + 1500,
-                0
+                false
             );
 
             player.questStages.impCatcher = -1;

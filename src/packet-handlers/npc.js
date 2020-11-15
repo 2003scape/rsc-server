@@ -71,7 +71,7 @@ async function useWithNPC({ player }, { npcIndex, index }) {
             return;
         }
 
-        npcs.stepsLeft = 0;
+        npc.stepsLeft = 0;
 
         const blocked = await world.callPlugin(
             'onUseWithNPC',

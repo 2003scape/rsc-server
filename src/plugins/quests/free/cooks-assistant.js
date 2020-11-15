@@ -134,7 +134,7 @@ async function onTalkToNPC(player, npc) {
             player.addExperience(
                 'cooking',
                 player.skills.cooking.base * 200 + 1000,
-                0
+                false
             );
 
             player.questStages.cooksAssistant = -1;

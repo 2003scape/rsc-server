@@ -74,7 +74,7 @@ async function onUseWithGameObject(player, gameObject, item) {
     player.addExperience(
         'prayer',
         player.skills.prayer.base * 62.5 + 500,
-        0
+        false
     );
 
     player.questStages.theRestlessGhost = -1;

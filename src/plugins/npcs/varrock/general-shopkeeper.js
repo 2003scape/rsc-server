@@ -1,5 +1,7 @@
 // https://classic.runescape.wiki/w/Shopkeeper_(Varrock)
 
+const { canIHelpYou } = require('../general-shopkeeper');
+
 const SHOPKEEPER_IDS = new Set([51, 82]);
 
 async function onTalkToNPC(player, npc) {
@@ -7,24 +9,7 @@ async function onTalkToNPC(player, npc) {
         return false;
     }
 
-    player.engage(npc);
-
-    await npc.say('Can I help you at all?');
-
-    const choice = await player.ask(
-        ['Yes please. What are you selling?', 'No thanks'],
-        true
-    );
-
-    if (choice === 0) {
-        await npc.say('Take a look');
-        player.disengage();
-        player.openShop('varrock-general');
-        return true;
-    }
-
-    player.disengage();
-    return true;
+    return await canIHelpYou(player, npc, 'varrock-general');
 }
 
 module.exports = { onTalkToNPC };

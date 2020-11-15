@@ -172,7 +172,7 @@ async function onTalkToNPC(player, npc) {
                     player.addExperience(
                         'crafting',
                         player.skills.crafting.base * 100 + 500,
-                        0
+                        false
                     );
 
                     player.questStages.sheepShearer = -1;

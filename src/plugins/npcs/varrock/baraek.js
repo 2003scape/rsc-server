@@ -65,7 +65,7 @@ async function onTalkToNPC(player, npc) {
         case 0: // sell me furs
             await npc.say("Yeah sure they're 20 gold coins a piece");
 
-            const choice = player.ask(
+            const choice = await player.ask(
                 ['Yeah, okay here you go', '20 gold coins thats an outrage'],
                 false
             );

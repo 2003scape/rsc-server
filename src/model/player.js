@@ -615,8 +615,8 @@ class Player extends Character {
     }
 
     // add experience to a skill, optionally with fatigue
-    addExperience(skill, experience, fatigueRate = 4) {
-        if (fatigueRate > 0) {
+    addExperience(skill, experience, useFatigue = true) {
+        if (useFatigue) {
             if (this.fatigue >= MAX_FATIGUE) {
                 this.message(
                     '@gre@You are too tired to gain experience, get some rest!'
@@ -625,8 +625,15 @@ class Player extends Character {
                 return false;
             }
 
-            this.fatigue += fatigueRate * experience;
-            this.fatigue = Math.min(MAX_FATIGUE, this.fatigue);
+            const fatigueRate = /attack|defense|strength|hits/.test(skill)
+                ? 2.5
+                : 4;
+
+            this.fatigue = Math.min(
+                MAX_FATIGUE,
+                Math.floor(this.fatigue + fatigueRate * experience)
+            );
+
             this.sendFatigue();
         }
 
@@ -774,7 +781,7 @@ class Player extends Character {
     }
 
     isTired(offset = 0) {
-        return this.fatigue >= (MAX_FATIGUE - offset);
+        return this.fatigue >= MAX_FATIGUE - offset;
     }
 
     canWalk(deltaX, deltaY) {

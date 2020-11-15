@@ -138,7 +138,7 @@ async function onTalkToNPC(player, npc) {
             player.addExperience(
                 'mining',
                 player.skills.mining.base * 300 + 700,
-                0
+                false
             );
 
             player.questStages.doricsQuest = -1;

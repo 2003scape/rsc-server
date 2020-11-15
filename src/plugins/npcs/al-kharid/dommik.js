@@ -1,4 +1,7 @@
 // https://classic.runescape.wiki/w/Transcript:Dommik
+// identical to rommik
+
+const { buyEquipment } = require('../rimmington/rommik');
 
 const DOMMIK_ID = 173;
 
@@ -7,28 +10,7 @@ async function onTalkToNPC(player, npc) {
         return false;
     }
 
-    player.engage(npc);
-
-    await npc.say('Would you like to buy some crafting equipment');
-
-    const choice = await player.ask([
-        "No I've got all the crafting equipment I need",
-        "Let's see what you've got then"
-    ], true);
-
-    switch (choice) {
-        case 0:
-            await npc.say('Ok fair well on your travels');
-            break;
-        case 1:
-            player.disengage();
-            player.openShop('dommiks-crafting');
-            return true;
-    }
-
-    player.disengage();
-
-    return true;
+    return await buyEquipment(player, npc, 'rommiks-crafting');
 }
 
 module.exports = { onTalkToNPC };

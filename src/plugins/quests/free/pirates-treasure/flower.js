@@ -38,6 +38,9 @@ async function onUseWithGameObject(player, gameObject, item) {
             '@que@Well done you have completed the pirate treasure quest'
         );
 
+        delete player.cache.deliveredRum;
+        delete player.cache.stashedRum;
+
         player.questStages.piratesTreasure = -1;
         player.addQuestPoints(2);
         player.message('@gre@You haved gained 2 quest points!');
@@ -47,6 +50,7 @@ async function onUseWithGameObject(player, gameObject, item) {
         player.engage(wyson);
         await wyson.say('Hey leave off my flowers');
         player.disengage();
+
         await wyson.attack(player);
     }
 
