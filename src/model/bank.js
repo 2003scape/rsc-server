@@ -1,4 +1,5 @@
 const Item = require('./item');
+const items = require('@2003scape/rsc-data/config/items');
 
 class Bank {
     constructor(player, items = []) {

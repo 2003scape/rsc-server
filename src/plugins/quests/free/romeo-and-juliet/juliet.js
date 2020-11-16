@@ -124,7 +124,7 @@ async function onTalkToNPC(player, npc) {
         );
 
         await npc.say('Please, Take this message to him');
-        await initiateQuest(player.npc);
+        await initiateQuest(player, npc);
     } else if (questStage === 2) {
         if (!player.inventory.has(MESSAGE_ID) && !player.bank.has(MESSAGE_ID)) {
             const lostMessages = player.cache.lostJulietMessages || 0;

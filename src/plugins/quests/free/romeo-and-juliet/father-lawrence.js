@@ -3,6 +3,7 @@
 const CADAVABERRIES_ID = 55;
 const CADAVA_POTION_ID = 57;
 const LAWRENCE_ID = 32;
+const MESSAGE_ID = 56;
 
 async function onTalkToNPC(player, npc) {
     if (npc.id !== LAWRENCE_ID) {
@@ -10,6 +11,8 @@ async function onTalkToNPC(player, npc) {
     }
 
     const questStage = player.questStages.romeoAndJuliet;
+    const haveMessage =
+        player.inventory.has(MESSAGE_ID) || player.bank.has(MESSAGE_ID);
     const lostMessages = player.cache.lostJulietMessages || 0;
 
     player.engage(npc);
@@ -17,7 +20,7 @@ async function onTalkToNPC(player, npc) {
     if (
         !questStage ||
         questStage === 1 ||
-        (questStage === 2 && lostMessages < 2)
+        (questStage === 2 && (lostMessages < 2 || haveMessage))
     ) {
         await npc.say('Hello adventurer, do you seek a quest?');
 
@@ -56,7 +59,7 @@ async function onTalkToNPC(player, npc) {
                 break;
         }
     } else if (
-        (questStage === 2 && lostMessages > 1) ||
+        (questStage === 2 && lostMessages > 1 && !haveMessage) ||
         questStage === 6 ||
         questStage === -1
     ) {
@@ -113,7 +116,7 @@ async function onTalkToNPC(player, npc) {
             );
         }
 
-        if (hasPotion || haveBerries) {
+        if (hasPotion || hasBerries) {
             await player.say('I am on my way back to him with the ingredients');
 
             await npc.say(

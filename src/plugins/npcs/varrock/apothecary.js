@@ -1,6 +1,7 @@
 // https://classic.runescape.wiki/w/Transcript:Apothecary
 
 const APOTHECARY_ID = 33;
+const CADAVA_POTION_ID = 57;
 const LIMPWURT_ROOT_ID = 220;
 const RED_SPIDER_EGGS_ID = 219;
 const SPOT_POTION_ID = 58;
@@ -12,7 +13,9 @@ async function onTalkToNPC(player, npc) {
     if (
         npc.id !== APOTHECARY_ID ||
         romeoJulietStage === 4 ||
-        romeoJulietStage === 5
+        (romeoJulietStage === 5 &&
+            !player.inventory.has(CADAVA_POTION_ID) &&
+            !player.bank.has(CADAVA_POTION_ID))
     ) {
         return false;
     }

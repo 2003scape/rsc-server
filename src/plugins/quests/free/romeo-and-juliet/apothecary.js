@@ -7,7 +7,12 @@ const CADAVA_POTION_ID = 57;
 async function onTalkToNPC(player, npc) {
     const questStage = player.questStages.romeoAndJuliet;
 
-    if (npc.id !== APOTHECARY_ID || questStage !== 4 || questStage !== 5) {
+    if (
+        npc.id !== APOTHECARY_ID ||
+        questStage !== 4 &&
+        ((questStage !== 5 && player.inventory.has(CADAVA_POTION_ID)) ||
+            player.bank.has(CADAVA_POTION_ID))
+    ) {
         return false;
     }
 
