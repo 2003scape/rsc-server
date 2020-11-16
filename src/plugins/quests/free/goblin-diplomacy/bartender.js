@@ -1,4 +1,4 @@
-async function bartenderIntro(player, npc) {
+async function initiateQuest(player, npc) {
     await player.say('Not very busy in here today is it');
 
     await npc.say(
@@ -16,7 +16,7 @@ async function bartenderIntro(player, npc) {
             'them'
     );
 
-    player.questStages.goblinDiplomacy = 0;
+    player.questStages.goblinDiplomacy = 1;
 }
 
-module.exports = { bartenderIntro };
+module.exports = { initiateQuest };

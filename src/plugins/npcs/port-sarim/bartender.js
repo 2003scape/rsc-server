@@ -5,9 +5,11 @@ const {
     rustyAnchorBarcrawl
 } = require('../../miniquests/barcrawl');
 
-const { bartenderIntro } = require('../../quests/free/goblin-diplomacy');
+const {
+    initiateQuest
+} = require('../../quests/free/goblin-diplomacy/bartender');
 
-const BARTENDER_ID = 44;
+const BARTENDER_ID = 150;
 const BEER_ID = 193;
 
 async function onTalkToNPC(player, npc) {
@@ -19,19 +21,20 @@ async function onTalkToNPC(player, npc) {
 
     const choices = ['Could i buy a beer please?'];
 
-    if (player.questStages.goblinDiplomacy === -1) {
+    if (player.questStages.goblinDiplomacy !== -1) {
         choices.push('Not very busy in here today is it?');
     } else {
         choices.push('Have you heard any more rumours in here?');
     }
 
-    if (shouldHandleBar('rustyAnchor')) {
+    if (shouldHandleBar(player, 'rustyAnchor')) {
         choices.push("I'm doing Alfred Grimhand's barcrawl");
     }
 
     const choice = await player.ask(choices);
 
-    if (choice === 0) { // buy a beer
+    if (choice === 0) {
+        // buy a beer
         await player.say('Could i buy a beer please?');
         await npc.say('Sure that will be 2 gold coins please');
 
@@ -43,10 +46,11 @@ async function onTalkToNPC(player, npc) {
         } else {
             player.message('You dont have enough coins for the beer');
         }
-    // not very busy
-    } else if (player.questStages.goblinDiplomacy === -1 && choice === 1) {
-        await bartenderIntro(player, npc);
-    } else if (choice === 1) { // more rumours
+        // not very busy
+    } else if (player.questStages.goblinDiplomacy !== -1 && choice === 1) {
+        await initiateQuest(player, npc);
+    } else if (choice === 1) {
+        // more rumours
         await player.say('Have you heard any more rumours in here?');
         await npc.say("No it hasn't been very busy lately");
     } else if (choice === 2) {

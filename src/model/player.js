@@ -805,6 +805,18 @@ class Player extends Character {
         return true;
     }
 
+    // enter a door with a blocked doorframe and close it
+    async enterDoor(door, doorframeID) {
+        const { world } = this;
+        const { id: doorID, direction } = door;
+
+        const doorframe = world.replaceEntity('wallObjects', door, doorframeID);
+        this.sendSound('opendoor');
+        this.walkTo(this.x < doorframe.x ? 1 : -1, 0);
+        await world.sleepTicks(1);
+        world.replaceEntity('wallObjects', doorframe, doorID);
+    }
+
     teleport(x, y, bubble = false) {
         if (y < 0) {
             y += this.world.planeElevation * 4;

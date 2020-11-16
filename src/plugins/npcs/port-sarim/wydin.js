@@ -88,22 +88,6 @@ async function onTalkToNPC(player, npc) {
     return true;
 }
 
-// TODO probably should put this in player
-async function walkThroughDoor(player, wallObject) {
-    const { world } = player;
-
-    const doorframe = world.replaceEntity(
-        'wallObjects',
-        wallObject,
-        DOORFRAME_ID
-    );
-
-    player.sendSound('opendoor');
-    player.walkTo(player.x < doorframe.x ? 1 : -1, 0);
-    await world.sleepTicks(1);
-    world.replaceEntity('wallObjects', doorframe, DOOR_ID);
-}
-
 async function onWallObjectCommandOne(player, wallObject) {
     if (wallObject.id !== DOOR_ID) {
         return false;
@@ -169,7 +153,7 @@ async function onWallObjectCommandOne(player, wallObject) {
             }
         } else if (player.inventory.isEquipped(APRON_ID)) {
             player.cache.wydinJobStage = 2;
-            await walkThroughDoor(player, wallObject);
+            await player.enterDoor(wallObject, DOORFRAME_ID);
         } else {
             const npc = world.npcs.getByID(WYDIN_ID);
 
@@ -184,7 +168,7 @@ async function onWallObjectCommandOne(player, wallObject) {
             }
         }
     } else {
-        await walkThroughDoor(player, wallObject);
+        await player.enterDoor(wallObject, DOORFRAME_ID);
     }
 
     return true;
