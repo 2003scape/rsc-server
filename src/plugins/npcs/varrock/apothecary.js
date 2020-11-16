@@ -7,7 +7,13 @@ const SPOT_POTION_ID = 58;
 const STRENGTH_POTION_ID = 221;
 
 async function onTalkToNPC(player, npc) {
-    if (npc.id !== APOTHECARY_ID) {
+    const romeoJulietStage = player.questStages.romeoAndJuliet;
+
+    if (
+        npc.id !== APOTHECARY_ID ||
+        romeoJulietStage === 4 ||
+        romeoJulietStage === 5
+    ) {
         return false;
     }
 
@@ -93,13 +99,13 @@ async function onTalkToNPC(player, npc) {
             break;
         case 2: // give way
             if (player.inventory.has(SPOT_POTION_ID)) {
-                await npc.say("Only that spot cream. Hope you enjoy it");
+                await npc.say('Only that spot cream. Hope you enjoy it');
             }
 
             if (!player.inventory.has(SPOT_POTION_ID) && Math.random() <= 0.5) {
-                await npc.say("Sorry, charity is not my strong point");
+                await npc.say('Sorry, charity is not my strong point');
             } else {
-                await npc.say("Yes, ok. Try this potion");
+                await npc.say('Yes, ok. Try this potion');
                 player.inventory.add(SPOT_POTION_ID);
             }
             break;

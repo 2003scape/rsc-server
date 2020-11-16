@@ -51,6 +51,7 @@ function getFormattedName(item, isConverted = false) {
 
     let metalType = split.shift();
 
+    // TODO confirm with Luis if this is the correct capitalization
     if (
         metalType === 'Black' ||
         metalType === 'Rune' ||
@@ -59,7 +60,8 @@ function getFormattedName(item, isConverted = false) {
         (metalType === 'Iron' &&
             ((!isConverted && isSkirt) || (isConverted && isLegs))) ||
         ((isTop || isBody) && isConverted && metalType === 'Bronze') ||
-        (isBody && metalType === 'Adamantite')
+        (metalType === 'Adamantite' &&
+            ((!isConverted && isBody) || (isConverted && isTop)))
     ) {
         metalType = metalType.toLowerCase();
     }
@@ -105,7 +107,6 @@ async function onUseWithNPC(player, npc, item) {
     await world.sleepTicks(3);
 
     const converted = new Item({ id: CONVERSION_IDS[item.id] });
-
     player.inventory.add(converted);
     player.message(`Thrander gives you ${getFormattedName(converted, true)}`);
 
