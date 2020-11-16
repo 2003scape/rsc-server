@@ -27,7 +27,6 @@ class Character extends Entity {
         this.interlocutor = null;
 
         this.chasing = null;
-        this.chasedBy = null;
 
         // can we move? certain NPCs still have conversation partners, but can
         // walk around (e.g. goblin generals in goblin diplomacy)
@@ -129,10 +128,12 @@ class Character extends Entity {
 
     // face and set our engager to this character, as well as busy status
     engage(character) {
+        this.chasing = null;
         this.faceEntity(character);
         this.lock();
         this.interlocutor = character;
 
+        character.chasing = null;
         character.faceEntity(this);
         character.lock();
         character.interlocutor = this;
@@ -155,7 +156,6 @@ class Character extends Entity {
         }
 
         if (this.chasing) {
-            this.chasing.chasedBy = null;
             this.chasing = null;
         }
 
@@ -303,7 +303,6 @@ class Character extends Entity {
         const { world } = this;
 
         this.chasing = entity;
-        entity.chasedBy = this;
 
         newSteps: do {
             const destX = this.chasing.x;
@@ -340,7 +339,6 @@ class Character extends Entity {
         );
 
         this.chasing = null;
-        entity.chasedBy = null;
     }
 }
 

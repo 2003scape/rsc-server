@@ -172,10 +172,6 @@ class World {
             }, entity.respawn);
         }
 
-        if (entity.chasing) {
-            entity.chasing.chasedBy = null;
-        }
-
         for (const player of entity.getNearbyEntities('players')) {
             if (entity === player) {
                 return;

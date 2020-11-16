@@ -15,10 +15,10 @@ async function onTalkToNPC(player, npc) {
         'Of 3000 coins'
     );
 
-    const choice = await player.ask([
-        "I'm happy with how I look thank you",
-        'Yes change my looks please'
-    ], true);
+    const choice = await player.ask(
+        ["I'm happy with how I look thank you", 'Yes change my looks please'],
+        true
+    );
 
     if (choice === 1) {
         if (player.inventory.has(10, 3000)) {

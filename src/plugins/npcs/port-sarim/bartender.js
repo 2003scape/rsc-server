@@ -21,7 +21,7 @@ async function onTalkToNPC(player, npc) {
 
     const choices = ['Could i buy a beer please?'];
 
-    if (player.questStages.goblinDiplomacy !== -1) {
+    if (!player.questStages.goblinDiplomacy) {
         choices.push('Not very busy in here today is it?');
     } else {
         choices.push('Have you heard any more rumours in here?');
@@ -46,8 +46,8 @@ async function onTalkToNPC(player, npc) {
         } else {
             player.message('You dont have enough coins for the beer');
         }
+    } else if (!player.questStages.goblinDiplomacy && choice === 1) {
         // not very busy
-    } else if (player.questStages.goblinDiplomacy !== -1 && choice === 1) {
         await initiateQuest(player, npc);
     } else if (choice === 1) {
         // more rumours
@@ -59,7 +59,6 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.disengage();
-
     return true;
 }
 

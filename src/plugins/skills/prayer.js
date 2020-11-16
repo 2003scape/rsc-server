@@ -2,24 +2,25 @@ const { buryExperience } = require('@2003scape/rsc-data/skills/prayer');
 
 const BONE_IDS = new Set(Object.keys(buryExperience).map(Number));
 
-async function onItemCommand(player, item) {
+async function onInventoryCommand(player, item) {
     if (!BONE_IDS.has(item.id)) {
         return false;
     }
 
     const { world } = player;
 
-    player.setBusy(true);
+    player.lock();
 
-    player.message('You dig a hole in the ground');
-    await player.inventory.remove(item);
+    player.message('@que@You dig a hole in the ground');
+    await world.sleepTicks(2);
+
+    player.inventory.remove(item);
     player.addExperience('prayer', buryExperience[item.id])
-    player.message(`You bury the ${item.definition.name.toLowerCase()}`);
-    await world.sleepTicks(1);
+    player.message(`@que@You bury the ${item.definition.name.toLowerCase()}`);
 
-    player.setBusy(false);
+    player.unlock();
 
     return true;
 }
 
-module.exports = { onItemCommand };
+module.exports = { onInventoryCommand };

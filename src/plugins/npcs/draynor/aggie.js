@@ -30,11 +30,14 @@ const DYE_INGREDIENTS = {
 async function askDye(player, npc, dyeID) {
     const colour = DYE_COLOURS[dyeID];
 
-    const choice = await player.ask([
-        `Okay, make me some some ${colour} dye please`,
-        "I don't think I have all the ingredients yet",
-        'I can do without dye at that price'
-    ], true);
+    const choice = await player.ask(
+        [
+            `Okay, make me some some ${colour} dye please`,
+            "I don't think I have all the ingredients yet",
+            'I can do without dye at that price'
+        ],
+        true
+    );
 
     const ingredient = DYE_INGREDIENTS[dyeID];
     const ingredientName = INGREDIENT_NAMES[ingredient.id];
