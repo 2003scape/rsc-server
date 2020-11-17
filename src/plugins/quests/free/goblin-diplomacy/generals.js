@@ -1,6 +1,6 @@
 // https://classic.runescape.wiki/w/Transcript:General_Bentnoze
 
-const ARMOUR_ID = 272;
+const ARMOUR_ID = 273;
 const BENTNOZE_ID = 152;
 const BLUE_ARMOUR_ID = 275;
 const GOLD_BAR_ID = 172;
@@ -37,7 +37,19 @@ async function onTalkToNPC(player, npc) {
     bentnoze.interlocutor = player;
     player.engage(wartface);
 
-    if (questStage !== -1) {
+    // in case the user breaks out of an .ask
+    const unbusyGenerals = () => {
+        if (!player.interlocutor) {
+            wartface.interlocutor = null;
+            bentnoze.interlocutor = null;
+        } else {
+            world.setTickTimeout(unbusyGenerals, 2);
+        }
+    };
+
+    unbusyGenerals();
+
+    if (questStage !== -1 && questStage !== 4) {
         await wartface.say('green armour best');
         switchGoblins(player, wartface, bentnoze);
         await bentnoze.say('No no Red every time');

@@ -27,20 +27,34 @@ async function howMuch(player, npc) {
             break;
         case 2: // 15
             await npc.say('Mmmm Ok that sounds fair.');
-            player.inventory.remove(10, 15);
-            player.message('You give wyson 15 coins');
-            player.inventory.add(WOAD_LEAF_ID);
-            player.message('Wyson the gardener gives you some woad leaves');
+            if (player.inventory.has(10, 15)) {
+                player.inventory.remove(10, 15);
+                player.message('You give wyson 15 coins');
+                player.inventory.add(WOAD_LEAF_ID);
+                player.message('Wyson the gardener gives you some woad leaves');
+            } else {
+                await player.say(
+                    "I dont have enough coins to buy the leaves. I'll come " +
+                        'back later'
+                );
+            }
             break;
         case 3: // 20
             await npc.say("Ok that's more than fair.");
-            player.inventory.remove(10, 20);
-            player.message('You give wyson 20 coins');
-            player.inventory.add(WOAD_LEAF_ID);
-            player.message('Wyson the gardener gives you some woad leaves');
-            await npc.say("Here have some more you're a generous person");
-            player.inventory.add(WOAD_LEAF_ID);
-            player.message('Wyson the gardener gives you some woad leaves');
+            if (player.inventory.has(10, 20)) {
+                player.inventory.remove(10, 20);
+                player.message('You give wyson 20 coins');
+                player.inventory.add(WOAD_LEAF_ID);
+                player.message('Wyson the gardener gives you some woad leaves');
+                await npc.say("Here have some more you're a generous person");
+                player.inventory.add(WOAD_LEAF_ID);
+                player.message('Wyson the gardener gives you some woad leaves');
+            } else {
+                await player.say(
+                    "I dont have enough coins to buy the leaves. I'll come " +
+                        'back later'
+                );
+            }
             break;
     }
 }
