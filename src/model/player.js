@@ -625,7 +625,7 @@ class Player extends Character {
                 return false;
             }
 
-            const fatigueRate = /attack|defense|strength|hits/.test(skill)
+            const fatigueRate = /^(attack|defense|strength|hits)$/.test(skill)
                 ? 2.5
                 : 4;
 

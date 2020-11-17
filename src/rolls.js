@@ -56,21 +56,52 @@ function rollItemDrop(drops, index) {
     return currentDrops;
 }
 
+// get the x from the x/256 chance of rolling a success
+function getSkillThreshold(low, high, level) {
+    return (
+        Math.floor((low * (99 - level)) / 98) +
+        Math.floor((high * (level - 1)) / 98) +
+        1
+    );
+}
+
 // decide whether or not a skilling action should be successful.
 // low is x/256 for success at level 1 (even if the action can't be performed),
 // and high is x/256 for success at level 99.
 // https://oldschool.runescape.wiki/w/Template:Skilling_success_chart
 function rollSkillSuccess(low, high, level) {
-    const threshold =
-        Math.floor((low * (99 - level)) / 98) +
-        Math.floor((high * (level - 1)) / 98) +
-        1;
-
+    const threshold = getSkillThreshold(low, high, level);
     const roll = Math.floor(Math.random() * 257);
-
-    return roll < threshold;
+    return roll <= threshold;
 }
 
-//function rollCascadedSkillSuccess
+// for fishing spots and other processes that can provide multiple resources
+// at different levels within the same action.
+// rolls is an array of [low, high], sorted by highest skill requirement first
+// returns the index of the roll it chose, or -1 if fail
+function rollCascadedSkillSuccess(rolls, level) {
+    const thresholds = rolls.map(([low, high]) => {
+        return getSkillThreshold(low, high, level);
+    });
 
-module.exports = { rollItemDrop, rollSkillSuccess };
+    for (let i = thresholds.length - 1; i > 0; i -= 1) {
+        thresholds[i] = Math.floor(
+            thresholds[i] * (1 - thresholds[i - 1] / 256)
+        );
+    }
+
+    const roll = Math.floor(Math.random() * 257);
+    let threshold = 0;
+
+    for (let i = 0; i < thresholds.length; i += 1) {
+        threshold += thresholds[i];
+
+        if (roll <= threshold) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+module.exports = { rollItemDrop, rollSkillSuccess, rollCascadedSkillSuccess };
