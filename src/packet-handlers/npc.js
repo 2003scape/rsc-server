@@ -102,7 +102,7 @@ async function npcAttack({ player }, { index }) {
             throw new Error(`${player} trying to attack unattackable NPC`);
         }
 
-        if (npc.opponent || npc.locked) {
+        if (npc.opponent || npc.interlocutor || npc.locked) {
             return;
         }
 

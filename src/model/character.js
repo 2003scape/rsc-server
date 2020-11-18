@@ -159,11 +159,15 @@ class Character extends Entity {
             this.chasing = null;
         }
 
-        const deltaX = character.x - this.x;
-        const deltaY = character.y - this.y;
+        let deltaX = character.x - this.x;
+        let deltaY = character.y - this.y;
 
         if (deltaX !== 0 || deltaY !== 0) {
             await this.chase(character);
+        }
+
+        if (deltaX !== 0 || deltaY !== 0) {
+            return;
         }
 
         this.lock();
