@@ -26,7 +26,7 @@
   "homepage": "https://github.com/2003scape/rsc-server#readme",
   "dependencies": {
     "@2003scape/rsc-captcha": "^1.0.0",
-    "@2003scape/rsc-data": "^1.0.7",
+    "@2003scape/rsc-data": "^1.0.8",
     "@2003scape/rsc-landscape": "^2.0.1",
     "@2003scape/rsc-path-finder": "^1.1.0",
     "@2003scape/rsc-socket": "^1.0.6",

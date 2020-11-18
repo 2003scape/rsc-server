@@ -264,10 +264,12 @@ class World {
                     return true;
                 }
             } catch (e) {
-                switch (handlerName) {
-                    case 'onTalkToNPC':
-                        args[0].disengage();
-                        break;
+                if (e.message === 'interrupted ask') {
+                    args[0].unlock();
+                }
+
+                if (handlerName === 'onTalkToNPC') {
+                    args[0].disengage();
                 }
 
                 log.error(e);
