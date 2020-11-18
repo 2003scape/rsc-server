@@ -34,7 +34,7 @@ async function doFishing(player, gameObject, index) {
         return true;
     }
 
-    const fishingLevel = 30; //player.skills.fishing.current;
+    const fishingLevel = player.skills.fishing.current;
     const { tool, bait, fish } = spot;
 
     let catchable = [];
@@ -97,6 +97,13 @@ async function doFishing(player, gameObject, index) {
         return a.level > b.level ? -1 : 1;
     });
 
+    player.sendSound('fish');
+    player.sendBubble(tool);
+
+    if (typeof bait === 'number') {
+        player.inventory.remove(bait);
+    }
+
     let catching;
 
     if (command === 'net') {
@@ -105,13 +112,6 @@ async function doFishing(player, gameObject, index) {
         catching = 'a lobster';
     } else {
         catching = 'a fish';
-    }
-
-    player.sendSound('fish');
-    player.sendBubble(tool);
-
-    if (typeof bait === 'number') {
-        player.inventory.remove(bait);
     }
 
     player.message(`@que@You attempt to catch ${catching}`);

@@ -94,7 +94,7 @@ async function rustyAnchorBarcrawl(player, npc) {
     await npc.say('Ok one black skull ale coming up, 8 coins please');
 
     if (player.inventory.has(10, 8)) {
-        player.inventory.remove(10, 18);
+        player.inventory.remove(10, 8);
         player.message('You buy a black skull ale');
         await world.sleepTicks(2);
         player.message('You drink your black skull ale');
@@ -108,10 +108,38 @@ async function rustyAnchorBarcrawl(player, npc) {
     }
 }
 
+async function risingSunBarcrawl(player, npc) {
+    const { world, cache } = player;
+
+    await npc.say(
+        "Hehe this'll be fun",
+        "You'll be after our off the menu hand of death cocktail then",
+        'Lots of expensive parts to the cocktail though',
+        'So it will cost you 70 coins'
+    );
+
+    if (player.inventory.has(10, 70)) {
+        player.inventory.remove(10, 70);
+        player.message('You buy a hand of death cocktail');
+        await world.sleepTicks(2);
+        player.message('You drink the cocktail');
+        await world.sleepTicks(2);
+        player.message('You stumble around the room');
+        await world.sleepTicks(2);
+        player.message('The barmaid giggles');
+        await world.sleepTicks(2);
+        player.message('The barmaid signs your card');
+        cache.barcrawl.risingSun = true;
+    } else {
+        await player.say("I don't have that much money on me");
+    }
+}
+
 module.exports = {
     shouldHandleBar,
     blueMoonBarcrawl,
     jollyBoarBarcrawl,
     foresterArmsBarcrawl,
-    rustyAnchorBarcrawl
+    rustyAnchorBarcrawl,
+    risingSunBarcrawl
 };
