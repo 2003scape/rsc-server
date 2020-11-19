@@ -26,8 +26,10 @@ async function onTalkToNPC(player, npc) {
         "No thanks Ned, I don't need any"
     ];
 
+    const princeAliRescueStage = player.questStages.princeAliRescue;
+
     // confirmed from video that this choice is at the end
-    if (player.questStages.princeAliRescue === 2) {
+    if (princeAliRescueStage === 2 || princeAliRescueStage === 3) {
         choices.push('Ned, could you make other things from wool?');
     }
 

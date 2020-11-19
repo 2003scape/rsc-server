@@ -1,6 +1,6 @@
 // https://classic.runescape.wiki/w/Transcript:Aggie#During_Prince_Ali_Rescue
 
-const ASHES_ID = 183;
+const ASHES_ID = 181;
 const FLOUR_ID = 136;
 const JUG_OF_WATER_ID = 141;
 const REDBERRIES_ID = 236;
@@ -20,7 +20,7 @@ async function skinPaste(player, npc) {
         waterID !== -1 &&
         player.inventory.has(ASHES_ID) &&
         player.inventory.has(FLOUR_ID) &&
-        player.inventory.has(REDBERRIES_ID, 4);
+        player.inventory.has(REDBERRIES_ID);
 
     if (hasIngredients) {
         const { world } = player;

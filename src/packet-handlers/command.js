@@ -137,6 +137,9 @@ async function command({ player }, { command, args }) {
 
             break;
         }
+        case 'setcache':
+            player.cache[args[0]] = JSON.parse(args[1]);
+            break;
     }
 }
 

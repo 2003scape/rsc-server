@@ -20,9 +20,9 @@ async function enterGate(player, entry) {
     const { x, y, direction } = gameObject;
 
     if (entry) {
-        await player.walkToPoint(92, 649);
+        await player.walkToPoint(92, 649, true);
     } else {
-        await player.walkToPoint(91, 649);
+        await player.walkToPoint(91, 649, true);
     }
 
     world.removeEntity('gameObjects', gameObject);
@@ -73,7 +73,7 @@ async function onTalkToNPC(player, npc) {
 
     await player.say('Can I come through this gate?');
 
-    if (princeAliRescueStage !== -1 || princeAliRescueStage !== 4) {
+    if (princeAliRescueStage !== -1 && princeAliRescueStage !== 4) {
         await npc.say('You must pay a toll of 10 gold coins to pass');
 
         const choice = await player.ask(

@@ -199,7 +199,7 @@ class World {
 
             // prevents doogle leaves and such showing up in free-to-play
             if (!this.members && entity.definition.members) {
-                break;
+                continue;
             }
 
             this.addEntity(type, entity);

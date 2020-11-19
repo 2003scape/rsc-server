@@ -41,6 +41,7 @@ async function onUseWithWallObject(player, wallObject, item) {
     if (questStage !== 3) {
         player.message('I have no reason to do this');
     } else if (player.x < wallObject.x) {
+        const { world } = player;
         const ladyKeli = world.npcs.getByID(LADY_KELI_ID);
 
         if (ladyKeli) {

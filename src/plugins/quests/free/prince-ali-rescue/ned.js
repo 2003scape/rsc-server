@@ -4,7 +4,6 @@ const BALL_OF_WOOL_ID = 207;
 const WIG_ID = 245;
 
 async function otherThingsFromWool(player, npc) {
-    await player.say('Ned, could you make other things from wool?');
     await npc.say('I am sure I can. What are you thinking of?');
 
     const choice = await player.ask(

@@ -106,6 +106,7 @@ async function getHimOut(player, npc) {
 
                         await world.sleepTicks(3);
 
+                        player.inventory.remove(SOFT_CLAY_ID);
                         player.inventory.add(KEYPRINT_ID);
 
                         await player.say(
@@ -271,7 +272,7 @@ async function onTalkToNPC(player, npc) {
 
     player.engage(npc);
 
-    if (questStage !== -1) {
+    if (questStage !== -1 && questStage !== 4) {
         await player.say(
             'Are you the famous Lady Keli?',
             'Leader of the toughest gang of mercenary killers around?'
@@ -412,6 +413,8 @@ async function onUseWithNPC(player, npc, item) {
             'You have rescued the prince already, you cannot use the same ' +
                 'plan again'
         );
+
+        return true;
     }
 
     if (questStage < 3 || !joeDrunk) {
@@ -423,7 +426,15 @@ async function onUseWithNPC(player, npc, item) {
         return await onTalkToNPC(player, npc);
     }
 
+    const respawnTime = npc.respawn;
+
+    delete npc.respawn;
     world.removeEntity('npcs', npc);
+
+    world.keliRespawnTimer = world.setTimeout(() => {
+        world.addEntity('npcs', npc);
+    }, respawnTime);
+
     player.message('You overpower Keli, tie her up, and put her in a cupboard');
 
     if (player.cache.keliTiedOnce) {

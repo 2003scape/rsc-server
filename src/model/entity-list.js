@@ -18,8 +18,6 @@ class EntityList {
                 );
             }
         });
-
-        //this.quadTree = new QuadTree({ width, height });
     }
 
     add(entity) {

@@ -152,7 +152,7 @@ async function onTalkToNPC(player, npc) {
     const princeAliRescueStage = player.questStages.princeAliRescue;
     let offerPaste = false;
 
-    if (princeAliRescueStage && princeAliRescueStage === 2) {
+    if (princeAliRescueStage === 2 || princeAliRescueStage === 3) {
         choices.unshift('Could you think of a way to make pink skin paste');
         offerPaste = true;
     }
@@ -161,7 +161,7 @@ async function onTalkToNPC(player, npc) {
 
     if (offerPaste) {
         if (choice === 0) {
-            await skinPaste(player.npc);
+            await skinPaste(player, npc);
             player.disengage();
             return true;
         } else {

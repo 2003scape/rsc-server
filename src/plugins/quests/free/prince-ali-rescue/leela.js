@@ -155,7 +155,7 @@ async function doWithGuards(player, npc) {
     }
 
     switch (choice) {
-        case 1: // disguise
+        case 0: // disguise
             await makeADisguise(player, npc);
             break;
         case 1: // key made

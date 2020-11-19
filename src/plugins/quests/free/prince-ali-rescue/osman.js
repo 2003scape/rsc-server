@@ -1,13 +1,14 @@
 // https://classic.runescape.wiki/w/Transcript:Osman
 // https://github.com/hikilaka/rscemulation/blob/master/server/src/org/rscemulation/server/npchandler/Prince_Ali_Rescue/Osman.java
 
+const BLONDE_WIG_ID = 244;
 const BRONZE_BAR_ID = 169;
 const BRONZE_KEY_ID = 242;
 const KEYPRINT_ID = 247;
 const OSMAN_ID = 120;
-const SKIRT_ID = 194;
-const BLONDE_WIG_ID = 244;
 const PASTE_ID = 240;
+const ROPE_ID = 237;
+const SKIRT_ID = 194;
 
 async function findSomeThings(player, npc) {
     await npc.say(
@@ -164,6 +165,18 @@ async function stillNeedToGet(player, npc) {
     } else {
         await npc.say('Something to colour the Princes skin lighter');
     }
+
+    if (player.inventory.has(ROPE_ID)) {
+        await npc.say('Yes, you have the rope.');
+    } else {
+        await npc.say('Rope to tie Keli up with');
+    }
+
+    await npc.say(
+        'You still need some way to stop the guard from interfering',
+        'Once you have everything, Go to Leela',
+        'she must be ready to get the prince away'
+    );
 }
 
 async function onTalkToNPC(player, npc) {

@@ -122,6 +122,8 @@ async function onTalkToNPC(player, npc) {
         delete player.cache.bronzeKeyPaid;
         delete player.cache.bronzeKeyMade;
         delete player.cache.bronzeKeyReceived;
+        delete player.cache.keliTiedOnce;
+        delete player.cache.joeDrunk;
 
         player.questStages.princeAliRescue = -1;
         player.addQuestPoints(3);

@@ -140,7 +140,7 @@ async function giveBeer(player, npc) {
 
         // also no delay
         player.message(
-            '@queYou hand two more beers to the guard',
+            '@que@You hand two more beers to the guard',
             '@que@he takes a sip of one, and then he drinks them both'
         );
 

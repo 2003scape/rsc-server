@@ -1,10 +1,13 @@
 // https://classic.runescape.wiki/w/Transcript:Prince_Ali
 
+const NPC = require('../../../../model/npc');
+
 const BLONDE_WIG_ID = 244;
 const BRONZE_KEY_ID = 242;
+const LADY_KELI_ID = 123;
 const PASTE_ID = 240;
 const PRINCE_ALI_DRAG_ID = 126;
-const PRINCE_ALI_ID = 188;
+const PRINCE_ALI_ID = 118;
 const SKIRT_ID = 194;
 
 async function onTalkToNPC(player, npc) {
@@ -22,7 +25,7 @@ async function onTalkToNPC(player, npc) {
 
         await player.say(
             'With a disguise, I have removed the Lady Keli',
-            'he is tied up, but will not stay tied up for long'
+            'She is tied up, but will not stay tied up for long'
         );
 
         const hasEquipment =
@@ -64,6 +67,26 @@ async function onTalkToNPC(player, npc) {
 
             player.disengage();
             world.removeEntity('npcs', princeAliDrag);
+
+            let ladyKeli = world.npcs.getByID(LADY_KELI_ID);
+
+            if (!ladyKeli) {
+                if (world.keliRespawnTimer) {
+                    world.clearTimeout(world.keliRespawnTimer);
+                }
+
+                ladyKeli = new NPC(world, {
+                    id: LADY_KELI_ID,
+                    x: 197,
+                    y: 641,
+                    minX: 194,
+                    maxX: 198,
+                    minY: 637,
+                    maxY: 642
+                });
+
+                world.addEntity('npcs', ladyKeli);
+            }
 
             player.message(
                 '@que@The prince has escaped, well done!',
