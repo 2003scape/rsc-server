@@ -2,6 +2,7 @@
 
 const KEYPRINT_ID = 247;
 const LADY_KELI_ID = 123;
+const ROPE_ID = 237;
 const SOFT_CLAY_ID = 243;
 
 async function katrineTougher(player, npc) {
@@ -392,4 +393,46 @@ async function onTalkToNPC(player, npc) {
     return true;
 }
 
-module.exports = { onTalkToNPC };
+async function onUseWithNPC(player, npc, item) {
+    const { world } = player;
+    const questStage = player.questStages.princeAliRescue;
+    const joeDrunk = player.cache.joeDrunk;
+
+    if (npc.id !== LADY_KELI_ID || item.id !== ROPE_ID) {
+        return false;
+    }
+
+    if (!questStage) {
+        player.message('I have no reason to do this');
+        return true;
+    }
+
+    if (questStage === 4 || questStage === -1) {
+        player.message(
+            'You have rescued the prince already, you cannot use the same ' +
+                'plan again'
+        );
+    }
+
+    if (questStage < 3 || !joeDrunk) {
+        player.message(
+            'You cannot tie Keli up until you have all equipment and ' +
+                'disabled the guard'
+        );
+
+        return await onTalkToNPC(player, npc);
+    }
+
+    world.removeEntity('npcs', npc);
+    player.message('You overpower Keli, tie her up, and put her in a cupboard');
+
+    if (player.cache.keliTiedOnce) {
+        player.message('I must rescue the prince before she escapes again!');
+    } else {
+        player.cache.keliTiedOnce = true;
+    }
+
+    return true;
+}
+
+module.exports = { onTalkToNPC, onUseWithNPC };

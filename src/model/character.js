@@ -59,7 +59,7 @@ class Character extends Entity {
             await this.world.sleepTicks(2);
 
             if (message.length >= 25) {
-                await this.world.sleepTicks(2);
+                await this.world.sleepTicks(1);
             }
         }
     }

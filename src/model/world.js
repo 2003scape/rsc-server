@@ -48,6 +48,7 @@ const PLUGIN_TYPES = [
     'onGroundItemTake',
     'onUseWithGroundItem',
     'onUseWithGameObject',
+    'onUseWithWallObject',
     'onUseWithInventory',
     'onUseWithNPC',
     'onInventoryCommand',

@@ -1,10 +1,15 @@
 // https://classic.runescape.wiki/w/Transcript:Osman
+// https://github.com/hikilaka/rscemulation/blob/master/server/src/org/rscemulation/server/npchandler/Prince_Ali_Rescue/Osman.java
 
+const BRONZE_BAR_ID = 169;
+const BRONZE_KEY_ID = 242;
+const KEYPRINT_ID = 247;
 const OSMAN_ID = 120;
+const SKIRT_ID = 194;
+const BLONDE_WIG_ID = 244;
+const PASTE_ID = 240;
 
 async function findSomeThings(player, npc) {
-    await player.say('Okay, I better go find some things');
-
     await npc.say(
         'May good luck travel with you',
         "Don't forget to find Leela. It can't be done without her help"
@@ -14,8 +19,6 @@ async function findSomeThings(player, npc) {
 }
 
 async function firstThing(player, npc) {
-    await player.say('What is the first thing I must do?');
-
     await npc.say(
         'The prince is guarded by some stupid guards, and a clever woman',
         'The woman is our only way to get the prince out',
@@ -43,7 +46,7 @@ async function firstThing(player, npc) {
             'And the final thing you need?',
             'Okay, I better go find some things '
         ],
-        false
+        true
     );
 
     switch (choice) {
@@ -63,8 +66,6 @@ async function firstThing(player, npc) {
 }
 
 async function secondThing(player, npc) {
-    await player.say('What is needed second?');
-
     await npc.say(
         'We need the key, or a copy made',
         'If you can get some soft clay, then you can copy the key',
@@ -80,7 +81,7 @@ async function secondThing(player, npc) {
             'And the final thing you need?',
             'Okay, I better go find some things'
         ],
-        false
+        true
     );
 
     switch (choice) {
@@ -100,8 +101,6 @@ async function secondThing(player, npc) {
 }
 
 async function finalThing(player, npc) {
-    await player.say('And the final things you need?');
-
     await npc.say(
         'You will need to stop the guard at the door',
         'Find out if he has any weaknesses, and use them'
@@ -113,7 +112,7 @@ async function finalThing(player, npc) {
             'What exactly is needed second?',
             'Okay, I better go find some things'
         ],
-        false
+        true
     );
 
     switch (choice) {
@@ -123,9 +122,47 @@ async function finalThing(player, npc) {
         case 1: // second thing
             await secondThing(player, npc);
             break;
-        case 2:
+        case 2: // find things
             await findSomeThings(player, npc);
             break;
+    }
+}
+
+async function stillNeedToGet(player, npc) {
+    await player.say('Can you tell me what I still need to get?');
+    await npc.say('Let me check. You need:');
+
+    if (player.inventory.has(BRONZE_KEY_ID)) {
+        // don't think this was actually ever in the game. in my videos Osman
+        // assumes you lost the key if you talk to him again after picking it up
+        // from Leela, even if you have it in your inventory.
+        await npc.say('You have the key, good');
+    } else {
+        await npc.say(
+            'A print of the key in soft clay, and a bronze bar',
+            'Then collect the key from Leela'
+        );
+    }
+
+    if (player.inventory.has(BLONDE_WIG_ID)) {
+        await npc.say('The wig you have got, well done');
+    } else {
+        await npc.say('You need to make a Blonde Wig somehow. Leela may help');
+    }
+
+    if (player.inventory.has(SKIRT_ID)) {
+        await npc.say('You have the skirt, good');
+    } else {
+        await npc.say("A skirt the same as Keli's,");
+    }
+
+    if (player.inventory.has(PASTE_ID)) {
+        await npc.say(
+            'You have the skin paint, well done',
+            'I thought you would struggle to make that'
+        );
+    } else {
+        await npc.say('Something to colour the Princes skin lighter');
     }
 }
 
@@ -187,7 +224,7 @@ async function onTalkToNPC(player, npc) {
                 'What is needed second?',
                 'And the final things you need?'
             ],
-            false
+            true
         );
 
         switch (choice) {
@@ -201,6 +238,73 @@ async function onTalkToNPC(player, npc) {
                 await finalThing(player, npc);
                 break;
         }
+    } else if (questStage === 2 || questStage === 3) {
+        const hasBar = player.inventory.has(BRONZE_BAR_ID);
+        const hasKeyprint = player.inventory.has(KEYPRINT_ID);
+        const keyMade = !!player.cache.bronzeKeyMade;
+        const keyReceived = !!player.cache.bronzeKeyReceived;
+
+        if (!keyMade && keyReceived && !hasKeyprint) {
+            // https://www.youtube.com/watch?v=udiPTbxaYB0
+            // it doesn't even matter if the key is in their inventory, osman
+            // assumes you lost it
+            await npc.say(
+                'You have lost the key for the Princes cell',
+                'Get me the imprint and some more bronze, and I can get ' +
+                    'another made'
+            );
+
+            await player.say('I will go get they key imprint again');
+        } else if (!keyMade && hasKeyprint && hasBar) {
+            if (keyReceived) {
+                await npc.say('Well done, we can remake the key now.');
+            } else {
+                await npc.say('Well done, we can make the key now.');
+            }
+
+            player.inventory.remove(KEYPRINT_ID);
+            player.inventory.remove(BRONZE_BAR_ID);
+            player.cache.bronzeKeyMade = true;
+            player.message('Osman takes the Key imprint and the bronze bar');
+
+            await npc.say('Pick the key up from Leela.');
+
+            if (!player.cache.bronzeKeyPaid) {
+                await npc.say(
+                    'I will let you get 80 coins from the chancellor for ' +
+                        'getting this key'
+                );
+            }
+        } else if (!keyMade && hasKeyprint && !hasBar) {
+            await npc.say(
+                'Good, you have the print of the key',
+                'Get a bar of Bronze too, and I can get the key made'
+            );
+
+            const choice = await player.ask(
+                [
+                    'I will get one, and come back',
+                    'Can you tell me what I still need to get?'
+                ],
+                false
+            );
+
+            switch (choice) {
+                case 0: // get one and come back
+                    await player.say('I will get one, and come back');
+                    break;
+                case 1: // still need to get
+                    await stillNeedToGet(player, npc);
+                    break;
+            }
+        } else {
+            await stillNeedToGet(player, npc);
+        }
+    } else if (questStage === 4) {
+        await npc.say(
+            'The prince is safe, and on his way home with Leela',
+            'You can pick up your payment from the chancellor'
+        );
     } else if (questStage === -1) {
         await npc.say(
             'Well done. A great rescue',

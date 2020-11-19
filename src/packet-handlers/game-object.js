@@ -1,6 +1,5 @@
 function getGameObject(player, x, y) {
     const { world } = player;
-
     const [gameObject] = world.gameObjects.getAtPoint(x, y);
 
     if (!gameObject) {
@@ -57,9 +56,8 @@ async function useWithObject({ player }, { x, y, index }) {
 
         const { world } = player;
 
-        await world.sleepTicks(1);
-
         player.lock();
+        await world.sleepTicks(1);
         player.faceEntity(gameObject);
 
         const blocked = await world.callPlugin(
@@ -69,11 +67,11 @@ async function useWithObject({ player }, { x, y, index }) {
             item
         );
 
-        player.unlock();
-
         if (!blocked) {
             player.message('Nothing interesting happens');
         }
+
+        player.unlock();
     };
 }
 

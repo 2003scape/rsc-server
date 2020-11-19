@@ -69,12 +69,64 @@ async function onTalkToNPC(player, npc) {
             'Have you found the spymaster, Osman, Yet?',
             'You cannot proceed in your task without reporting to him'
         );
-    } else if (questStage === 2) {
+    } else if (questStage === 2 || questStage === 3) {
+        const keyMade = !!player.cache.bronzeKeyMade;
+        const keyPaid = !!player.cache.bronzeKeyPaid;
+        const keyReceived = !!player.cache.bronzeKeyReceived;
+
+        if (keyMade || keyReceived) {
+            if (keyPaid) {
+                await npc.say(
+                    'Hello again adventurer',
+                    'You have received payment for your tasks so far',
+                    'No more will be paid until the Prince is rescued'
+                );
+            } else {
+                await npc.say(
+                    'You have proved your services useful to us',
+                    'Here is 80 coins for the work you have already done'
+                );
+
+                player.inventory.add(10, 80);
+                player.message('@que@The chancellor hands you 80 coins');
+                player.cache.bronzeKeyPaid = true;
+            }
+        } else {
+            await npc.say(
+                'I understand the Spymaster has hired you',
+                'I will pay the reward only when the Prince is rescued',
+                'I can pay some expenses once the spymaster approves it'
+            );
+        }
+    } else if (questStage === 4) {
         await npc.say(
-            'I understand the Spymaster has hired you',
-            'I will pay the reward only when the Prince is rescued',
-            'I can pay some expenses once the spymaster approves it'
+            'You have the eternal gratitude of the Emir for rescuing his son'
         );
+
+        await npc.say('I am authorised to pay you 700 coins');
+
+        if (player.cache.bronzeKeyPaid) {
+            await npc.say('80 was put aside for the key. that leaves 620');
+
+            player.inventory.add(10, 620);
+            player.message('@que@The chancellor pays you 620 coins');
+        } else {
+            player.inventory.add(10, 700);
+            player.message('@que@The chancellor pays you 700 coins');
+        }
+
+        player.message(
+            'You have completed the quest of the Prince of Al Kharid'
+        );
+
+        delete player.cache.bronzeKeyPaid;
+        delete player.cache.bronzeKeyMade;
+        delete player.cache.bronzeKeyReceived;
+
+        player.questStages.princeAliRescue = -1;
+        player.addQuestPoints(3);
+
+        player.message('@gre@You haved gained 3 quest points!');
     } else if (questStage === -1) {
         await npc.say(
             'You are a friend of the town of Al Kharid',

@@ -806,7 +806,7 @@ class Player extends Character {
     }
 
     // enter a door with a blocked doorframe and close it
-    async enterDoor(door, doorframeID) {
+    async enterDoor(door, doorframeID = 11) {
         const { world } = this;
         const { id: doorID, direction } = door;
 
