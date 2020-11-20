@@ -817,6 +817,46 @@ class Player extends Character {
         world.replaceEntity('wallObjects', doorframe, doorID);
     }
 
+    climb(gameObject, up) {
+        const { world } = this;
+
+        const direction = this.direction;
+        const height = gameObject.definition.height;
+
+        if (height > 1) {
+            let xOffset = 0;
+            let yOffset = 0;
+
+            switch (gameObject.direction) {
+                case 0:
+                    yOffset = up ? -height : 1;
+                    break;
+                case 2:
+                    xOffset = up ? -height : 1;
+                    break;
+                case 4:
+                    yOffset = up ? -1 : height;
+                    break;
+                case 6:
+                    xOffset = up ? -1 : height;
+                    break;
+            }
+
+            this.teleport(
+                gameObject.x + xOffset,
+                gameObject.y + (world.planeElevation * (up ? 1 : -1)) + yOffset
+            );
+        } else {
+            this.teleport(
+                this.x,
+                this.y + (world.planeElevation * (up ? 1 : -1))
+            );
+        }
+
+        this.direction = direction;
+    }
+
+
     teleport(x, y, bubble = false) {
         if (y < 0) {
             y += this.world.planeElevation * 4;
