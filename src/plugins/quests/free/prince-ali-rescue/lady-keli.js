@@ -432,12 +432,14 @@ async function onUseWithNPC(player, npc, item) {
     world.removeEntity('npcs', npc);
 
     world.keliRespawnTimer = world.setTimeout(() => {
+        delete world.keliRespawnTimer;
         world.addEntity('npcs', npc);
     }, respawnTime);
 
     player.message('You overpower Keli, tie her up, and put her in a cupboard');
 
     if (player.cache.keliTiedOnce) {
+        // also found this text in my video and rscemulation's source
         player.message('I must rescue the prince before she escapes again!');
     } else {
         player.cache.keliTiedOnce = true;
