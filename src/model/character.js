@@ -155,6 +155,9 @@ class Character extends Entity {
             return;
         }
 
+        this.toAttack = null;
+        this.lock();
+
         if (this.chasing) {
             this.chasing = null;
         }
@@ -166,11 +169,13 @@ class Character extends Entity {
             await this.chase(character);
         }
 
+        deltaX = character.x - this.x;
+        deltaY = character.y - this.y;
+
         if (deltaX !== 0 || deltaY !== 0) {
             return;
         }
 
-        this.lock();
         this.opponent = character;
         this.combatRounds = 0;
         this.fightStage = 0;
@@ -181,8 +186,11 @@ class Character extends Entity {
         character.opponent = this;
         character.combatRounds = 0;
         character.fightStage = 1;
-        character.direction = 8;
-        character.broadcastDirection();
+
+        if (character.direction !== 8) {
+            character.direction = 8;
+            character.broadcastDirection();
+        }
     }
 
     async retreat() {
@@ -197,8 +205,6 @@ class Character extends Entity {
             this.opponent.direction = 0;
             this.opponent.broadcastDirection();
             this.opponent.opponent = null;
-
-            await world.sleepTicks(1);
 
             this.opponent.unlock();
             this.opponent = null;
@@ -216,6 +222,25 @@ class Character extends Entity {
 
         const destX = this.x + deltaX;
         const destY = this.y + deltaY;
+
+        if (
+            this.toAttack &&
+            this.toAttack.x === destX &&
+            this.toAttack.y === destY
+        ) {
+            return true;
+        }
+
+        // we aren't allowed to finish our path on a player (but walking through
+        // them is fine)
+        if (
+            (this.stepsLeft === 1 ||
+                (this.walkQueue && this.walkQueue.length === 1)) &&
+            (this.world.players.getAtPoint(destX, destY).length ||
+                this.world.npcs.getAtPoint(destX, destY).length)
+        ) {
+            return false;
+        }
 
         // attackable? npcs always break our path
         const npcs = this.world.npcs.getAtPoint(destX, destY);
@@ -343,6 +368,10 @@ class Character extends Entity {
         );
 
         this.chasing = null;
+    }
+
+    getCombatExperience() {
+        return this.combatLevel * 8 + 80;
     }
 }
 

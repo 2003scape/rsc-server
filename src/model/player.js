@@ -103,14 +103,14 @@ class Player extends Character {
             );
         }
 
+        this.combatLevel = this.getCombatLevel();
+
         this.inventory = new Inventory(this, playerData.inventory);
 
         this.equipmentBonuses = {};
         this.inventory.updateEquipmentBonuses();
 
         this.bank = new Bank(this, playerData.bank);
-
-        this.combatLevel = this.getCombatLevel();
 
         this.prayers = [];
         this.prayers.length = prayers.length;
@@ -784,27 +784,6 @@ class Player extends Character {
         return this.fatigue >= MAX_FATIGUE - offset;
     }
 
-    canWalk(deltaX, deltaY) {
-        if (!super.canWalk(deltaX, deltaY)) {
-            return false;
-        }
-
-        const destX = this.x + deltaX;
-        const destY = this.y + deltaY;
-
-        // we aren't allowed to finish our path on a player (but walking through
-        // them is fine)
-        if (
-            !this.walkQueue.length &&
-            (this.world.players.getAtPoint(destX, destY).length ||
-                this.world.npcs.getAtPoint(destX, destY).length)
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-
     // enter a door with a blocked doorframe and close it
     async enterDoor(door, doorframeID = 11) {
         const { world } = this;
@@ -844,18 +823,17 @@ class Player extends Character {
 
             this.teleport(
                 gameObject.x + xOffset,
-                gameObject.y + (world.planeElevation * (up ? 1 : -1)) + yOffset
+                gameObject.y + world.planeElevation * (up ? 1 : -1) + yOffset
             );
         } else {
             this.teleport(
                 this.x,
-                this.y + (world.planeElevation * (up ? 1 : -1))
+                this.y + world.planeElevation * (up ? 1 : -1)
             );
         }
 
         this.direction = direction;
     }
-
 
     teleport(x, y, bubble = false) {
         if (y < 0) {
