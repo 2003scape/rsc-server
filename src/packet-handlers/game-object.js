@@ -56,6 +56,11 @@ async function useWithObject({ player }, { x, y, index }) {
 
         const { world } = player;
 
+        if (!world.members && item.definition.members) {
+            player.message('Nothing interesting happens');
+            return;
+        }
+
         player.lock();
         await world.sleepTicks(1);
         player.faceEntity(gameObject);

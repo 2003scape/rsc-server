@@ -1,6 +1,7 @@
 // https://classic.runescape.wiki/w/Transcript:Cook
 // https://classic.runescape.wiki/w/Cook%27s_assistant
 
+const COOKS_RANGE_ID = 119;
 const COOK_ID = 7;
 const EGG_ID = 19;
 const FLOUR_ID = 23;
@@ -175,12 +176,15 @@ async function onTalkToNPC(player, npc) {
     } else if (questStage === -1) {
         await npc.say('Hello friend, how is the adventuring going?');
 
-        const choice = await player.ask([
-            'I am getting strong and mighty',
-            'I keep on dying',
-            'Nice hat',
-            'Can I use your range?'
-        ], true);
+        const choice = await player.ask(
+            [
+                'I am getting strong and mighty',
+                'I keep on dying',
+                'Nice hat',
+                'Can I use your range?'
+            ],
+            true
+        );
 
         switch (choice) {
             case 0: // strong & mighty
@@ -207,4 +211,24 @@ async function onTalkToNPC(player, npc) {
     return true;
 }
 
-module.exports = { onTalkToNPC };
+async function onUseWithGameObject(player, gameObject) {
+    if (
+        gameObject.id !== COOKS_RANGE_ID ||
+        player.questStages.cooksAssistant === -1
+    ) {
+        return false;
+    }
+
+    const { world } = player;
+    const cook = world.npcs.getByID(COOK_ID);
+
+    if (cook && !cook.interlocutor) {
+        player.engage(cook);
+        await cook.say("Hey! Who said you could use that?");
+        player.disengage();
+    }
+
+    return true;
+}
+
+module.exports = { onTalkToNPC, onUseWithGameObject };
