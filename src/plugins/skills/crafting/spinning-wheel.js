@@ -42,7 +42,6 @@ async function onUseWithGameObject(player, gameObject, item) {
     await world.sleepTicks(1);
 
     player.unlock();
-
     return true;
 }
 

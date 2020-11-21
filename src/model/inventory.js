@@ -83,7 +83,7 @@ class Inventory {
             }
         }
 
-        if (this.items.length >= 30) {
+        if (this.isFull()) {
             this.player.message(
                 `Your Inventory is full, the ${items[id].name} drops to ` +
                     'ground!'
@@ -398,6 +398,10 @@ class Inventory {
         }
 
         return false;
+    }
+
+    isFull() {
+        return this.items.length >= 30;
     }
 
     toJSON() {

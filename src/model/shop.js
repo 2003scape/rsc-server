@@ -172,7 +172,13 @@ class Shop {
             return;
         }
 
+        const { world } = this;
         const item = new Item({ id });
+
+        if (!world.members && item.definition.members) {
+            return;
+        }
+
         const shopInventoryItem = this.getShopInventory(item);
 
         if (!this.definition.general && !shopInventoryItem) {

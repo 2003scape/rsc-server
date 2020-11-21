@@ -48,6 +48,7 @@ const PLUGIN_TYPES = [
     'onGroundItemTake',
     'onUseWithGroundItem',
     'onUseWithGameObject',
+    'onUseWithWallObject',
     'onUseWithInventory',
     'onUseWithNPC',
     'onInventoryCommand',
@@ -198,7 +199,7 @@ class World {
 
             // prevents doogle leaves and such showing up in free-to-play
             if (!this.members && entity.definition.members) {
-                break;
+                continue;
             }
 
             this.addEntity(type, entity);
@@ -264,10 +265,12 @@ class World {
                     return true;
                 }
             } catch (e) {
-                switch (handlerName) {
-                    case 'onTalkToNPC':
-                        args[0].disengage();
-                        break;
+                if (e.message === 'interrupted ask') {
+                    args[0].unlock();
+                }
+
+                if (handlerName === 'onTalkToNPC') {
+                    args[0].disengage();
                 }
 
                 log.error(e);
@@ -290,7 +293,10 @@ class World {
 
         // if we never delete the owner property, it never shows up to other
         // players and still disappears after DROP_DISAPPEAR_TIMEOUT
-        if (!groundItem.definition.untradeable) {
+        if (
+            !groundItem.definition.untradeable ||
+            (!this.members && !groundItem.definition.members)
+        ) {
             this.setTimeout(() => delete groundItem.owner, DROP_OWNER_TIMEOUT);
         }
 

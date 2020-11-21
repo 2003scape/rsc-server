@@ -18,18 +18,14 @@ const AXE_IDS = Object.keys(axes)
             return 0;
         }
 
-        if (axes[a] > axes[b]) {
-            return -1;
-        }
-
-        return 1;
+        return axes[a] > axes[b] ? -1 : 1;
     });
 
-function getTreeDefinition(id) {
+function getDefinition(id) {
     const tree = trees[id];
 
     if (typeof tree.reference !== 'undefined') {
-        return getTreeDefinition(tree.reference);
+        return getDefinition(tree.reference);
     }
 
     return tree;
@@ -42,10 +38,10 @@ async function onGameObjectCommand(player, gameObject) {
         return false;
     }
 
-    const tree = getTreeDefinition(treeID);
-    const level = player.skills.woodcutting.current;
+    const tree = getDefinition(treeID);
+    const woodcuttingLevel = player.skills.woodcutting.current;
 
-    if (tree.level > level) {
+    if (tree.level > woodcuttingLevel) {
         player.message(
             `You need a woodcutting level of ${tree.level} to axe this tree`
         );
@@ -84,7 +80,7 @@ async function onGameObjectCommand(player, gameObject) {
     const logSuccess = rollSkillSuccess(
         tree.roll[0] * axes[bestAxeID],
         tree.roll[1] * axes[bestAxeID],
-        level
+        woodcuttingLevel
     );
 
     if (world.gameObjects.getAtPoint(x, y)[0] === gameObject && logSuccess) {

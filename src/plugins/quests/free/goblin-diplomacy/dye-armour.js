@@ -1,6 +1,6 @@
 // https://classic.runescape.wiki/w/Goblin_Armour
 
-const ARMOUR_ID = 272;
+const ARMOUR_ID = 273;
 const BLUE_ARMOUR_ID = 275;
 const BLUE_DYE_ID = 272;
 const ORANGE_ARMOUR_ID = 274;

@@ -71,6 +71,11 @@ async function useWithNPC({ player }, { npcIndex, index }) {
             return;
         }
 
+        if (!world.members && item.definition.members) {
+            player.message('Nothing interesting happens');
+            return;
+        }
+
         npc.stepsLeft = 0;
 
         const blocked = await world.callPlugin(
@@ -80,11 +85,9 @@ async function useWithNPC({ player }, { npcIndex, index }) {
             item
         );
 
-        if (blocked) {
-            return;
+        if (!blocked) {
+            player.message('Nothing interesting happens');
         }
-
-        player.message('Nothing interesting happens');
     };
 }
 
@@ -102,7 +105,7 @@ async function npcAttack({ player }, { index }) {
             throw new Error(`${player} trying to attack unattackable NPC`);
         }
 
-        if (npc.opponent || npc.locked) {
+        if (npc.opponent || npc.interlocutor || npc.locked) {
             return;
         }
 
@@ -110,11 +113,9 @@ async function npcAttack({ player }, { index }) {
 
         const blocked = await world.callPlugin('onNPCAttack', player, npc);
 
-        if (blocked) {
-            return;
+        if (!blocked) {
+            await player.attack(npc);
         }
-
-        await player.attack(npc);
     };
 }
 

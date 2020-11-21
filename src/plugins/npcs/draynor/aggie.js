@@ -1,7 +1,7 @@
 // https://classic.runescape.wiki/w/Transcript:Aggie
 // this npc has a TON of spelling mistakes, so triple check the transcript
 
-const { aggieSkinPaste } = require('../../quests/free/prince-ali-rescue');
+const { skinPaste } = require('../../quests/free/prince-ali-rescue/aggie');
 
 const AGGIE_ID = 125;
 const BLUE_DYE_ID = 272;
@@ -150,18 +150,20 @@ async function onTalkToNPC(player, npc) {
     ];
 
     const princeAliRescueStage = player.questStages.princeAliRescue;
+    let offerPaste = false;
 
-    if (princeAliRescueStage && princeAliRescueStage !== -1) {
+    if (princeAliRescueStage === 2 || princeAliRescueStage === 3) {
         choices.unshift('Could you think of a way to make pink skin paste');
+        offerPaste = true;
     }
 
     let choice = await player.ask(choices, true);
 
-    if (princeAliRescueStage && princeAliRescueStage !== -1) {
+    if (offerPaste) {
         if (choice === 0) {
-            await aggieSkinPaste(player.npc);
+            await skinPaste(player, npc);
             player.disengage();
-            return;
+            return true;
         } else {
             choice -= 1;
         }

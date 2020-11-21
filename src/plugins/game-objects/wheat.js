@@ -6,9 +6,10 @@ async function onGameObjectCommandTwo(player, gameObject) {
         return false;
     }
 
-    player.message('You get some grain');
     player.inventory.add(GRAIN_ID);
+    player.message('You get some grain');
     player.sendSound('potato');
+    return true;
 }
 
 module.exports = { onGameObjectCommandTwo };

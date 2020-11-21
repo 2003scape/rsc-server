@@ -89,8 +89,6 @@ class NPC extends Character {
     die() {
         const { world } = this;
 
-        world.removeEntity('npcs', this);
-
         let maxDamage = 0;
         let victorID = -1;
 
@@ -104,10 +102,12 @@ class NPC extends Character {
         let victor;
 
         if (victorID === -1) {
-            return;
+            victor = this.opponent;
+        } else {
+            victor = world.players.getByID(victorID);
         }
 
-        victor = world.players.getByID(victorID);
+        world.removeEntity('npcs', this);
 
         if (!victor) {
             victor = this.opponent;

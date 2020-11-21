@@ -13,16 +13,18 @@ const BORDER_GUARD_EXIT = 162;
 
 // replace the gate and move the player through it (it's still a blocked object,
 // so people can't steal your toll)
-async function handleGate(player, entry) {
+async function enterGate(player, entry) {
     const { world } = player;
 
     const gameObject = world.gameObjects.getByID(CLOSED_GATE_ID);
     const { x, y, direction } = gameObject;
 
     if (entry) {
-        await player.walkToPoint(92, 649);
+        await player.walkToPoint(92, 649, true);
+        player.faceDirection(0, 0);
     } else {
-        await player.walkToPoint(91, 649);
+        await player.walkToPoint(91, 649, true);
+        player.faceDirection(0, 0);
     }
 
     world.removeEntity('gameObjects', gameObject);
@@ -64,6 +66,8 @@ async function onTalkToNPC(player, npc) {
         return false;
     }
 
+    const princeAliRescueStage = player.questStages.princeAliRescue;
+
     player.engage(npc);
 
     // entering or exiting al-kharid?
@@ -71,7 +75,7 @@ async function onTalkToNPC(player, npc) {
 
     await player.say('Can I come through this gate?');
 
-    if (player.questStages.princeAliRescue !== -1) {
+    if (princeAliRescueStage !== -1 && princeAliRescueStage !== 4) {
         await npc.say('You must pay a toll of 10 gold coins to pass');
 
         const choice = await player.ask(
@@ -99,7 +103,7 @@ async function onTalkToNPC(player, npc) {
                     player.inventory.remove(10, 10);
                     player.message('You pay the guard');
                     await npc.say('You may pass');
-                    await handleGate(player, entry);
+                    await enterGate(player, entry);
                 } else {
                     await player.say(
                         "Oh dear I don't actually seem to have enough money"
@@ -109,7 +113,7 @@ async function onTalkToNPC(player, npc) {
         }
     } else {
         await npc.say('You may pass for free, you are a friend of Al Kharid');
-        await handleGate(player, entry);
+        await enterGate(player, entry);
     }
 
     player.disengage();

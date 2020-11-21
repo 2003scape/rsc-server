@@ -1,6 +1,25 @@
 const items = require('@2003scape/rsc-data/config/items');
 const wieldable = require('@2003scape/rsc-data/wieldable');
 
+// { emptyID: filledID }
+const REFILL_IDS = {
+    // bucket
+    21: 50,
+    // jug
+    140: 141,
+    // bowl
+    341: 342,
+    // vial
+    465: 464
+};
+
+// { filledID: emptyID }
+const EMPTY_IDS = {};
+
+for (const [emptyID, refilledID] of Object.entries(REFILL_IDS)) {
+    EMPTY_IDS[refilledID] = +emptyID;
+}
+
 class Item {
     constructor({ id, amount = 1, equipped = false }) {
         this.id = id;
@@ -30,6 +49,30 @@ class Item {
         }
 
         return json;
+    }
+
+    static getEmptyWater(item) {
+        let fullID;
+
+        if (typeof item === 'number') {
+            fullID = item;
+        } else {
+            fullID = item.id;
+        }
+
+        return EMPTY_IDS[fullID];
+    }
+
+    static getFullWater(item) {
+        let emptyID;
+
+        if (typeof item === 'number') {
+            emptyID = item;
+        } else {
+            emptyID = item.id;
+        }
+
+        return REFILL_IDS[emptyID];
     }
 }
 
