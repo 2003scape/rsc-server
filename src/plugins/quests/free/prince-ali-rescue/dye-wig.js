@@ -1,3 +1,5 @@
+// https://classic.runescape.wiki/w/Wig
+
 const BLONDE_WIG_ID = 244;
 const WIG_ID = 245;
 const YELLOW_DYE_ID = 239;

@@ -293,7 +293,10 @@ class World {
 
         // if we never delete the owner property, it never shows up to other
         // players and still disappears after DROP_DISAPPEAR_TIMEOUT
-        if (!groundItem.definition.untradeable) {
+        if (
+            !groundItem.definition.untradeable ||
+            (!this.members && !groundItem.definition.members)
+        ) {
             this.setTimeout(() => delete groundItem.owner, DROP_OWNER_TIMEOUT);
         }
 

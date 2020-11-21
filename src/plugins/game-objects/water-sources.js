@@ -1,22 +1,14 @@
+const Item = require('../../model/item');
+
 const BUCKET_ID = 21;
 const SOURCE_IDS = new Set([26, 48, 86, 1130]);
 const WELL_IDS = new Set([2, 466, 814]);
 
-// { emptyID: refilledID }
-const REFILLED_IDS = {
-    // bucket
-    21: 50,
-    // jug
-    140: 141,
-    // bowl
-    341: 342,
-    // vial
-    465: 464
-};
-
 async function onUseWithGameObject(player, gameObject, item) {
+    const refilledID = Item.getFullWater(item.id);
+
     if (
-        !REFILLED_IDS.hasOwnProperty(item.id) ||
+        typeof refilledID === 'undefined' ||
         (WELL_IDS.has(gameObject.id) && item.id !== BUCKET_ID) &&
         !SOURCE_IDS.has(gameObject.id)
     ) {
@@ -30,7 +22,7 @@ async function onUseWithGameObject(player, gameObject, item) {
     await world.sleepTicks(2);
 
     player.inventory.remove(item.id);
-    player.inventory.add(REFILLED_IDS[item.id]);
+    player.inventory.add(refilledID);
 
     player.message(
         `You fill the ${item.definition.name.toLowerCase()} from the ` +

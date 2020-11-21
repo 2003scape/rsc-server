@@ -21,8 +21,10 @@ async function enterGate(player, entry) {
 
     if (entry) {
         await player.walkToPoint(92, 649, true);
+        player.faceDirection(0, 0);
     } else {
         await player.walkToPoint(91, 649, true);
+        player.faceDirection(0, 0);
     }
 
     world.removeEntity('gameObjects', gameObject);

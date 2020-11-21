@@ -112,6 +112,10 @@ async function useWithGroundItem({ player }, { x, y, groundItemID, index }) {
 }
 
 async function inventoryCommand({ player }, { index }) {
+    if (player.locked) {
+        return;
+    }
+
     const item = player.inventory.items[index];
 
     if (!item) {
@@ -129,6 +133,10 @@ async function inventoryCommand({ player }, { index }) {
 }
 
 async function useWithInventoryItem({ player }, { index, withIndex }) {
+    if (player.locked) {
+        return;
+    }
+
     const item = player.inventory.items[index];
 
     if (!item) {
@@ -151,6 +159,8 @@ async function useWithInventoryItem({ player }, { index, withIndex }) {
         return;
     }
 
+    player.lock();
+
     const blocked = await world.callPlugin(
         'onUseWithInventory',
         player,
@@ -161,6 +171,8 @@ async function useWithInventoryItem({ player }, { index, withIndex }) {
     if (!blocked) {
         player.message('Nothing interesting happens');
     }
+
+    player.unlock();
 }
 
 module.exports = {

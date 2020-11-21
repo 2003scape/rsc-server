@@ -1,8 +1,11 @@
 // https://classic.runescape.wiki/w/Cooking
 
-const { rollSkillSuccess } = require('../../rolls');
+// using items on ranges or fires
+
+const { rollSkillSuccess } = require('../../../rolls');
 const { uncooked } = require('@2003scape/rsc-data/skills/cooking');
 
+const CAKE_TIN_ID = 338;
 const COOKS_RANGE_ID = 119;
 const FIRE_IDS = new Set([97, 274]);
 const RANGE_IDS = new Set([11, 491]);
@@ -87,13 +90,21 @@ async function onUseWithGameObject(player, gameObject, item) {
     }
 
     if (needsRange) {
-        player.message(
-            `You cook the ${cookedName} in the oven...`
-        );
+        player.message(`You cook the ${cookedName} in the oven...`);
     } else {
+        // ( QUEST) You cook the stew on the range...
+        // from 08-01-2018 21.50.15 cooking pizza and cake
+        // by Tylerberg
+        const rangeName = /stew/.test(cookedName) ? 'range' : 'stove';
+
+        // (QUEST) You cook the meat on the stove...
+        // (QUEST) You cook the meat on the fire...
+        const ellipsis = /(meat|stew)/.test(cookedName) ? '...' : '';
+
         player.message(
-            `You cook the ${cookedName} on the ${isRange ? 'stove' : 'fire'}`
-        )
+            `You cook the ${cookedName} on the ` +
+                `${isRange ? rangeName : 'fire'}${ellipsis}`
+        );
     }
 
     player.sendBubble(item.id);
@@ -108,6 +119,8 @@ async function onUseWithGameObject(player, gameObject, item) {
     player.sendSound('cooking');
     await world.sleepTicks(cookTicks);
 
+    player.inventory.remove(item.id);
+
     let lowRoll = roll[0];
 
     if (!isRange) {
@@ -118,10 +131,12 @@ async function onUseWithGameObject(player, gameObject, item) {
 
     const cookSuccess = rollSkillSuccess(lowRoll, roll[1], cookingLevel);
 
-    player.inventory.remove(item.id);
-
     if (/pie/.test(cookedName)) {
         cookedName = 'pie';
+    }
+
+    if (/cake/.test(cookedName)) {
+        player.inventory.add(CAKE_TIN_ID);
     }
 
     if (cookSuccess) {
