@@ -119,44 +119,51 @@ class NPC extends Character {
             victor = world.players.getByID(victorID);
         }
 
-        world.removeEntity('npcs', this);
+        world
+            .callPlugin('onNPCDeath', victor, this)
+            .then((blocked) => {
+                if (blocked) {
+                    return;
+                }
 
-        const drops = this.getDrops();
+                const drops = this.getDrops();
 
-        for (const item of drops) {
-            world.addPlayerDrop(victor, item);
-        }
+                for (const item of drops) {
+                    world.addPlayerDrop(victor, item);
+                }
 
-        world.callPlugin('onNPCDeath', victor, this).catch((e) => log.error(e));
+                world.removeEntity('npcs', this);
 
-        if (!victor) {
-            return;
-        }
+                if (!victor) {
+                    return;
+                }
 
-        victor.retreat();
-        victor.sendSound('victory');
+                victor.retreat();
+                victor.sendSound('victory');
 
-        const totalExperience = this.getCombatExperience();
-        const quarterExperience = Math.floor(totalExperience / 4);
+                const totalExperience = this.getCombatExperience();
+                const quarterExperience = Math.floor(totalExperience / 4);
 
-        victor.addExperience('hits', quarterExperience);
+                victor.addExperience('hits', quarterExperience);
 
-        switch (victor.combatStyle) {
-            case 0: // controlled
-                victor.addExperience('attack', quarterExperience);
-                victor.addExperience('defense', quarterExperience);
-                victor.addExperience('strength', quarterExperience);
-                break;
-            case 1: // aggressive
-                victor.addExperience('strength', quarterExperience * 3);
-                break;
-            case 2: // accurate
-                victor.addExperience('attack', quarterExperience * 3);
-                break;
-            case 3: // defensive
-                victor.addExperience('defense', quarterExperience * 3);
-                break;
-        }
+                switch (victor.combatStyle) {
+                    case 0: // controlled
+                        victor.addExperience('attack', quarterExperience);
+                        victor.addExperience('defense', quarterExperience);
+                        victor.addExperience('strength', quarterExperience);
+                        break;
+                    case 1: // aggressive
+                        victor.addExperience('strength', quarterExperience * 3);
+                        break;
+                    case 2: // accurate
+                        victor.addExperience('attack', quarterExperience * 3);
+                        break;
+                    case 3: // defensive
+                        victor.addExperience('defense', quarterExperience * 3);
+                        break;
+                }
+            })
+            .catch((e) => log.error(e));
     }
 
     updateKnownPlayers() {
