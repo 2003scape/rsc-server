@@ -396,12 +396,12 @@ async function onTalkToNPC(player, npc) {
 
 async function onUseWithNPC(player, npc, item) {
     const { world } = player;
-    const questStage = player.questStages.princeAliRescue;
-    const joeDrunk = player.cache.joeDrunk;
 
     if (npc.id !== LADY_KELI_ID || item.id !== ROPE_ID) {
         return false;
     }
+
+    const questStage = player.questStages.princeAliRescue;
 
     if (!questStage) {
         player.message('I have no reason to do this');
@@ -416,6 +416,8 @@ async function onUseWithNPC(player, npc, item) {
 
         return true;
     }
+
+    const joeDrunk = player.cache.joeDrunk;
 
     if (questStage < 3 || !joeDrunk) {
         player.message(

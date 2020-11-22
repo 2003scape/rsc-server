@@ -785,20 +785,27 @@ class Player extends Character {
     }
 
     // enter a door with a blocked doorframe and close it
-    async enterDoor(door, doorframeID = 11) {
+    async enterDoor(door, delay = 1) {
         const { world } = this;
         const { id: doorID, direction } = door;
+        // TODO make a map of doorIDs: doorframeIDs
+        const doorframeID = 11;
 
         const doorframe = world.replaceEntity('wallObjects', door, doorframeID);
         this.sendSound('opendoor');
-        this.walkTo(this.x < doorframe.x ? 1 : -1, 0);
-        await world.sleepTicks(1);
+
+        if (direction === 0) {
+            this.walkTo(0, this.y < doorframe.y ? 1 : -1);
+        } else {
+            this.walkTo(this.x < doorframe.x ? 1 : -1, 0);
+        }
+
+        await world.sleepTicks(delay);
         world.replaceEntity('wallObjects', doorframe, doorID);
     }
 
     climb(gameObject, up) {
         const { world } = this;
-
         const direction = this.direction;
         const height = gameObject.definition.height;
 
@@ -808,7 +815,7 @@ class Player extends Character {
 
             switch (gameObject.direction) {
                 case 0:
-                    yOffset = up ? -height : 1;
+                    yOffset = up ? height : -1;
                     break;
                 case 2:
                     xOffset = up ? -height : 1;

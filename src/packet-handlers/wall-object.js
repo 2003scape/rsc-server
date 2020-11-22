@@ -6,7 +6,7 @@ function getWallObject(player, x, y) {
         throw new RangeError(`invalid wallObject at ${x}, ${y}`);
     }
 
-    if (!wallObject.withinRange(player, 3, true)) {
+    if (!wallObject.withinRange(player, 2, true)) {
         return;
     }
 

@@ -6,7 +6,7 @@ function getGameObject(player, x, y) {
         throw new RangeError(`invalid gameObject index ${index}`);
     }
 
-    if (!gameObject.withinRange(player, 2)) {
+    if (!gameObject.withinRange(player, 2, true)) {
         return;
     }
 

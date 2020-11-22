@@ -1,4 +1,5 @@
 // https://classic.runescape.wiki/w/Monastery_(Prayer_Guild)
+// https://classic.runescape.wiki/w/Transcript:Brother_Jered
 
 const ABBOT_LANGLEY_ID = 174;
 const BLESSED_HOLY_SYMBOL_ID = 385;
@@ -79,6 +80,7 @@ async function onTalkToNPC(player, npc) {
         const { world } = player;
 
         await npc.say('Well I can bless that star of Saradomin you have');
+
         const choice = await player.ask(['Yes Please', 'No thankyou'], false);
 
         switch (choice) {
