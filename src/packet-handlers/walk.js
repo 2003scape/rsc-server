@@ -32,8 +32,8 @@ function createSteps(startX, startY, endX, endY) {
 }
 
 async function walk({ player }, { targetX, targetY, steps }) {
-    if (player.locked && player.opponent) {
-        if (player.combatRounds < 3) {
+    if (player.opponent) {
+        if (player.combatRounds <= 3) {
             player.message(
                 "You can't retreat during the first 3 rounds of combat"
             );

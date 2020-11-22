@@ -54,6 +54,8 @@ class NPC extends Character {
             }
         };
 
+        this.combatLevel = this.getCombatLevel();
+
         // used for automatic movement
         this.stepsLeft = 0;
 
@@ -86,6 +88,16 @@ class NPC extends Character {
         return drops;
     }
 
+    getCombatLevel() {
+        return Math.floor(
+            (this.skills.attack.base +
+                this.skills.defense.base +
+                this.skills.strength.base +
+                this.skills.hits.base) /
+                4
+        );
+    }
+
     die() {
         const { world } = this;
 
@@ -109,13 +121,6 @@ class NPC extends Character {
 
         world.removeEntity('npcs', this);
 
-        if (!victor) {
-            victor = this.opponent;
-        }
-
-        victor.retreat();
-        victor.sendSound('victory');
-
         const drops = this.getDrops();
 
         for (const item of drops) {
@@ -123,6 +128,35 @@ class NPC extends Character {
         }
 
         world.callPlugin('onNPCDeath', victor, this).catch((e) => log.error(e));
+
+        if (!victor) {
+            return;
+        }
+
+        victor.retreat();
+        victor.sendSound('victory');
+
+        const totalExperience = this.getCombatExperience();
+        const quarterExperience = Math.floor(totalExperience / 4);
+
+        victor.addExperience('hits', quarterExperience);
+
+        switch (victor.combatStyle) {
+            case 0: // controlled
+                victor.addExperience('attack', quarterExperience);
+                victor.addExperience('defense', quarterExperience);
+                victor.addExperience('strength', quarterExperience);
+                break;
+            case 1: // aggressive
+                victor.addExperience('strength', quarterExperience * 3);
+                break;
+            case 2: // accurate
+                victor.addExperience('attack', quarterExperience * 3);
+                break;
+            case 3: // defensive
+                victor.addExperience('defense', quarterExperience * 3);
+                break;
+        }
     }
 
     updateKnownPlayers() {
@@ -202,7 +236,7 @@ class NPC extends Character {
             }
         } else {
             if (Math.random() <= 0.15) {
-                this.stepsLeft = Math.floor(Math.random() * 10) + 1;
+                this.stepsLeft = Math.floor(Math.random() * 12) + 1;
             }
         }
     }

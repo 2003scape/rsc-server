@@ -9,7 +9,7 @@ async function getNPC(player, index) {
 
     if (!npc.withinRange(player, 3, true)) {
         if (npc.withinRange(player, 8)) {
-            await player.chase(npc, false);
+            await player.chase(npc);
         } else {
             return;
         }
@@ -92,6 +92,15 @@ async function useWithNPC({ player }, { npcIndex, index }) {
 }
 
 async function npcAttack({ player }, { index }) {
+    const { world } = player;
+    const npc = world.npcs.getByIndex(index);
+
+    if (!npc) {
+        throw new RangeError(`invalid npc index ${index}`);
+    }
+
+    player.toAttack = npc;
+
     player.endWalkFunction = async () => {
         const { world } = player;
 
