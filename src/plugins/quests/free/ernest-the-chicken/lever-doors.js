@@ -1,3 +1,4 @@
+// used to reset the puzzle
 const LADDER_ID = 130;
 
 const LEVER_IDS = {
