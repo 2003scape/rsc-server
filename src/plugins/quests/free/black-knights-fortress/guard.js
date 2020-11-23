@@ -1,3 +1,5 @@
+const { randomBlackKnightAttack } = require("./side-doors");
+
 const GUARD_ID = 100;
 
 const ENTRANCE_ID = 38;
@@ -6,9 +8,19 @@ const GUARDED_DOOR_ID = 39
 const IRON_CHAIN_ID = 7;
 const MED_BRONZE_ID = 104;
 
+function getRandomGuard(player) {
+    const guards = player.getNearbyEntitiesByID('npcs', GUARD_ID);
+
+    if (!guards) {
+        return;
+    }
+
+    return guards[Math.floor(Math.random() * guards.length)];
+}
+
 async function enterExitFortress(player, wallObject) {
     if (player.x >= wallObject.x) { // exiting fortress
-        player.teleport(wallObject.x - 1, wallObject.y); // TODO: fix door
+        player.enterDoor(wallObject);
         return true;
     }
 
@@ -17,13 +29,16 @@ async function enterExitFortress(player, wallObject) {
         player.inventory.isEquipped(MED_BRONZE_ID);
 
     if (hasUniform) {
-        player.teleport(wallObject.x, wallObject.y); // TODO: fix this door stuff
+        player.enterDoor(wallObject);
         return true;
     }
 
-    // Actually, the original was pretty random about which guard bothers
-    // you
-    const guard = player.getNearestEntity('npcs', GUARD_ID);
+    const guard = getRandomGuard(player);
+
+    if (!guard) {
+        return true;
+    }
+
     player.engage(guard);
 
     await guard.say(
@@ -81,11 +96,16 @@ async function enterExitFortress(player, wallObject) {
 
 async function enterExitGuardedRoom(player, wallObject) {
     if (player.x >= wallObject.x) { // leaving guarded room
-        player.teleport(wallObject.x - 1, wallObject.y) // TODO: fix door
+        player.enterDoor(wallObject);
         return false;
     }
 
-    const guard = player.getNearestEntity('npcs', GUARD_ID);
+    const guard = getRandomGuard(player);
+
+    if (!guard) {
+        return true;
+    }
+
     player.engage(guard);
 
     await guard.say(
@@ -104,9 +124,9 @@ async function enterExitGuardedRoom(player, wallObject) {
         return true;
     }
 
-    player.teleport(wallObject.x, wallObject.y); // TODO: fix door
+    player.enterDoor(wallObject);
 
-    // TODO: DIE INTRUDER!!
+    await randomBlackKnightAttack(player);
 
     return true;
 }

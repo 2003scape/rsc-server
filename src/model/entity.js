@@ -96,6 +96,21 @@ class Entity {
             .filter((entity) => entity !== this);
     }
 
+    getNearbyEntitiesByID(type, id, range = 48) {
+        return this.getNearbyEntities(type, range).filter(
+            entity => entity.id === id
+        );
+    }
+
+    getNearestEntityByID(type, id, range = 48) {
+        const nearbyEntities = this.getNearbyEntitiesByID(type, id, range);
+
+        return nearbyEntities.sort(
+            (entity1, entity2) =>
+                this.getDistance(entity1) - this.getDistance(entity2)
+        )[0];
+    }
+
     withinRegion(name, multiplePlanes = true) {
         const region = regions[name];
 
