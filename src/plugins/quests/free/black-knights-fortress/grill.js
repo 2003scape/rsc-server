@@ -1,3 +1,4 @@
+// this is a unique black knight than the others
 const BLACK_KNIGHT_ID = 108;
 const GRELDO_ID = 109;
 const WITCH_ID = 107;
@@ -16,15 +17,17 @@ async function onGameObjectCommandOne(player, gameObject) {
         return true;
     }
 
-    const blackKnight = player.getNearestEntity('npcs', BLACK_KNIGHT_ID);
-    const greldo = player.getNearestEntity('npcs', GRELDO_ID);
-    const witch = player.getNearestEntity('npcs', WITCH_ID);
+    const { world } = player;
 
-    blackKnight.engage(player);
+    const blackKnight = world.npcs.getByID(BLACK_KNIGHT_ID);
+    const greldo = world.npcs.getByID(GRELDO_ID);
+    const witch = world.npcs.getByID(WITCH_ID);
+
+    player.engage(blackKnight);
     await blackKnight.say("So how's the secret weapon coming along?");
     blackKnight.disengage();
 
-    witch.engage(player);
+    player.engage(witch);
 
     await witch.say(
         'The invincibility potion is almost ready',
@@ -41,11 +44,11 @@ async function onGameObjectCommandOne(player, gameObject) {
         'That would entirely wreck the potion'
     );
 
-    witch.disengage();
+    player.disengage();
 
-    greldo.engage(player);
+    player.engage(greldo);
     await greldo.say('Yeth Mithreth');
-    greldo.disengage();
+    player.disengage();
 
     player.questStages.blackKnightsFortress = 2;
 }

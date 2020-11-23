@@ -21,27 +21,26 @@ async function onUseWithGameObject(player, gameObject, item) {
     }
 
     if (item.id === DRAYNOR_CABBAGE_ID) {
-        player.message('This is the wrong sort of cabbage!');
+        player.message('@que@This is the wrong sort of cabbage!');
         await world.sleepTicks(3);
-        player.message('You are meant to be hindering the witch.');
+        player.message('@que@You are meant to be hindering the witch.');
         await world.sleepTicks(3);
-        player.message('Not helping her.');
+        player.message('@que@Not helping her.');
     } else if (item.id === CABBAGE_ID) {
         player.inventory.remove(CABBAGE_ID);
 
-        player.message('You drop a cabbage down the hole.');
+        player.message('@que@You drop a cabbage down the hole.');
         await world.sleepTicks(3);
-
-        player.message('The cabbage lands in the cauldron below.');
+        player.message('@que@The cabbage lands in the cauldron below.');
         await world.sleepTicks(3);
 
         player.message(
-            'The mixture in the cauldron starts to froth and bubble.'
+            '@que@The mixture in the cauldron starts to froth and bubble.'
         );
 
         await world.sleepTicks(3);
 
-        player.message('You hear the witch groan in dismay.');
+        player.message('@que@You hear the witch groan in dismay.');
         await world.sleepTicks(3);
 
         await player.say(
