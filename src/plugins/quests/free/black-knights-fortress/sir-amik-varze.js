@@ -1,14 +1,6 @@
-const BLACK_KNIGHT_ID = 108;
-const GRELDO_ID = 109;
 const SIR_AMIK_VARZE_ID = 110;
-const WITCH = 107;
 
-const CABBAGE_ID = 18; // right cababge
-const DYR_CABBAGE_ID = 228; // wrong cabbage
 const COINS_ID = 10;
-
-const GRILL_ID = 148;
-const HOLE = 154;
 
 const MINIMUM_QP = 12; // minimum qp needed to start the quest
 
