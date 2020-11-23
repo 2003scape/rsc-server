@@ -51,7 +51,11 @@ async function onUseWithGameObject(player, gameObject, item) {
         await wyson.say('Hey leave off my flowers');
         player.disengage();
 
-        await wyson.attack(player);
+        // TODO make sure this works
+        player.lock();
+        wyson.attack(player);
+        await world.sleepTicks(2);
+        player.unlock();
     }
 
     return true;

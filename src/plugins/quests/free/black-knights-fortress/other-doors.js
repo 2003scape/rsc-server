@@ -2,7 +2,6 @@ const BLACK_KNIGHT_ID = 66;
 
 const ODD_WALL_ID = 22;
 const SIDE_DOOR_ID = 40;
-const LOCKED_DOOR_ID = 30;
 
 const BLOCKBLANK_ID = 86;
 
@@ -74,10 +73,7 @@ async function enterExitSideRoom(player, wallObject) {
 }
 
 async function onWallObjectCommandOne(player, wallObject) {
-    if (wallObject.id === LOCKED_DOOR_ID) {
-        player.message('The door is locked shut');
-        return true;
-    } else if (wallObject.id === SIDE_DOOR_ID) {
+    if (wallObject.id === SIDE_DOOR_ID) {
         await enterExitSideRoom(player, wallObject);
         return true;
     } else if (wallObject.id === ODD_WALL_ID) {

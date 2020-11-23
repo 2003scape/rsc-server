@@ -35,6 +35,7 @@ function wallObjectCommand(pluginHandler, { player }, { x, y }) {
 
         player.lock();
         player.faceEntity(wallObject);
+        await world.sleepTicks(1);
         await world.callPlugin(pluginHandler, player, wallObject);
         player.unlock();
     };
