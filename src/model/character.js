@@ -128,15 +128,32 @@ class Character extends Entity {
 
     // face and set our engager to this character, as well as busy status
     engage(character) {
-        this.chasing = null;
-        this.faceEntity(character);
         this.lock();
+        this.chasing = null;
         this.interlocutor = character;
 
-        character.chasing = null;
-        character.faceEntity(this);
         character.lock();
+        character.chasing = null;
         character.interlocutor = this;
+
+        const distance = this.getDistance(character);
+
+        if (distance === 0) {
+            const { world } = this;
+            const step = character.getFreeDirection();
+
+            if (step) {
+                world.setTickTimeout(() => {
+                    this.faceEntity(character);
+                    character.faceEntity(this);
+                }, 2);
+
+                character.walkTo(step.deltaX, step.deltaY);
+            }
+        } else {
+            this.faceEntity(character);
+            character.faceEntity(this);
+        }
     }
 
     // free both characters from busy states and conversational partner lock
@@ -152,7 +169,7 @@ class Character extends Entity {
 
     async attack(character) {
         if (character.opponent) {
-            return;
+            return false;
         }
 
         this.toAttack = null;
@@ -173,7 +190,8 @@ class Character extends Entity {
         deltaY = character.y - this.y;
 
         if (deltaX !== 0 || deltaY !== 0) {
-            return;
+            this.unlock();
+            return false;
         }
 
         this.opponent = character;
@@ -191,11 +209,11 @@ class Character extends Entity {
             character.direction = 8;
             character.broadcastDirection();
         }
+
+        return true;
     }
 
     async retreat() {
-        const { world } = this;
-
         this.unlock();
         this.fightStage = -1;
         this.direction = 0;
@@ -331,19 +349,30 @@ class Character extends Entity {
     async chase(entity, range = 8) {
         const { world } = this;
 
+        let ticks = 0;
         this.chasing = entity;
 
         newSteps: do {
             const destX = this.chasing.x;
             const destY = this.chasing.y;
 
-            const steps = this.getPositionSteps(destX, destY, true);
+            const steps = this.getPositionSteps(destX, destY);
+
+            ticks += 1;
 
             if (!steps.length) {
                 await world.sleepTicks(1);
             }
 
+            if (ticks >= 10) {
+                break;
+            }
+
             for (const { deltaX, deltaY } of steps) {
+                if (ticks >= 10) {
+                    break newSteps;
+                }
+
                 if (!this.chasing || this.chasing.getDistance(this) >= range) {
                     break newSteps;
                 }
@@ -361,6 +390,8 @@ class Character extends Entity {
 
                 this.walkTo(deltaX, deltaY);
                 await world.sleepTicks(1);
+
+                ticks += 1;
             }
         } while (
             this.chasing &&
@@ -368,6 +399,20 @@ class Character extends Entity {
         );
 
         this.chasing = null;
+    }
+
+    getFreeDirection() {
+        for (let i = -1; i < 2; i += 1) {
+            for (let j = -1; j < 2; j += 1) {
+                if (i === 0 && j === 0) {
+                    continue;
+                }
+
+                if (this.canWalk(i, j)) {
+                    return { deltaX: i, deltaY: j };
+                }
+            }
+        }
     }
 
     getCombatExperience() {

@@ -785,11 +785,9 @@ class Player extends Character {
     }
 
     // enter a door with a blocked doorframe and close it
-    async enterDoor(door, delay = 1) {
+    async enterDoor(door, doorframeID = 11, delay = 1) {
         const { world } = this;
         const { id: doorID, direction } = door;
-        // TODO make a map of doorIDs: doorframeIDs
-        const doorframeID = 11;
 
         const doorframe = world.replaceEntity('wallObjects', door, doorframeID);
         this.sendSound('opendoor');

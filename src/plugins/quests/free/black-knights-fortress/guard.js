@@ -1,17 +1,21 @@
-const { randomBlackKnightAttack } = require("./side-doors");
+const { randomBlackKnightAttack } = require('./other-doors');
 
 const GUARD_ID = 100;
 
 const ENTRANCE_ID = 38;
-const GUARDED_DOOR_ID = 39
+const GUARDED_DOOR_ID = 39;
 
 const IRON_CHAIN_ID = 7;
 const MED_BRONZE_ID = 104;
 
 function getRandomGuard(player) {
-    const guards = player.getNearbyEntitiesByID('npcs', GUARD_ID);
+    const guards = player
+        .getNearbyEntitiesByID('npcs', GUARD_ID)
+        .filter((npc) => {
+            return !npc.locked && player.localEntities.known.npcs.has(npc);
+        });
 
-    if (!guards) {
+    if (!guards.length) {
         return;
     }
 
@@ -19,7 +23,8 @@ function getRandomGuard(player) {
 }
 
 async function enterExitFortress(player, wallObject) {
-    if (player.x >= wallObject.x) { // exiting fortress
+    if (player.x >= wallObject.x) {
+        // exiting fortress
         player.enterDoor(wallObject);
         return true;
     }
@@ -47,29 +52,27 @@ async function enterExitFortress(player, wallObject) {
     );
 
     const choice = await player.ask(
-        [ 'Yes but I work here', 'Oh sorry', 'So who does it belong to?' ],
+        ['Yes but I work here', 'Oh sorry', 'So who does it belong to?'],
         true
     );
 
-    switch(choice) {
+    switch (choice) {
         case 0: // I work here
             await guard.say(
                 'Well this is the guards entrance',
                 'And I might be new here',
                 "But I can tell you're not a guard",
                 "You're not even wearing proper guards uniform"
-            )
+            );
 
             const choice = await player.ask(
-                [ 'Pleaasse let me in', 'So what is this uniform?' ],
+                ['Pleaasse let me in', 'So what is this uniform?'],
                 true
             );
 
             switch (choice) {
                 case 0: // begging to be let in
-                    await guard.say(
-                        "Go away, you're getting annoying"
-                    );
+                    await guard.say("Go away, you're getting annoying");
                     break;
                 case 1: // asking what the uniform is
                     await guard.say(
@@ -95,7 +98,8 @@ async function enterExitFortress(player, wallObject) {
 }
 
 async function enterExitGuardedRoom(player, wallObject) {
-    if (player.x >= wallObject.x) { // leaving guarded room
+    if (player.x >= wallObject.x) {
+        // leaving guarded room
         player.enterDoor(wallObject);
         return false;
     }
@@ -115,12 +119,14 @@ async function enterExitGuardedRoom(player, wallObject) {
     );
 
     const choice = await player.ask(
-        [ "Ok I won't", "I don't care I'm going in anyway" ], true
+        ["Ok I won't", "I don't care I'm going in anyway"],
+        true
     );
 
     player.disengage();
 
-    if (choice === 0) { // won't enter
+    if (choice === 0) {
+        // won't enter
         return true;
     }
 
@@ -132,13 +138,14 @@ async function enterExitGuardedRoom(player, wallObject) {
 }
 
 async function onWallObjectCommandOne(player, wallObject) {
-	if (wallObject.id === ENTRANCE_ID) {
+    if (wallObject.id === ENTRANCE_ID) {
         return await enterExitFortress(player, wallObject);
     } else if (wallObject.id === GUARDED_DOOR_ID) {
         return await enterExitGuardedRoom(player, wallObject);
     }
 
-	return false;
+    return false;
 }
 
 module.exports = { onWallObjectCommandOne };
+

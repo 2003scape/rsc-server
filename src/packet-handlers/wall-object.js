@@ -14,7 +14,18 @@ function getWallObject(player, x, y) {
 }
 
 function wallObjectCommand(pluginHandler, { player }, { x, y }) {
+    /*console.log('player locked?', !!player.locked);
+    console.log('player opponent?', !!player.opponent);*/
+
+    if (player.locked) {
+        return;
+    }
+
     player.endWalkFunction = async () => {
+        if (player.locked) {
+            return;
+        }
+
         const { world } = player;
         const wallObject = getWallObject(player, x, y);
 
@@ -38,7 +49,15 @@ async function wallObjectCommandTwo(socket, message) {
 }
 
 async function useWithWallObject({ player }, { x, y, index }) {
+    if (player.locked) {
+        return;
+    }
+
     player.endWalkFunction = async () => {
+        if (player.locked) {
+            return;
+        }
+
         const item = player.inventory.items[index];
 
         if (!item) {

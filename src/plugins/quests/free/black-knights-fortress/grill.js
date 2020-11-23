@@ -24,7 +24,8 @@ async function onGameObjectCommandOne(player, gameObject) {
     await blackKnight.say("So how's the secret weapon coming along?");
     blackKnight.disengage();
 
-    witch.engage(player)
+    witch.engage(player);
+
     await witch.say(
         'The invincibility potion is almost ready',
         "It's taken me five years but it's almost ready",
@@ -39,6 +40,7 @@ async function onGameObjectCommandOne(player, gameObject) {
         "Don't get lazy and bring any old cabbage",
         'That would entirely wreck the potion'
     );
+
     witch.disengage();
 
     greldo.engage(player);
@@ -49,3 +51,4 @@ async function onGameObjectCommandOne(player, gameObject) {
 }
 
 module.exports = { onGameObjectCommandOne };
+

@@ -1,13 +1,16 @@
 // :: commands
 
 const NPC = require('../model/npc');
-const regions = require('@2003scape/rsc-data/regions');
+const items = require('@2003scape/rsc-data/config/items');
 const quests = require('@2003scape/rsc-data/quests');
+const regions = require('@2003scape/rsc-data/regions');
 
 async function command({ player }, { command, args }) {
     /*if (!player.isAdministrator()) {
         return;
     }*/
+
+    const { world } = player;
 
     switch (command) {
         case 'appearance':
@@ -21,7 +24,7 @@ async function command({ player }, { command, args }) {
             player.walkTo(deltaX, deltaY);
             break;
         case 'npc': {
-            const npc = new NPC(player.world, {
+            const npc = new NPC(world, {
                 id: +args[0],
                 x: player.x,
                 y: player.y,
@@ -33,7 +36,7 @@ async function command({ player }, { command, args }) {
 
             delete npc.respawn;
 
-            player.world.addEntity('npcs', npc);
+            world.addEntity('npcs', npc);
             break;
         }
         case 'face':
@@ -86,7 +89,7 @@ async function command({ player }, { command, args }) {
             player.openShop(args[0]);
             break;
         case 'give': {
-            const other = player.world.getPlayerByUsername(args[0]);
+            const other = world.getPlayerByUsername(args[0]);
 
             if (other) {
                 other.inventory.add(+args[1], +args[2] || 1);
@@ -106,12 +109,12 @@ async function command({ player }, { command, args }) {
             break;
         case 'chaseobj':
             await player.chase(
-                player.world.gameObjects.getByID(+args[0]),
+                world.gameObjects.getByID(+args[0]),
                 false
             );
             break;
         case 'gotoentity': {
-            const entities = player.world[args[0]];
+            const entities = world[args[0]];
             const entity = entities.getByID(+args[1]);
 
             if (entity) {
@@ -140,6 +143,26 @@ async function command({ player }, { command, args }) {
         case 'setcache':
             player.cache[args[0]] = JSON.parse(args[1]);
             break;
+        case 'droprandom': {
+            for (let i = 0; i < +args[0]; i += 1) {
+                const randomID = Math.floor(Math.random() * 1290);
+                const item = items[randomID];
+
+                if (item.members) {
+                    continue;
+                }
+
+                if (item.stackable) {
+                    world.addPlayerDrop(player, {
+                        id: randomID,
+                        amount: Math.floor(Math.random() * 10000)
+                    });
+                } else {
+                    world.addPlayerDrop(player, { id: randomID });
+                }
+            }
+            break;
+        }
     }
 }
 

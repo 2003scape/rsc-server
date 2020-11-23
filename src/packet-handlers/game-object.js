@@ -14,7 +14,15 @@ function getGameObject(player, x, y) {
 }
 
 function gameObjectCommand(pluginHandler, { player }, { x, y }) {
+    if (player.locked) {
+        return;
+    }
+
     player.endWalkFunction = async () => {
+        if (player.locked) {
+            return;
+        }
+
         const gameObject = getGameObject(player, x, y);
 
         if (!gameObject || player.locked) {
@@ -41,7 +49,15 @@ async function objectCommandTwo(socket, message) {
 }
 
 async function useWithObject({ player }, { x, y, index }) {
+    if (player.locked) {
+        return;
+    }
+
     player.endWalkFunction = async () => {
+        if (player.locked) {
+            return;
+        }
+
         const item = player.inventory.items[index];
 
         if (!item) {

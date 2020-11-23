@@ -1,7 +1,7 @@
 const HOLE_ID = 154;
 
 const CABBAGE_ID = 18; // right cababge
-const DYR_CABBAGE_ID = 228; // wrong cabbage
+const DRAYNOR_CABBAGE_ID = 228; // wrong cabbage
 
 async function onUseWithGameObject(player, gameObject, item) {
     if (gameObject.id !== HOLE_ID) {
@@ -12,7 +12,7 @@ async function onUseWithGameObject(player, gameObject, item) {
 
     if (
         player.questStages.blackKnightsFortress !== 2 ||
-        (item.id !== CABBAGE_ID && item.id !== DYR_CABBAGE_ID)
+        (item.id !== CABBAGE_ID && item.id !== DRAYNOR_CABBAGE_ID)
     ) {
         // would using a non-cabbage item actually give
         // "nothing interesting happens" in the original?
@@ -20,7 +20,7 @@ async function onUseWithGameObject(player, gameObject, item) {
         return true;
     }
 
-    if (item.id === DYR_CABBAGE_ID) {
+    if (item.id === DRAYNOR_CABBAGE_ID) {
         player.message('This is the wrong sort of cabbage!');
         await world.sleepTicks(3);
         player.message('You are meant to be hindering the witch.');
@@ -28,15 +28,25 @@ async function onUseWithGameObject(player, gameObject, item) {
         player.message('Not helping her.');
     } else if (item.id === CABBAGE_ID) {
         player.inventory.remove(CABBAGE_ID);
+
         player.message('You drop a cabbage down the hole.');
         await world.sleepTicks(3);
+
         player.message('The cabbage lands in the cauldron below.');
         await world.sleepTicks(3);
-        player.message('The mixture in the cauldron starts to froth and bubble.');
+
+        player.message(
+            'The mixture in the cauldron starts to froth and bubble.'
+        );
+
         await world.sleepTicks(3);
+
         player.message('You hear the witch groan in dismay.');
         await world.sleepTicks(3);
-        await player.say("Right I think that's successfully sabotaged the secret weapon.");
+
+        await player.say(
+            "Right I think that's successfully sabotaged the secret weapon."
+        );
 
         player.questStages.blackKnightsFortress = 3;
     }
@@ -45,3 +55,4 @@ async function onUseWithGameObject(player, gameObject, item) {
 }
 
 module.exports = { onUseWithGameObject };
+
