@@ -226,6 +226,9 @@ async function onTalkToNPC(player, npc) {
                 'Well done. You have completed the Ernest the chicken quest'
             );
 
+            delete player.cache.oilCanLevers;
+            delete player.cache.killedPiranhas;
+
             player.questStages.ernestTheChicken = -1;
             player.addQuestPoints(4);
             player.message('@gre@You haved gained 4 quest points!');

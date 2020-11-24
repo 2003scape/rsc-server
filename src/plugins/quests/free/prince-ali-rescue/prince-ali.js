@@ -1,10 +1,7 @@
 // https://classic.runescape.wiki/w/Transcript:Prince_Ali
 
-const NPC = require('../../../../model/npc');
-
 const BLONDE_WIG_ID = 244;
 const BRONZE_KEY_ID = 242;
-const LADY_KELI_ID = 123;
 const PASTE_ID = 240;
 const PRINCE_ALI_DRAG_ID = 126;
 const PRINCE_ALI_ID = 118;
@@ -68,7 +65,7 @@ async function onTalkToNPC(player, npc) {
             player.disengage();
             world.removeEntity('npcs', princeAliDrag);
 
-            let ladyKeli = world.npcs.getByID(LADY_KELI_ID);
+            /*let ladyKeli = world.npcs.getByID(LADY_KELI_ID);
 
             if (!ladyKeli) {
                 if (world.keliRespawnTimer) {
@@ -86,7 +83,10 @@ async function onTalkToNPC(player, npc) {
                 });
 
                 world.addEntity('npcs', ladyKeli);
-            }
+            }*/
+
+            // https://youtu.be/lnasx7aG6rI?t=325
+            // keli doesn't actually respawn right away
 
             player.message(
                 '@que@The prince has escaped, well done!',
