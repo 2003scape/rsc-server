@@ -34,7 +34,7 @@ async function enterExitFortress(player, wallObject) {
         player.inventory.isEquipped(MED_BRONZE_ID);
 
     if (hasUniform) {
-        await player.enterDoor(wallObject);
+        player.enterDoor(wallObject);
         return true;
     }
 
@@ -130,7 +130,7 @@ async function enterExitGuardedRoom(player, wallObject) {
         return true;
     }
 
-    await player.enterDoor(wallObject);
+    player.enterDoor(wallObject);
 
     await randomBlackKnightAttack(player);
 
