@@ -13,14 +13,13 @@ async function command({ player }, { command, args }) {
     const { world } = player;
 
     switch (command) {
-        case 'qp':
+        case 'setqp':
             if (!args[0] || Number.isNaN(+args[0])) {
-                player.message('invalid arg');
+                player.message('invalid argument');
                 break;
             }
 
             player.questPoints = +args[0];
-
             break;
         case 'kick':
             if (!args[0]) {
@@ -37,8 +36,7 @@ async function command({ player }, { command, args }) {
             }
 
             await playerKicked.logout();
-
-            player.message('kicked: ' + args[0]);
+            player.message('kicked player: ' + args[0]);
             break;
         case 'appearance':
             player.sendAppearance();
