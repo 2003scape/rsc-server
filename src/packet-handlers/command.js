@@ -13,6 +13,33 @@ async function command({ player }, { command, args }) {
     const { world } = player;
 
     switch (command) {
+        case 'qp':
+            if (!args[0] || Number.isNaN(+args[0])) {
+                player.message('invalid arg');
+                break;
+            }
+
+            player.questPoints = +args[0];
+
+            break;
+        case 'kick':
+            if (!args[0]) {
+                player.message('invalid player');
+                break;
+            }
+
+            const { world } = player;
+            const playerKicked = world.getPlayerByUsername(args[0]);
+
+            if (!playerKicked) {
+                player.message('no such player: ' + args[0]);
+                break;
+            }
+
+            await playerKicked.logout();
+
+            player.message('kicked: ' + args[0]);
+            break;
         case 'appearance':
             player.sendAppearance();
             break;
@@ -61,6 +88,8 @@ async function command({ player }, { command, args }) {
             player.message(
                 `${player.x}, ${player.y}, facing=${player.direction}`
             );
+
+            console.log(`${player.x}, ${player.y}, facing=${player.direction}`);
             break;
         case 'teleport':
             if (Number.isNaN(+args[0])) {
