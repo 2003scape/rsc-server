@@ -13,6 +13,31 @@ async function command({ player }, { command, args }) {
     const { world } = player;
 
     switch (command) {
+        case 'setqp':
+            if (!args[0] || Number.isNaN(+args[0])) {
+                player.message('invalid argument');
+                break;
+            }
+
+            player.questPoints = +args[0];
+            break;
+        case 'kick':
+            if (!args[0]) {
+                player.message('invalid player');
+                break;
+            }
+
+            const { world } = player;
+            const playerKicked = world.getPlayerByUsername(args[0]);
+
+            if (!playerKicked) {
+                player.message('no such player: ' + args[0]);
+                break;
+            }
+
+            await playerKicked.logout();
+            player.message('kicked player: ' + args[0]);
+            break;
         case 'appearance':
             player.sendAppearance();
             break;
