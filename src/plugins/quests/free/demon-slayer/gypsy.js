@@ -2,6 +2,28 @@
 // (she's 56)
 
 const GYPSY_ID = 14;
+const SILVERLIGHT_ID = 52;
+
+async function stopCallingMeThat(player, npc) {
+    await npc.say('In the scheme of things you are very young');
+
+    const choice = await player.ask(
+        [
+            'Ok but how old are you',
+            "Oh if its in the scheme of things that's ok"
+        ],
+        true
+    );
+
+    switch (choice) {
+        case 0: // how old are you
+            await howOldAreYouCount(player, npc);
+            break;
+        case 1: // that's ok
+            await npc.say('You show wisdom for one so young');
+            break;
+    }
+}
 
 async function dontBelieve(npc) {
     await npc.say('Ok suit yourself');
@@ -172,7 +194,7 @@ async function fortuneTold(player, npc) {
 
         // get a grip
         if (choice === 1) {
-            await player.say("Get a grip!");
+            await player.say('Get a grip!');
 
             await npc.say(
                 "Sorry. I didn't expect to see Delrith",
@@ -386,6 +408,71 @@ async function onTalkToNPC(player, npc) {
         }
     } else if (questStage === 1) {
         await npc.say('Greetings how goes thy quest?');
+        await player.say("I'm still working on it");
+        await npc.say("Well if you need any advice I'm always here young one");
+
+        const choice = await player.ask(
+            [
+                'What is the magical incanation?',
+                'Where can I find Silverlight?',
+                "Well I'd better press on with it",
+                'Stop calling me that'
+            ],
+            true
+        );
+
+        switch (choice) {
+            case 0: // incantation
+                await incantation(player, npc);
+                break;
+            case 1: // find silverlight
+                await findSilverlight(player, npc);
+                break;
+            case 2: // press on
+                await npc.say('See you anon');
+                break;
+            case 3: // stop calling me that
+                await stopCallingMeThat(player, npc);
+                break;
+        }
+    } else if (questStage === 2) {
+        await npc.say('How goes the quest?');
+
+        if (player.inventory.has(SILVERLIGHT_ID)) {
+            await player.say(
+                'I have the sword, now. I just need to kill the demon I think'
+            );
+
+            await npc.say("Yep, that's right");
+        } else {
+            await player.say(
+                "I found Sir Prysin. Unfortunately, I haven't got the sword " +
+                    'yet',
+                "He's made it complicated for me!"
+            );
+
+            await npc.say("Ok, hurry, we haven't much time");
+        }
+    } else if (questStage === -1) {
+        await npc.say(
+            'Greetings young one',
+            "You're a hero now",
+            'That was a good bit of demonslaying'
+        );
+
+        const choice = await player.ask(
+            ['How do you know I killed it?', 'Thanks', 'Stop calling me that'],
+            true
+        );
+
+        switch (choice) {
+            case 0: // how do you know?
+                await npc.say('You forget', "I'm good at knowing these things");
+                break;
+            case 2: // stop calling me that
+                await stopCallingMeThat(player, npc);
+                break;
+        }
     }
 
     player.disengage();
