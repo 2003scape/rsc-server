@@ -86,8 +86,6 @@ async function command({ player }, { command, args }) {
             player.message(
                 `${player.x}, ${player.y}, facing=${player.direction}`
             );
-
-            console.log(`${player.x}, ${player.y}, facing=${player.direction}`);
             break;
         case 'teleport':
             if (Number.isNaN(+args[0])) {
