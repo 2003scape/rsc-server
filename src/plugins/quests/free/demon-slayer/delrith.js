@@ -78,6 +78,8 @@ async function onNPCDeath(player, npc) {
 
             await world.sleepTicks(3);
 
+            delete player.cache.traibornBones;
+
             player.message('You have completed the demonslayer quest');
             player.questStages.demonSlayer = -1;
             player.addQuestPoints(3);

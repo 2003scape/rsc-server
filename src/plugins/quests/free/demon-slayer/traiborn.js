@@ -2,8 +2,8 @@
 
 const BONES_ID = 20;
 const SPINACH_ROLL_ID = 179;
-const TRAILBORN_ID = 17;
-const TRAILBORN_KEY_ID = 25;
+const TRAIBORN_ID = 17;
+const TRAIBORN_KEY_ID = 25;
 
 async function cunningSheep(npc) {
     await npc.say(
@@ -117,7 +117,7 @@ async function keysKnockingAround(player, npc) {
         case 1: // i'll get the bones
             await npc.say('Ooh that would very good of you');
             await player.say("Ok I'll speak to you when I've got some bones");
-            player.cache.trailbornBones = 0;
+            player.cache.traibornBones = 0;
             break;
     }
 }
@@ -309,15 +309,15 @@ async function sirPrysinsKey(player, npc) {
 }
 
 async function onTalkToNPC(player, npc) {
-    if (npc.id !== TRAILBORN_ID) {
+    if (npc.id !== TRAIBORN_ID) {
         return false;
     }
 
     player.engage(npc);
 
     if (
-        player.cache.trailbornBones >= 25 &&
-        !player.inventory.has(TRAILBORN_KEY_ID)
+        player.cache.traibornBones >= 25 &&
+        !player.inventory.has(TRAIBORN_KEY_ID)
     ) {
         await player.say("I've lost the key you gave me");
 
@@ -328,11 +328,11 @@ async function onTalkToNPC(player, npc) {
             "you're going to have to collect another 25 sets of bones"
         );
 
-        player.cache.trailbornBones = 0;
+        player.cache.traibornBones = 0;
     } else if (
-        player.cache.hasOwnProperty('trailbornBones') &&
-        player.cache.trailbornBones < 25 &&
-        !player.inventory.has(TRAILBORN_KEY_ID)
+        player.cache.hasOwnProperty('traibornBones') &&
+        player.cache.traibornBones < 25 &&
+        !player.inventory.has(TRAIBORN_KEY_ID)
     ) {
         await npc.say('How are you doing finding bones?');
 
@@ -345,14 +345,14 @@ async function onTalkToNPC(player, npc) {
             while (player.inventory.has(BONES_ID)) {
                 player.message('You give Traiborn a set of bones');
                 player.inventory.remove(BONES_ID);
-                player.cache.trailbornBones += 1;
+                player.cache.traibornBones += 1;
                 await world.sleepTicks(3);
 
-                if (player.cache.trailbornBones >= 25) {
+                if (player.cache.traibornBones >= 25) {
                     await npc.say("Hurrah! That's all 25 sets of bones");
 
                     player.message(
-                        '@que@Trailborn places the bones in a circle on the ' +
+                        '@que@Traiborn places the bones in a circle on the ' +
                             'floor'
                     );
 
@@ -374,11 +374,11 @@ async function onTalkToNPC(player, npc) {
                         'Return it now unto me'
                     );
 
-                    player.message('@que@Trailborn smiles');
+                    player.message('@que@Traiborn smiles');
                     await world.sleepTicks(3);
 
-                    player.inventory.add(TRAILBORN_KEY_ID);
-                    player.message('@que@Trailborn hands you a key');
+                    player.inventory.add(TRAIBORN_KEY_ID);
+                    player.message('@que@Traiborn hands you a key');
                     await world.sleepTicks(3);
 
                     await player.say('Thank you very much');
@@ -409,7 +409,7 @@ async function onTalkToNPC(player, npc) {
             'Teach me to be a mighty and powerful wizard'
         ];
 
-        if (questStage === 2 && !player.inventory.has(TRAILBORN_KEY_ID)) {
+        if (questStage === 2 && !player.inventory.has(TRAIBORN_KEY_ID)) {
             choices.push('I need to get a key given to you by Sir Prysin');
         }
 

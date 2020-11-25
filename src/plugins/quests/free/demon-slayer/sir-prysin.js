@@ -4,7 +4,7 @@ const DRAIN_KEY_ID = 51;
 const ROVIN_KEY_ID = 26;
 const SILVERLIGHT_ID = 52;
 const SIR_PRYSIN_ID = 16;
-const TRAILBORN_KEY_ID = 25;
+const TRAIBORN_KEY_ID = 25;
 
 async function keyHunting(npc) {
     await npc.say('Ok goodbye');
@@ -284,12 +284,12 @@ async function onTalkToNPC(player, npc) {
             await npc.say('So how are you doing with getting the keys?');
 
             let foundKeys = 0;
-            let hasTrailbornKey = false;
+            let hasTraibornKey = false;
             let hasRovinKey = false;
             let hasDrainKey = false;
 
-            if (player.inventory.has(TRAILBORN_KEY_ID)) {
-                hasTrailbornKey = true;
+            if (player.inventory.has(TRAIBORN_KEY_ID)) {
+                hasTraibornKey = true;
                 foundKeys += 1;
             }
 
@@ -316,7 +316,7 @@ async function onTalkToNPC(player, npc) {
 
                 // it doesn't remove the keys until he gives you the sword
                 // https://youtu.be/izkjtqCBRX4?t=418
-                player.inventory.remove(TRAILBORN_KEY_ID);
+                player.inventory.remove(TRAIBORN_KEY_ID);
                 player.inventory.remove(ROVIN_KEY_ID);
                 player.inventory.remove(DRAIN_KEY_ID);
                 player.inventory.add(SILVERLIGHT_ID);
@@ -328,7 +328,7 @@ async function onTalkToNPC(player, npc) {
                 if (foundKeys > 0) {
                     await player.say("I've made a start");
 
-                    if (hasTrailbornKey) {
+                    if (hasTraibornKey) {
                         await player.say(
                             "I've got the key off Wizard Traiborn"
                         );
