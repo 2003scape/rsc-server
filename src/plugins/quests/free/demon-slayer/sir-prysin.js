@@ -1,10 +1,10 @@
 // https://classic.runescape.wiki/w/Transcript:Sir_Prysin
 
 const DRAIN_KEY_ID = 51;
-const ROVIN_KEY_ID = 25;
+const ROVIN_KEY_ID = 26;
 const SILVERLIGHT_ID = 52;
 const SIR_PRYSIN_ID = 16;
-const TRAILBORN_KEY_ID = 26;
+const TRAILBORN_KEY_ID = 25;
 
 async function keyHunting(npc) {
     await npc.say('Ok goodbye');

@@ -3,7 +3,7 @@
 const BONES_ID = 20;
 const SPINACH_ROLL_ID = 179;
 const TRAILBORN_ID = 17;
-const TRAILBORN_KEY_ID = 26;
+const TRAILBORN_KEY_ID = 25;
 
 async function cunningSheep(npc) {
     await npc.say(
@@ -313,8 +313,6 @@ async function onTalkToNPC(player, npc) {
         return false;
     }
 
-    const questStage = player.questStages.demonSlayer;
-
     player.engage(npc);
 
     if (
@@ -331,7 +329,11 @@ async function onTalkToNPC(player, npc) {
         );
 
         player.cache.trailbornBones = 0;
-    } else if (player.cache.hasOwnProperty('trailbornBones')) {
+    } else if (
+        player.cache.hasOwnProperty('trailbornBones') &&
+        player.cache.trailbornBones < 25 &&
+        !player.inventory.has(TRAILBORN_KEY_ID)
+    ) {
         await npc.say('How are you doing finding bones?');
 
         if (player.inventory.has(BONES_ID)) {
@@ -344,7 +346,7 @@ async function onTalkToNPC(player, npc) {
                 player.message('You give Traiborn a set of bones');
                 player.inventory.remove(BONES_ID);
                 player.cache.trailbornBones += 1;
-                await world.sleepTicks(5);
+                await world.sleepTicks(3);
 
                 if (player.cache.trailbornBones >= 25) {
                     await npc.say("Hurrah! That's all 25 sets of bones");
@@ -385,14 +387,21 @@ async function onTalkToNPC(player, npc) {
                         "Not a problem for a friend of sir what's-his-face"
                     );
 
-                    break;
+                    player.disengage();
+                    return true;
                 }
             }
+
+            await player.say("That's all of them");
+            await npc.say('I still need more');
+            await player.say("Ok, I'll look for some more");
         } else {
             await player.say("I haven't got any at the moment");
             await npc.say('Never mind. Keep working on it');
         }
     } else {
+        const questStage = player.questStages.demonSlayer;
+
         await npc.say('Ello young thingummywut');
 
         const choices = [
@@ -400,9 +409,11 @@ async function onTalkToNPC(player, npc) {
             'Teach me to be a mighty and powerful wizard'
         ];
 
-        if (questStage === 2) {
+        if (questStage === 2 && !player.inventory.has(TRAILBORN_KEY_ID)) {
             choices.push('I need to get a key given to you by Sir Prysin');
         }
+
+        const choice = await player.ask(choices, true);
 
         switch (choice) {
             case 0: // whats a thingummywut

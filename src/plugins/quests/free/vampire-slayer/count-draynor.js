@@ -10,10 +10,7 @@ async function onNPCAttack(player, npc) {
         return false;
     }
 
-    if (
-        npc.skills.attack.current === npc.skills.attack.base &&
-        player.inventory.has(GARLIC_ID)
-    ) {
+    if (player.inventory.has(GARLIC_ID)) {
         player.message('The vampire appears to weaken');
 
         for (const skillName of ['attack', 'strength', 'defense']) {

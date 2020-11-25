@@ -52,12 +52,15 @@ async function onUseWithGameObject(player, gameObject, item) {
         player.message('@que@You pour the liquid down the drain');
         player.message("@que@Ok I think I've washed the key into the sewer");
         world.addPlayerDrop(player, DRAIN_KEY_ID, 117, 3294);
+
         await world.sleepTicks(3);
 
         player.message(
             "@que@I'd better go down and get it before someone else finds it"
         );
     }
+
+    return true;
 }
 
 module.exports = { onGameObjectCommandTwo, onUseWithGameObject };

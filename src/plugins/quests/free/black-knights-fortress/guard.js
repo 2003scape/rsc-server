@@ -25,7 +25,7 @@ function getRandomGuard(player) {
 async function enterExitFortress(player, wallObject) {
     if (player.x >= wallObject.x) {
         // exiting fortress
-        player.enterDoor(wallObject);
+        await player.enterDoor(wallObject);
         return true;
     }
 
@@ -34,7 +34,7 @@ async function enterExitFortress(player, wallObject) {
         player.inventory.isEquipped(MED_BRONZE_ID);
 
     if (hasUniform) {
-        player.enterDoor(wallObject);
+        await player.enterDoor(wallObject);
         return true;
     }
 
@@ -100,8 +100,8 @@ async function enterExitFortress(player, wallObject) {
 async function enterExitGuardedRoom(player, wallObject) {
     if (player.x >= wallObject.x) {
         // leaving guarded room
-        player.enterDoor(wallObject);
-        return false;
+        await player.enterDoor(wallObject);
+        return true;
     }
 
     const guard = getRandomGuard(player);
@@ -131,7 +131,6 @@ async function enterExitGuardedRoom(player, wallObject) {
     }
 
     player.enterDoor(wallObject);
-
     await randomBlackKnightAttack(player);
 
     return true;

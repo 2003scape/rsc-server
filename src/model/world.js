@@ -286,6 +286,10 @@ class World {
 
     // add a new ground item owned by a certain player (temporarily)
     addPlayerDrop(player, item, x, y) {
+        if (typeof item === 'number') {
+            item = { id: item };
+        }
+
         const groundItem = new entityConstructors.groundItems(this, {
             ...item,
             x: typeof x !== 'undefined' ? x : player.x,

@@ -27,7 +27,6 @@ async function command({ player }, { command, args }) {
                 break;
             }
 
-            const { world } = player;
             const playerKicked = world.getPlayerByUsername(args[0]);
 
             if (!playerKicked) {
