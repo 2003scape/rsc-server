@@ -246,6 +246,8 @@ class NPC extends Character {
                 this.stepsLeft = Math.floor(Math.random() * 12) + 1;
             }
         }
+
+        this.isWalking = false;
     }
 
     broadcastChat(message) {
@@ -266,7 +268,7 @@ class NPC extends Character {
 
     broadcastMove() {
         for (const player of this.knownPlayers) {
-            player.localEntities.moved.npcs.add(this);
+            player.localEntities.moved.npcs.set(this, this.direction);
         }
     }
 

@@ -93,6 +93,8 @@ class World {
 
         this.boundTick = this.tick.bind(this);
         this.boundSaveAllPlayers = this.saveAllPlayers.bind(this);
+
+        this.ticks = 0;
     }
 
     async loadLandscape() {
@@ -265,12 +267,13 @@ class World {
                     return true;
                 }
             } catch (e) {
-                if (e.message === 'interrupted ask') {
-                    args[0].unlock();
+                if (handlerName === 'onTalkToNPC') {
+                    args[1].disengage();
                 }
 
-                if (handlerName === 'onTalkToNPC') {
-                    args[0].disengage();
+                if (e.message === 'interrupted ask') {
+                    args[0].unlock();
+                    return true;
                 }
 
                 log.error(e);
@@ -390,6 +393,7 @@ class World {
     }
 
     tick() {
+        this.ticks += 1;
         const startTime = Date.now();
 
         for (const [id, entry] of this.tickFunctions) {

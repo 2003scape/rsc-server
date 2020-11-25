@@ -150,6 +150,8 @@ class Player extends Character {
         this.healTicks = RESTORE_TICKS;
 
         this.loggedIn = false;
+
+        this.isWalking = false;
     }
 
     // send a packet if the socket is connected
@@ -216,14 +218,15 @@ class Player extends Character {
             return;
         }
 
-        this.exitShop(true);
-
         this.loggedIn = false;
 
+        if (this.dontAnswer) {
+            this.dontAnswer();
+        }
+
+        this.exitShop(true);
         this.send({ type: 'logoutSuccess' });
-
         await this.world.sleepTicks(1);
-
         this.socket.close();
 
         process.nextTick(() => {
@@ -375,6 +378,11 @@ class Player extends Character {
             this.dontAnswer = () => {
                 this.answer = null;
                 this.dontAnswer = null;
+
+                if (this.interlocutor) {
+                    this.disengage();
+                }
+
                 reject(new Error('interrupted ask'));
             };
         });
@@ -575,6 +583,10 @@ class Player extends Character {
     // broadcast the player changing sprites
     broadcastDirection() {
         for (const player of this.localEntities.known.players) {
+            if (!player.loggedIn) {
+                continue;
+            }
+
             if (
                 !player.localEntities.added.players.has(this) &&
                 !player.localEntities.removed.players.has(this)
@@ -588,13 +600,13 @@ class Player extends Character {
     broadcastMove() {
         for (const player of this.getNearbyEntities('players', 16)) {
             if (!player.loggedIn) {
-                break;
+                continue;
             }
 
             if (!player.localEntities.known.players.has(this)) {
                 player.localEntities.added.players.add(this);
             } else {
-                player.localEntities.moved.players.add(this);
+                player.localEntities.moved.players.set(this, this.direction);
             }
         }
     }
@@ -1000,6 +1012,8 @@ class Player extends Character {
 
             this.endWalkFunction = null;
         }
+
+        this.isWalking = false;
     }
 
     async save() {

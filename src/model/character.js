@@ -11,6 +11,10 @@ const deltaDirections = [
     [directions.southEast, directions.east, directions.northEast]
 ];
 
+function getDirection(deltaX, deltaY) {
+    return deltaDirections[deltaX + 1][deltaY + 1];
+}
+
 class Character extends Entity {
     constructor(world) {
         super(world);
@@ -41,6 +45,8 @@ class Character extends Entity {
         // used to calculate who should get the drop
         // { player.id: damage }
         this.playerDamage = new Map();
+
+        this.isWalking = false;
     }
 
     lock() {
@@ -81,13 +87,13 @@ class Character extends Entity {
     }
 
     faceDirection(deltaX, deltaY) {
-        const direction = deltaDirections[deltaX + 1][deltaY + 1];
+        const direction = getDirection(deltaX, deltaY);
 
         if (this.direction === direction) {
             return this.direction;
         }
 
-        this.direction = deltaDirections[deltaX + 1][deltaY + 1];
+        this.direction = direction;//deltaDirections[deltaX + 1][deltaY + 1];
         this.broadcastDirection();
         return this.direction;
     }
@@ -217,6 +223,7 @@ class Character extends Entity {
         this.unlock();
         this.fightStage = -1;
         this.direction = 0;
+        this.broadcastDirection();
 
         if (this.opponent) {
             this.opponent.fightStage = -1;
@@ -276,13 +283,19 @@ class Character extends Entity {
     }
 
     walkTo(deltaX, deltaY) {
+        if (this.isWalking) {
+            return;
+        }
+
+        this.isWalking = true;
+
         const oldX = this.x;
         const oldY = this.y;
 
         this.x += deltaX;
         this.y += deltaY;
 
-        this.faceDirection(oldX - this.x, oldY - this.y);
+        this.direction = getDirection(oldX - this.x, oldY - this.y);
         this.broadcastMove();
     }
 
@@ -348,6 +361,10 @@ class Character extends Entity {
 
     async chase(entity, range = 8) {
         const { world } = this;
+
+        if (this.isWalking) {
+            return;
+        }
 
         let ticks = 0;
         this.chasing = entity;

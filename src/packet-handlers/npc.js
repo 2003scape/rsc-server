@@ -1,6 +1,9 @@
 async function getNPC(player, index) {
-    const { world } = player;
+    if (player.locked) {
+        return;
+    }
 
+    const { world } = player;
     const npc = world.npcs.getByIndex(index);
 
     if (!npc) {
@@ -9,6 +12,7 @@ async function getNPC(player, index) {
 
     if (!npc.withinRange(player, 3, true)) {
         if (npc.withinRange(player, 8)) {
+            await world.sleepTicks(1);
             await player.chase(npc);
         } else {
             return;
@@ -19,13 +23,14 @@ async function getNPC(player, index) {
         }
     }
 
+    player.lock();
+
     return npc;
 }
 
 async function npcTalk({ player }, { index }) {
     player.endWalkFunction = async () => {
         const { world } = player;
-
         const npc = await getNPC(player, index);
 
         if (!npc) {
@@ -33,17 +38,23 @@ async function npcTalk({ player }, { index }) {
         }
 
         if (npc.interlocutor) {
+            player.unlock();
             player.message(`The ${npc.definition.name} is busy at the moment`);
             return;
         }
 
         if (npc.opponent || npc.locked) {
+            player.unlock();
             return;
         }
 
+        npc.lock();
         npc.stepsLeft = 0;
 
         const blocked = await world.callPlugin('onTalkToNPC', player, npc);
+
+        player.unlock();
+        npc.unlock();
 
         if (blocked) {
             return;
@@ -64,10 +75,10 @@ async function useWithNPC({ player }, { npcIndex, index }) {
         }
 
         const { world } = player;
-
         const npc = await getNPC(player, npcIndex);
 
         if (!npc || npc.locked) {
+            player.unlock();
             return;
         }
 
@@ -76,6 +87,7 @@ async function useWithNPC({ player }, { npcIndex, index }) {
             return;
         }
 
+        npc.lock();
         npc.stepsLeft = 0;
 
         const blocked = await world.callPlugin(
@@ -84,6 +96,9 @@ async function useWithNPC({ player }, { npcIndex, index }) {
             npc,
             item
         );
+
+        player.unlock();
+        npc.unlock();
 
         if (!blocked) {
             player.message('Nothing interesting happens');
@@ -111,19 +126,25 @@ async function npcAttack({ player }, { index }) {
         }
 
         if (!npc.definition.hostility) {
+            player.unlock();
             throw new Error(`${player} trying to attack unattackable NPC`);
         }
 
         if (npc.opponent || npc.interlocutor || npc.locked) {
+            player.unlock();
             return;
         }
 
+        npc.lock();
         npc.stepsLeft = 0;
 
         const blocked = await world.callPlugin('onNPCAttack', player, npc);
 
         if (!blocked) {
             await player.attack(npc);
+        } else {
+            player.unlock();
+            npc.unlock();
         }
     };
 }

@@ -42,8 +42,8 @@ class LocalEntities {
 
         // characters that have changed position
         this.moved = {
-            players: new Set(),
-            npcs: new Set()
+            players: new Map(),
+            npcs: new Map()
         };
 
         // used when character changes sprite angle but not direction (for
@@ -72,6 +72,7 @@ class LocalEntities {
                     return;
                 }
 
+                // add gameobjects before the grounditem so they appear on top
                 const [gameObject] = this.player.world.gameObjects.getAtPoint(
                     entity.x,
                     entity.y
@@ -162,7 +163,14 @@ class LocalEntities {
             if (this.removed[type].has(entity)) {
                 known.push({ removing: true });
             } else if (this.moved[type].has(entity)) {
-                known.push({ moved: true, sprite: entity.direction });
+                known.push({
+                    moved: true,
+                    sprite: this.moved[type].get(entity)
+                });
+
+                /*if (this.spriteChanged[type].has(entity)) {
+                    console.log('have entity', entity.username);
+                }*/
             } else if (this.spriteChanged[type].has(entity)) {
                 known.push({ spriteChanged: true, sprite: entity.direction });
             } else {
