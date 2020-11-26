@@ -42,8 +42,8 @@ class LocalEntities {
 
         // characters that have changed position
         this.moved = {
-            players: new Map(),
-            npcs: new Map()
+            players: new Set(),
+            npcs: new Set()
         };
 
         // used when character changes sprite angle but not direction (for
@@ -165,7 +165,7 @@ class LocalEntities {
             } else if (this.moved[type].has(entity)) {
                 known.push({
                     moved: true,
-                    sprite: this.moved[type].get(entity)
+                    sprite: entity.direction//this.moved[type].get(entity)
                 });
 
                 /*if (this.spriteChanged[type].has(entity)) {
@@ -213,6 +213,8 @@ class LocalEntities {
             return;
         }
 
+        const { world } = this.player;
+
         this.player.send({
             type: 'regionPlayerUpdate',
             bubbles: updates.playerBubbles,
@@ -222,10 +224,12 @@ class LocalEntities {
             appearances: updates.playerAppearances
         });
 
-        updates.playerBubbles.length = 0;
-        updates.playerChat.length = 0;
-        updates.playerAppearances.length = 0;
-        updates.playerHits.length = 0;
+        world.nextTick(() => {
+            updates.playerBubbles.length = 0;
+            updates.playerChat.length = 0;
+            updates.playerAppearances.length = 0;
+            updates.playerHits.length = 0;
+        });
     }
 
     // send the position of new and removed NPCs
@@ -256,14 +260,18 @@ class LocalEntities {
             return;
         }
 
+        const { world } = this.player;
+
         this.player.send({
             type: 'regionNPCUpdate',
             chats: updates.npcChat,
             hits: updates.npcHits
         });
 
-        updates.npcChat.length = 0;
-        updates.npcHits.length = 0;
+        world.nextTick(() => {
+            updates.npcChat.length = 0;
+            updates.npcHits.length = 0;
+        });
     }
 
     sendRegionObjects() {

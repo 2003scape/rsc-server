@@ -268,7 +268,7 @@ class NPC extends Character {
 
     broadcastMove() {
         for (const player of this.knownPlayers) {
-            player.localEntities.moved.npcs.set(this, this.direction);
+            player.localEntities.moved.npcs.add(this);
         }
     }
 

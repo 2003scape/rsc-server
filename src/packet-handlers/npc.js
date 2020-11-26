@@ -10,7 +10,7 @@ async function getNPC(player, index) {
         throw new RangeError(`invalid npc index ${index}`);
     }
 
-    if (!npc.withinRange(player, 3, true)) {
+    if (!npc.withinRange(player, 2, true)) {
         if (npc.withinRange(player, 8)) {
             await world.sleepTicks(1);
             await player.chase(npc);
@@ -18,17 +18,23 @@ async function getNPC(player, index) {
             return;
         }
 
-        if (!npc.withinRange(player, 3, true)) {
+        if (!npc.withinRange(player, 2, true)) {
             return;
         }
     }
 
+    npc.stepsLeft = 0;
     player.lock();
+
+    await world.sleepTicks(1);
 
     return npc;
 }
 
 async function npcTalk({ player }, { index }) {
+    /*const npc = player.world.npcs.getByIndex(index);
+    await npc.walkToPoint(npc.x + 1, npc.y);*/
+
     player.endWalkFunction = async () => {
         const { world } = player;
         const npc = await getNPC(player, index);
@@ -49,7 +55,6 @@ async function npcTalk({ player }, { index }) {
         }
 
         npc.lock();
-        npc.stepsLeft = 0;
 
         const blocked = await world.callPlugin('onTalkToNPC', player, npc);
 
@@ -77,7 +82,7 @@ async function useWithNPC({ player }, { npcIndex, index }) {
         const { world } = player;
         const npc = await getNPC(player, npcIndex);
 
-        if (!npc || npc.locked) {
+        if (!npc) {
             player.unlock();
             return;
         }
@@ -88,7 +93,6 @@ async function useWithNPC({ player }, { npcIndex, index }) {
         }
 
         npc.lock();
-        npc.stepsLeft = 0;
 
         const blocked = await world.callPlugin(
             'onUseWithNPC',
@@ -136,7 +140,6 @@ async function npcAttack({ player }, { index }) {
         }
 
         npc.lock();
-        npc.stepsLeft = 0;
 
         const blocked = await world.callPlugin('onNPCAttack', player, npc);
 

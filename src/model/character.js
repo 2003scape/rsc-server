@@ -373,7 +373,7 @@ class Character extends Entity {
             const destX = this.chasing.x;
             const destY = this.chasing.y;
 
-            const steps = this.getPositionSteps(destX, destY);
+            const steps = this.getPositionSteps(destX, destY, false);
 
             ticks += 1;
 
@@ -412,21 +412,22 @@ class Character extends Entity {
             }
         } while (
             this.chasing &&
-            (this.x !== this.chasing.x || this.y !== this.chasing.y)
+            //(this.x !== this.chasing.x || this.y !== this.chasing.y)
+            this.getDistance(this.chasing) > 1
         );
 
         this.chasing = null;
     }
 
     getFreeDirection() {
-        for (let i = -1; i < 2; i += 1) {
-            for (let j = -1; j < 2; j += 1) {
-                if (i === 0 && j === 0) {
+        for (let deltaX = -1; deltaX < 2; deltaX += 1) {
+            for (let deltaY = -1; deltaY < 2; deltaY += 1) {
+                if (deltaX === 0 && deltaY === 0) {
                     continue;
                 }
 
-                if (this.canWalk(i, j)) {
-                    return { deltaX: i, deltaY: j };
+                if (this.canWalk(deltaX, deltaY)) {
+                    return { deltaX: deltaX, deltaY: deltaY };
                 }
             }
         }

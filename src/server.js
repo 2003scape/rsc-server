@@ -12,6 +12,9 @@ class Server {
 
         this.world = new World(this);
         this.dataClient = new DataClient(this);
+
+        this.incomingMessages = [];
+        this.outgoingMessages = [];
     }
 
     loadPacketHandlers() {
@@ -37,12 +40,12 @@ class Server {
         socket.on('timeout', () => socket.close());
 
         socket.on('message', async (message) => {
-            const handler = this.handlers[message.type];
+            /*const handler = this.handlers[message.type];
 
             if (!handler) {
                 log.warn(`${socket} no handler for type ${message.type}`);
                 return;
-            }
+            }*/
 
             if (
                 !socket.player &&
@@ -55,11 +58,13 @@ class Server {
 
             log.debug(`incoming message from ${socket}`, message);
 
-            try {
+            this.incomingMessages.push({ socket, message });
+
+            /*try {
                 await handler(socket, message);
             } catch (e) {
                 log.error(e, socket.toString());
-            }
+            }*/
         });
 
         socket.on('close', async () => {
@@ -103,6 +108,7 @@ class Server {
 
     bindWebSocket() {
         const port = this.config.websocketPort;
+
         this.websocketServer = new ws.Server({ port });
         this.websocketServer.on('error', (err) => log.error(err));
 
@@ -111,6 +117,40 @@ class Server {
         });
 
         log.info(`listening for websocket connections on port ${port}`);
+    }
+
+    readMessages() {
+        while (this.incomingMessages.length) {
+            const { socket, message } = this.incomingMessages.shift();
+            const handler = this.handlers[message.type];
+
+            if (!handler) {
+                log.warn(`${socket} no handler for type ${message.type}`);
+                return;
+            }
+
+            /*try {
+                await handler(socket, message);
+            } catch (e) {
+                log.error(e, socket.toString());
+            }*/
+
+            handler(socket, message).catch((e) => {
+                log.error(e, socket.toString());
+            });
+        }
+    }
+
+    sendMessages() {
+        while (this.outgoingMessages.length) {
+            const { socket, message } = this.outgoingMessages.shift();
+            //console.log(message);
+            /*console.log('sending ', message.type);
+            if (message.type === 'regionPlayerUpdate') {
+                console.log(Date.now(), message);
+            }*/
+            socket.sendMessage(message);
+        }
     }
 
     async init() {

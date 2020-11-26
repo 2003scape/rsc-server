@@ -398,6 +398,9 @@ class World {
 
     tick() {
         this.ticks += 1;
+
+        this.server.readMessages();
+
         const startTime = Date.now();
 
         for (const [id, entry] of this.tickFunctions) {
@@ -432,6 +435,8 @@ class World {
 
             this.deltaTickTimes.length = 0;
         }
+
+        this.server.sendMessages();
 
         setTimeout(this.boundTick, TICK_INTERVAL - deltaTime);
     }

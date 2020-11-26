@@ -160,7 +160,12 @@ class Player extends Character {
             return;
         }
 
-        this.socket.sendMessage(message);
+        this.world.server.outgoingMessages.push({
+            socket: this.socket,
+            message
+        });
+
+        //this.socket.sendMessage(message);
 
         log.debug(`sending message to ${this.socket}`, message);
     }
@@ -226,7 +231,8 @@ class Player extends Character {
 
         this.exitShop(true);
         this.send({ type: 'logoutSuccess' });
-        await this.world.sleepTicks(1);
+
+        await this.world.sleepTicks(2);
         this.socket.close();
 
         process.nextTick(() => {
@@ -606,7 +612,7 @@ class Player extends Character {
             if (!player.localEntities.known.players.has(this)) {
                 player.localEntities.added.players.add(this);
             } else {
-                player.localEntities.moved.players.set(this, this.direction);
+                player.localEntities.moved.players.add(this);
             }
         }
     }
