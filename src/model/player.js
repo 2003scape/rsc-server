@@ -197,22 +197,7 @@ class Player extends Character {
         this.localEntities.updateNearby('wallObjects');
         this.localEntities.updateNearby('groundItems');
 
-        // tell ourselves our appearance
-        this.localEntities.characterUpdates.playerAppearances.push(
-            this.getAppearanceUpdate()
-        );
-
-        this.world.setTickTimeout(() => {
-            // tell everyone around us our appearance
-            this.broadcastPlayerAppearance();
-
-            // make everyone around us tell us their appearance
-            for (const player of this.localEntities.known.players) {
-                this.localEntities.characterUpdates.playerAppearances.push(
-                    player.getAppearanceUpdate()
-                );
-            }
-        }, 2);
+        this.broadcastPlayerAppearance(true);
 
         this.loggedIn = true;
         log.info(`${this} logged in`);
@@ -558,17 +543,23 @@ class Player extends Character {
     // update our sprites, combat level, skull status, etc. to us and the
     // players we know about
     broadcastPlayerAppearance(self = false) {
-        const update = this.getAppearanceUpdate();
+        const { world } = this;
 
-        if (self) {
-            this.localEntities.characterUpdates.playerAppearances.push(update);
-        }
+        world.nextTick(() => {
+            const update = this.getAppearanceUpdate();
 
-        for (const player of this.localEntities.known.players) {
-            player.localEntities.characterUpdates.playerAppearances.push(
-                update
-            );
-        }
+            if (self) {
+                this.localEntities.characterUpdates.playerAppearances.push(
+                    update
+                );
+            }
+
+            for (const player of this.localEntities.known.players) {
+                player.localEntities.characterUpdates.playerAppearances.push(
+                    update
+                );
+            }
+        });
     }
 
     // let everyone around us know about a message (don't send to self). if

@@ -399,9 +399,9 @@ class World {
     tick() {
         this.ticks += 1;
 
-        this.server.readMessages();
-
         const startTime = Date.now();
+
+        this.server.readMessages();
 
         for (const [id, entry] of this.tickFunctions) {
             entry.ticks -= 1;

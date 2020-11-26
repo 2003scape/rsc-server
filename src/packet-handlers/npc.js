@@ -26,8 +26,6 @@ async function getNPC(player, index) {
     npc.stepsLeft = 0;
     player.lock();
 
-    await world.sleepTicks(1);
-
     return npc;
 }
 

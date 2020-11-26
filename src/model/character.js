@@ -144,21 +144,27 @@ class Character extends Entity {
 
         const distance = this.getDistance(character);
 
+        // characters don't talk to each other on the same tile, move the
+        // interlocutor to a free tile and re-face them
         if (distance === 0) {
             const { world } = this;
             const step = character.getFreeDirection();
 
             if (step) {
-                world.setTickTimeout(() => {
-                    this.faceEntity(character);
-                    character.faceEntity(this);
-                }, 2);
+                world.nextTick(() => {
+                    character.walkTo(step.deltaX, step.deltaY);
 
-                character.walkTo(step.deltaX, step.deltaY);
+                    world.nextTick(() => {
+                        this.faceEntity(character);
+                        character.faceEntity(this);
+                    });
+                });
             }
         } else {
-            this.faceEntity(character);
-            character.faceEntity(this);
+            world.nextTick(() => {
+                this.faceEntity(character);
+                character.faceEntity(this);
+            });
         }
     }
 
@@ -373,7 +379,7 @@ class Character extends Entity {
             const destX = this.chasing.x;
             const destY = this.chasing.y;
 
-            const steps = this.getPositionSteps(destX, destY, true);
+            const steps = this.getPositionSteps(destX, destY, overlap);
 
             ticks += 1;
 

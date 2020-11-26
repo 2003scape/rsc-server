@@ -13,6 +13,8 @@ class Server {
         this.world = new World(this);
         this.dataClient = new DataClient(this);
 
+        // { socket: messagesSentInTick }
+        this.incomingThrottle = new Map();
         this.incomingMessages = [];
         this.outgoingMessages = [];
     }
@@ -36,17 +38,12 @@ class Server {
         socket.setTimeout(5000);
         socket.server = this;
 
+        this.incomingThrottle.set(socket, 0);
+
         socket.on('error', (err) => log.error(err));
         socket.on('timeout', () => socket.close());
 
         socket.on('message', async (message) => {
-            /*const handler = this.handlers[message.type];
-
-            if (!handler) {
-                log.warn(`${socket} no handler for type ${message.type}`);
-                return;
-            }*/
-
             if (
                 !socket.player &&
                 !/register|login|session|closeConnection/.test(message.type)
@@ -56,15 +53,15 @@ class Server {
                 return;
             }
 
-            log.debug(`incoming message from ${socket}`, message);
+            const messagesSent = this.incomingThrottle.get(socket);
 
-            this.incomingMessages.push({ socket, message });
-
-            /*try {
-                await handler(socket, message);
-            } catch (e) {
-                log.error(e, socket.toString());
-            }*/
+            if (messagesSent < 10) {
+                this.incomingThrottle.set(socket, messagesSent + 1);
+                this.incomingMessages.push({ socket, message });
+                log.debug(`incoming message from ${socket}`, message);
+            } else {
+                log.debug(`message discarded from ${socket}`, message);
+            }
         });
 
         socket.on('close', async () => {
@@ -78,6 +75,7 @@ class Server {
             }
 
             socket.removeAllListeners();
+            this.incomingThrottle.delete(this);
             log.info(`${socket} disconnected`);
         });
 
@@ -129,26 +127,19 @@ class Server {
                 return;
             }
 
-            /*try {
-                await handler(socket, message);
-            } catch (e) {
-                log.error(e, socket.toString());
-            }*/
-
             handler(socket, message).catch((e) => {
                 log.error(e, socket.toString());
             });
+        }
+
+        for (const [socket] of this.incomingThrottle) {
+            this.incomingThrottle.set(socket, 0);
         }
     }
 
     sendMessages() {
         while (this.outgoingMessages.length) {
             const { socket, message } = this.outgoingMessages.shift();
-            //console.log(message);
-            /*console.log('sending ', message.type);
-            if (message.type === 'regionPlayerUpdate') {
-                console.log(Date.now(), message);
-            }*/
             socket.sendMessage(message);
         }
     }

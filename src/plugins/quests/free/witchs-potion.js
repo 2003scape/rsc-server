@@ -1,4 +1,5 @@
 // https://classic.runescape.wiki/w/Transcript:Hetty
+// TODO burntmeat
 
 const HETTY_ID = 148;
 
