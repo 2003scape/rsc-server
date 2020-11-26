@@ -93,7 +93,7 @@ class Character extends Entity {
             return this.direction;
         }
 
-        this.direction = direction;//deltaDirections[deltaX + 1][deltaY + 1];
+        this.direction = direction; //deltaDirections[deltaX + 1][deltaY + 1];
         this.broadcastDirection();
         return this.direction;
     }
@@ -189,7 +189,7 @@ class Character extends Entity {
         let deltaY = character.y - this.y;
 
         if (deltaX !== 0 || deltaY !== 0) {
-            await this.chase(character);
+            await this.chase(character, 8, true);
         }
 
         deltaX = character.x - this.x;
@@ -359,7 +359,7 @@ class Character extends Entity {
         }
     }
 
-    async chase(entity, range = 8) {
+    async chase(entity, range = 8, overlap = false) {
         const { world } = this;
 
         if (this.isWalking) {
@@ -373,7 +373,7 @@ class Character extends Entity {
             const destX = this.chasing.x;
             const destY = this.chasing.y;
 
-            const steps = this.getPositionSteps(destX, destY, false);
+            const steps = this.getPositionSteps(destX, destY, true);
 
             ticks += 1;
 
@@ -412,8 +412,9 @@ class Character extends Entity {
             }
         } while (
             this.chasing &&
-            //(this.x !== this.chasing.x || this.y !== this.chasing.y)
-            this.getDistance(this.chasing) > 1
+            (overlap
+                ? this.x !== this.chasing.x || this.y !== this.chasing.y
+                : this.getDistance(this.chasing) > 1.5)
         );
 
         this.chasing = null;

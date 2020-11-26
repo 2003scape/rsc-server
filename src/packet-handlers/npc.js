@@ -10,7 +10,7 @@ async function getNPC(player, index) {
         throw new RangeError(`invalid npc index ${index}`);
     }
 
-    if (!npc.withinRange(player, 2, true)) {
+    if (!npc.withinRange(player, 3, true)) {
         if (npc.withinRange(player, 8)) {
             await world.sleepTicks(1);
             await player.chase(npc);
@@ -18,7 +18,7 @@ async function getNPC(player, index) {
             return;
         }
 
-        if (!npc.withinRange(player, 2, true)) {
+        if (!npc.withinRange(player, 3, true)) {
             return;
         }
     }
@@ -134,7 +134,7 @@ async function npcAttack({ player }, { index }) {
             throw new Error(`${player} trying to attack unattackable NPC`);
         }
 
-        if (npc.opponent || npc.interlocutor || npc.locked) {
+        if (npc.locked) {
             player.unlock();
             return;
         }
