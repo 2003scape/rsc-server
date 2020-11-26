@@ -129,7 +129,9 @@ async function inventoryCommand({ player }, { index }) {
         return;
     }
 
+    player.lock();
     await world.callPlugin('onInventoryCommand', player, item);
+    player.unlock();
 }
 
 async function useWithInventoryItem({ player }, { index, withIndex }) {

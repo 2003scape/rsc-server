@@ -21,15 +21,13 @@ async function heal(player, amount) {
 }
 
 async function onInventoryCommand(player, item) {
-    if (player.locked || !/eat/i.test(item.definition.command)) {
+    if (!/eat/i.test(item.definition.command)) {
         return false;
     }
 
     const edibleDefinition = edible[item.id];
 
     if (!Number.isNaN(+edibleDefinition)) {
-        player.lock();
-
         // normal food item with no special behaviour, just heal
         player.message(
             `@que@You eat the ${item.definition.name.toLowerCase()}`
@@ -38,12 +36,8 @@ async function onInventoryCommand(player, item) {
         await heal(player, edibleDefinition);
         player.inventory.remove(item.id);
 
-        player.unlock();
-
         return true;
     } else if (typeof edibleDefinition === 'object') {
-        player.lock();
-
         const { hits, result, message } = edibleDefinition;
 
         if (message) {
@@ -65,8 +59,6 @@ async function onInventoryCommand(player, item) {
         if (typeof result !== 'undefined') {
             player.inventory.add(result);
         }
-
-        player.unlock();
 
         return true;
     }
