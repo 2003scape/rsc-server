@@ -11,7 +11,7 @@ async function onGameObjectCommandOne(player, gameObject) {
         if (sirVyvin && !sirVyvin.interlocutor) {
             player.engage(sirVyvin);
 
-            await npc.say('Hey what are you doing?', "That's my cupboard");
+            await sirVyvin.say('Hey what are you doing?', "That's my cupboard");
 
             player.message(
                 '@que@Maybe you need to get someone to distract Sir Vyvin ' +

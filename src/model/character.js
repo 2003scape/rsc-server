@@ -134,6 +134,8 @@ class Character extends Entity {
 
     // face and set our engager to this character, as well as busy status
     engage(character) {
+        const { world } = this;
+
         this.lock();
         this.chasing = null;
         this.interlocutor = character;
@@ -147,24 +149,23 @@ class Character extends Entity {
         // characters don't talk to each other on the same tile, move the
         // interlocutor to a free tile and re-face them
         if (distance === 0) {
-            const { world } = this;
             const step = character.getFreeDirection();
 
             if (step) {
-                world.nextTick(() => {
+                world.setTickTimeout(() => {
                     character.walkTo(step.deltaX, step.deltaY);
 
-                    world.nextTick(() => {
+                    world.setTickTimeout(() => {
                         this.faceEntity(character);
                         character.faceEntity(this);
-                    });
-                });
+                    }, 2);
+                }, 2);
             }
         } else {
-            world.nextTick(() => {
+            world.setTickTimeout(() => {
                 this.faceEntity(character);
                 character.faceEntity(this);
-            });
+            }, 2);
         }
     }
 

@@ -57,9 +57,11 @@ async function onTalkToNPC(player, npc) {
         return true;
     }
 
+    player.engage(npc);
+
     if (
         questStage === 1 ||
-        (questStage === 2 && player.inventory.has(REDBERRY_PIE))
+        (questStage === 2 && !player.inventory.has(REDBERRY_PIE))
     ) {
         await player.say('Hello are you are an Imcando Dwarf?');
         await npc.say('Yeah what about it?');

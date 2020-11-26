@@ -1,6 +1,7 @@
 // https://classic.runescape.wiki/w/Transcript:Squire
 
 const FALADIAN_KNIGHTS_SWORD_ID = 265;
+const PORTRAIT_ID = 264;
 const SQUIRE_ID = 132;
 
 async function findItSoon(npc) {
