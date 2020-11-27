@@ -34,7 +34,6 @@ function wallObjectCommand(pluginHandler, { player }, { x, y }) {
         }
 
         player.lock();
-        player.faceEntity(wallObject);
         await world.sleepTicks(1);
         await world.callPlugin(pluginHandler, player, wallObject);
         player.unlock();
@@ -74,7 +73,6 @@ async function useWithWallObject({ player }, { x, y, index }) {
         const { world } = player;
 
         player.lock();
-        player.faceEntity(wallObject);
 
         const blocked = await world.callPlugin(
             'onUseWithWallObject',

@@ -6,7 +6,11 @@ const { knowAboutDwarves } = require('../../quests/free/knights-sword/reldo');
 const RELDO_ID = 20;
 
 async function onTalkToNPC(player, npc) {
-    if (npc.id !== RELDO_ID) {
+    if (
+        npc.id !== RELDO_ID ||
+        player.questStages.shieldOfArrav === 2 ||
+        player.questStages.shieldOfArrav === 3
+    ) {
         return false;
     }
 

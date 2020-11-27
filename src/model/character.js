@@ -101,6 +101,10 @@ class Character extends Entity {
     // set our direction to face an entity (when we talk to an NPC or pick up
     // a ground item for instance)
     faceEntity(entity) {
+        if (this.isWalking) {
+            return;
+        }
+
         if (this.x === entity.x && this.y === entity.y) {
             if (entity.direction === 0) {
                 this.direction = 0;
@@ -289,6 +293,7 @@ class Character extends Entity {
         );
     }
 
+    //TODO changeDirection?
     walkTo(deltaX, deltaY) {
         if (this.isWalking) {
             return;

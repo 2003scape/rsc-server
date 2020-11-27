@@ -3,7 +3,8 @@
 const TRAMP_ID = 28;
 
 async function alleyway(player, npc) {
-    const { blackArmProgress, phoenixProgress } = player.cache.gangs || {};
+    const blackArmStage = player.cache.blackArmStage || 0;
+    const phoenixStage = player.cache.phoenixStage || 0;
 
     await npc.say(
         'Yes there is actually',
@@ -21,11 +22,11 @@ async function alleyway(player, npc) {
             await npc.say("Don't worry about it");
             break;
         case 1: // let me join
-            if (blackArmProgress === 2) {
+            if (blackArmStage === -1) {
                 await npc.say(
                     'I was under the impression you were already a member'
                 );
-            } else if (phoenixProgress === 2) {
+            } else if (phoenixStage === -1) {
                 await npc.say(
                     'No',
                     "You're a collaborator with the phoenix gang",
@@ -81,10 +82,7 @@ async function alleyway(player, npc) {
                     "But don't upset her, she's pretty dangerous"
                 );
 
-                player.cache.gangs = {
-                    blackArmProgress: 1,
-                    phoenixProgress: phoenixProgress || 0
-                };
+                player.cache.blackArmStage = 1;
             }
             break;
     }

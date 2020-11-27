@@ -420,6 +420,9 @@ class World {
             player.tick();
         }
 
+        this.server.sendMessages();
+        //this.server.readMessages();
+
         const deltaTime = Date.now() - startTime;
 
         this.deltaTickTimes.push(deltaTime);
@@ -435,8 +438,6 @@ class World {
 
             this.deltaTickTimes.length = 0;
         }
-
-        this.server.sendMessages();
 
         setTimeout(this.boundTick, TICK_INTERVAL - deltaTime);
     }

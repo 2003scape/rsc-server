@@ -241,13 +241,11 @@ class NPC extends Character {
                     this.walkTo(deltaX, deltaY);
                 }
             }
-        } else {
+        } else if (!this.locked) {
             if (Math.random() <= 0.15) {
                 this.stepsLeft = Math.floor(Math.random() * 12) + 1;
             }
         }
-
-        this.isWalking = false;
     }
 
     broadcastChat(message) {
@@ -308,6 +306,8 @@ class NPC extends Character {
                 this.walkNextRandomStep();
             }
         }
+
+        this.isWalking = false;
     }
 
     toString() {

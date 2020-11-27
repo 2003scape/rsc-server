@@ -26,13 +26,17 @@ async function groundItemTake({ player }, { x, y, id }) {
     player.endWalkFunction = async () => {
         const { world } = player;
 
-        if (player.inventory.items.length >= 30) {
-            return;
-        }
-
         const groundItem = getGroundItem(player, id, x, y);
 
         if (!groundItem) {
+            return;
+        }
+
+        if (
+            player.inventory.isFull() &&
+            (!groundItem.definition.stackable ||
+                !player.inventory.has(groundItem.id))
+        ) {
             return;
         }
 

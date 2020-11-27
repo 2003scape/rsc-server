@@ -21,7 +21,7 @@ async function command({ player }, { command, args }) {
 
             player.questPoints = +args[0];
             break;
-        case 'kick':
+        case 'kick': {
             if (!args[0]) {
                 player.message('invalid player');
                 break;
@@ -37,6 +37,7 @@ async function command({ player }, { command, args }) {
             await playerKicked.logout();
             player.message('kicked player: ' + args[0]);
             break;
+        }
         case 'appearance':
             player.sendAppearance();
             break;
@@ -185,6 +186,11 @@ async function command({ player }, { command, args }) {
                     world.addPlayerDrop(player, { id: randomID });
                 }
             }
+            break;
+        }
+        case 'goto': {
+            const otherPlayer = world.getPlayerByUsername(args[0]);
+            player.teleport(otherPlayer.x, otherPlayer.y);
             break;
         }
     }

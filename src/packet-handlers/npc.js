@@ -31,7 +31,7 @@ async function getNPC(player, index) {
 
 async function npcTalk({ player }, { index }) {
     /*const npc = player.world.npcs.getByIndex(index);
-    await npc.walkToPoint(npc.x + 1, npc.y);*/
+    npc.walkToPoint(npc.x + 2, npc.y + 1);*/
 
     player.endWalkFunction = async () => {
         const { world } = player;
@@ -54,6 +54,7 @@ async function npcTalk({ player }, { index }) {
 
         npc.lock();
 
+        // TODO test this with different delays
         const blocked = await world.callPlugin('onTalkToNPC', player, npc);
 
         player.unlock();
