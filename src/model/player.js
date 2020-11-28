@@ -916,22 +916,26 @@ class Player extends Character {
     restoreHealth() {
         if (this.healTicks > 0) {
             this.healTicks -= 1 + Number(this.prayers[RAPID_HEAL_ID]);
-            return;
+            return false;
         }
 
         this.healTicks = RESTORE_TICKS;
 
         if (this.skills.hits.current < this.skills.hits.base) {
             this.skills.hits.current += 1;
-            this.sendStats();
+            return true;
         }
+
+        return false;
     }
 
     restoreSkills() {
         if (this.restoreTicks > 0) {
             this.restoreTicks -= 1 + Number(this.prayers[RAPID_RESTORE_ID]);
-            return;
+            return false;
         }
+
+        let updated = false;
 
         this.restoreTicks = RESTORE_TICKS;
 
@@ -944,9 +948,11 @@ class Player extends Character {
 
             if (current < base) {
                 this.skills[skillName].current += 1;
-                this.sendStats();
+                updated = true;
             }
         }
+
+        return updated;
     }
 
     debuffSkills() {
@@ -954,6 +960,8 @@ class Player extends Character {
             this.debuffTicks -= 1;
             return;
         }
+
+        let updated = false;
 
         this.debuffTicks = RESTORE_TICKS;
 
@@ -966,28 +974,32 @@ class Player extends Character {
 
             if (current > base) {
                 this.skills[skillName].current -= 1;
-                this.sendStats();
+                updated = true;
             }
         }
+
+        return updated;
     }
 
     drainPrayer() {
         if (this.skills.prayer.current <= 0) {
-            return;
+            return false;
         }
 
         const drainEffect = this.getPrayerDrainEffect();
 
         if (drainEffect < 1) {
-            return;
+            return false;
         }
+
+        let updated = false;
 
         this.prayerDrainCounter += drainEffect;
 
         if (this.prayerDrainCounter >= this.getPrayerDrainResistance()) {
             this.prayerDrainCounter = 0;
             this.skills.prayer.current -= 1;
-            this.sendStats();
+            updated = true;
         }
 
         if (this.skills.prayer.current <= 0) {
@@ -1002,13 +1014,19 @@ class Player extends Character {
 
             this.sendPrayerStatus();
         }
+
+        return updated;
     }
 
     normalizeSkills() {
-        this.restoreHealth();
-        this.restoreSkills();
-        this.debuffSkills();
-        this.drainPrayer();
+        if (
+            this.restoreHealth() ||
+            this.restoreSkills() ||
+            this.debuffSkills() ||
+            this.drainPrayer()
+        ) {
+            this.sendStats();
+        }
     }
 
     refreshDisplayFatigue() {
