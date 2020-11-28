@@ -7,6 +7,7 @@ const { rollItemDrop } = require('../rolls');
 const { rollNPCDamage } = require('../combat');
 
 const HERB_IDS = new Set(dropDefinitions.herb.map((entry) => entry.id));
+const PARALYZE_MONSTER_ID = 12;
 
 class NPC extends Character {
     constructor(world, { id, x, y, minX, maxX, minY, maxY }) {
@@ -285,8 +286,11 @@ class NPC extends Character {
 
     fight() {
         if (this.fightStage % 3 === 0) {
-            const damage = rollNPCDamage(this, this.opponent);
-            this.opponent.damage(damage);
+            if (!this.opponent.prayers[PARALYZE_MONSTER_ID]) {
+                const damage = rollNPCDamage(this, this.opponent);
+                this.opponent.damage(damage);
+            }
+
             this.fightStage = 1;
             this.combatRounds += 1;
         } else {

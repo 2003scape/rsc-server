@@ -4,7 +4,7 @@ function getGroundItem(player, id, x, y) {
     const groundItems = world.groundItems.getAtPoint(x, y);
 
     for (const groundItem of groundItems) {
-        if (!groundItem.withinRange(player, 2)) {
+        if (!groundItem.withinRange(player, 2, true)) {
             player.message("I can't reach that!");
             return;
         }

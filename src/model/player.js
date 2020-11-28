@@ -45,6 +45,9 @@ const MAX_FATIGUE = 75000;
 // how many ticks to wait before re-generating health
 const RESTORE_TICKS = 100;
 
+const RAPID_RESTORE_ID = 6;
+const RAPID_HEAL_ID = 7;
+
 class Player extends Character {
     constructor(world, socket, playerData) {
         super(world);
@@ -116,6 +119,9 @@ class Player extends Character {
         this.prayers.length = prayers.length;
         this.prayers.fill(false);
 
+        // https://oldschool.runescape.wiki/w/Prayer#Prayer_drain_resistance
+        this.prayerDrainCounter = 0;
+
         this.interfaceOpen = {
             bank: false,
             shop: false,
@@ -146,8 +152,11 @@ class Player extends Character {
         // Date.now() of last sleep word request
         this.lastSleepWord = 0;
 
-        // how many ticks left until we re-generate 1 health again
+        // how many ticks left until we re-generate skills (restoreTicks is
+        // everything besides prayer and hits)
         this.healTicks = RESTORE_TICKS;
+        this.restoreTicks = RESTORE_TICKS;
+        this.debuffTicks = RESTORE_TICKS;
 
         this.loggedIn = false;
 
@@ -164,8 +173,6 @@ class Player extends Character {
             socket: this.socket,
             message
         });
-
-        //this.socket.sendMessage(message);
 
         log.debug(`sending message to ${this.socket}`, message);
     }
@@ -353,6 +360,10 @@ class Player extends Character {
         }
 
         this.send({ type: 'sound', soundName });
+    }
+
+    sendPrayerStatus() {
+        this.send({ type: 'prayerStatus', prayersOn: this.prayers });
     }
 
     // the blue menu text prompting the player for a choice. if repeat is true,
@@ -759,6 +770,22 @@ class Player extends Character {
         return Math.floor(defense + magic + Math.max(offence, ranged));
     }
 
+    getPrayerDrainEffect() {
+        let drainEffect = 0;
+
+        for (const [index, enabled] of this.prayers.entries()) {
+            if (enabled) {
+                drainEffect += prayers[index].drain;
+            }
+        }
+
+        return drainEffect;
+    }
+
+    getPrayerDrainResistance() {
+        return 60 + this.equipmentBonuses.prayer * 2;
+    }
+
     getElevation() {
         return Math.floor(this.y / this.world.planeElevation);
     }
@@ -886,20 +913,102 @@ class Player extends Character {
         }, 2);
     }
 
-    regenerateHealth() {
+    restoreHealth() {
+        if (this.healTicks > 0) {
+            this.healTicks -= 1 + Number(this.prayers[RAPID_HEAL_ID]);
+            return;
+        }
+
+        this.healTicks = RESTORE_TICKS;
+
         if (this.skills.hits.current < this.skills.hits.base) {
-            if (this.healTicks <= 0) {
-                this.healTicks = RESTORE_TICKS;
-                this.skills.hits.current += 1;
+            this.skills.hits.current += 1;
+            this.sendStats();
+        }
+    }
+
+    restoreSkills() {
+        if (this.restoreTicks > 0) {
+            this.restoreTicks -= 1 + Number(this.prayers[RAPID_RESTORE_ID]);
+            return;
+        }
+
+        this.restoreTicks = RESTORE_TICKS;
+
+        for (const [skillName, { base, current }] of Object.entries(
+            this.skills
+        )) {
+            if (skillName === 'hits' || skillName === 'prayer') {
+                continue;
+            }
+
+            if (current < base) {
+                this.skills[skillName].current += 1;
                 this.sendStats();
-            } else {
-                this.healTicks -= 1 + (this.prayers[7] ? 1 : 0);
             }
         }
     }
 
-    normalizeStats() {
-        this.regenerateHealth();
+    debuffSkills() {
+        if (this.debuffTicks > 0) {
+            this.debuffTicks -= 1;
+            return;
+        }
+
+        this.debuffTicks = RESTORE_TICKS;
+
+        for (const [skillName, { base, current }] of Object.entries(
+            this.skills
+        )) {
+            if (skillName === 'prayer') {
+                continue;
+            }
+
+            if (current > base) {
+                this.skills[skillName].current -= 1;
+                this.sendStats();
+            }
+        }
+    }
+
+    drainPrayer() {
+        if (this.skills.prayer.current <= 0) {
+            return;
+        }
+
+        const drainEffect = this.getPrayerDrainEffect();
+
+        if (drainEffect < 1) {
+            return;
+        }
+
+        this.prayerDrainCounter += drainEffect;
+
+        if (this.prayerDrainCounter >= this.getPrayerDrainResistance()) {
+            this.prayerDrainCounter = 0;
+            this.skills.prayer.current -= 1;
+            this.sendStats();
+        }
+
+        if (this.skills.prayer.current <= 0) {
+            this.message(
+                'You have run out of prayer points. Return to a church to ' +
+                    'recharge'
+            );
+
+            for (let i = 0; i < this.prayers.length; i += 1) {
+                this.prayers[i] = false;
+            }
+
+            this.sendPrayerStatus();
+        }
+    }
+
+    normalizeSkills() {
+        this.restoreHealth();
+        this.restoreSkills();
+        this.debuffSkills();
+        this.drainPrayer();
     }
 
     refreshDisplayFatigue() {
@@ -921,7 +1030,9 @@ class Player extends Character {
 
     fight() {
         if (this.fightStage % 3 === 0) {
-            const damage = !!this.opponent.username
+            const isPlayer = !!this.opponent.username;
+
+            const damage = isPlayer
                 ? rollPlayerPlayerDamage(this, this.opponent)
                 : rollPlayerNPCDamage(this, this.opponent);
 
@@ -934,7 +1045,7 @@ class Player extends Character {
     }
 
     tick() {
-        this.normalizeStats();
+        this.normalizeSkills();
 
         if (this.interfaceOpen.sleep) {
             this.refreshDisplayFatigue();

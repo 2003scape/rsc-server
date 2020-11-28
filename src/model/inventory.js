@@ -1,5 +1,6 @@
 const Item = require('./item');
 const items = require('@2003scape/rsc-data/config/items');
+const { formatSkillName } = require('../skills');
 
 const EQUIPMENT_BONUS_NAMES = [
     'armour',
@@ -237,6 +238,22 @@ class Inventory {
         if (!item.definition.wieldable) {
             // https://classic.runescape.wiki/w/Knife_bug
             throw new RangeError(`equipping unequipable item index ${index}`);
+        }
+
+        const { requirements } = item.definition.wieldable;
+
+        if (requirements) {
+            for (const [skillName, level] of Object.entries(requirements)) {
+                if (this.player.skills[skillName].base < level) {
+                    this.player.message(
+                        'You are not a high enough level to use this item',
+                        `You need to have a ${formatSkillName(skillName)} ` +
+                            `level of ${level}`
+                    );
+
+                    return;
+                }
+            }
         }
 
         if (item.definition.wieldable.female && this.player.isMale()) {
