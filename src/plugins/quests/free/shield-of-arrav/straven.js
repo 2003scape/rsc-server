@@ -7,6 +7,8 @@ const WEAPONS_STORE_KEY_ID = 48;
 
 async function blackArmDog(player, npc) {
     await npc.say('hey get away from there', 'Black arm dog');
+    player.disengage();
+    player.lock();
     await npc.attack(player);
 }
 
@@ -171,6 +173,16 @@ async function onTalkToNPC(player, npc) {
         await npc.say('Greetings fellow gang member');
 
         if (!player.inventory.has(WEAPONS_STORE_KEY_ID)) {
+            await player.say('I have lost the key you gave me');
+
+            await npc.say(
+                'You need to be more careful',
+                "We don't want that falling into the wrong hands",
+                'Ah well',
+                'Have this spare'
+            );
+
+            player.inventory.add(WEAPONS_STORE_KEY_ID);
         } else {
             const choice = await player.ask(
                 [
@@ -249,22 +261,31 @@ async function onWallObjectCommandOne(player, wallObject) {
         return false;
     }
 
+    const { world } = player;
     const blackArmStage = player.cache.blackArmStage || 0;
     const phoenixStage = player.cache.phoenixStage || 0;
 
     if (blackArmStage === -1) {
-        await blackArmDog(player, npc);
-    } else if (phoenixStage === -1) {
-        player.message('The door is opened for you', 'You go through the door');
-        await player.enterDoor(wallObject);
-    } else {
-        const { world } = player;
         const straven = world.npcs.getByID(STRAVEN_ID);
 
         if (straven && !straven.locked) {
             player.engage(straven);
-            await cantGoThere(player, straven);
-            player.disengage();
+            await blackArmDog(player, straven);
+        }
+    } else if (phoenixStage === -1) {
+        player.message('The door is opened for you', 'You go through the door');
+        await player.enterDoor(wallObject);
+    } else {
+        const straven = world.npcs.getByID(STRAVEN_ID);
+
+        if (straven && !straven.locked) {
+            if (phoenixStage >= 1) {
+                return await onTalkToNPC(player, straven);
+            } else {
+                player.engage(straven);
+                await cantGoThere(player, straven);
+                player.disengage();
+            }
         }
     }
 

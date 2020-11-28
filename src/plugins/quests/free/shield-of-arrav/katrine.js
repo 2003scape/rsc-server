@@ -126,7 +126,7 @@ async function heardYoureBlackarm(player, npc) {
                 'Is that guy still out there?',
                 "He's getting to be a nuisance",
                 'Remind me to send someone to kill him',
-                "o now you've found us",
+                "So now you've found us",
                 'What do you want?'
             );
 
@@ -154,7 +154,7 @@ async function heardYoureBlackarm(player, npc) {
     }
 }
 
-async function onTalkToNPC(npc, player) {
+async function onTalkToNPC(player, npc) {
     if (npc.id !== KATRINE_ID) {
         return false;
     }
@@ -163,7 +163,7 @@ async function onTalkToNPC(npc, player) {
 
     player.engage(npc);
 
-    if (phoenixStage === 2) {
+    if (phoenixStage === -1) {
         await npc.say("You've got some guts coming here", 'Phoenix guy');
         player.message('Katrine spits');
 

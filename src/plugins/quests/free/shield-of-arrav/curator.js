@@ -11,6 +11,8 @@ async function onTalkToNPC(player, npc) {
     const hasBlackArmShield = player.inventory.has(BLACK_ARM_BROKEN_SHIELD_ID);
     const hasPhoenixShield = player.inventory.has(PHOENIX_BROKEN_SHIELD_ID);
 
+    player.engage(npc);
+
     if (hasBlackArmShield && hasPhoenixShield) {
         const { world } = player;
 
@@ -97,6 +99,7 @@ async function onTalkToNPC(player, npc) {
         }
     }
 
+    player.disengage();
     return true;
 }
 

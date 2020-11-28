@@ -98,6 +98,10 @@ class Inventory {
         const index = this.items.push(item) - 1;
 
         this.sendUpdate(index, item);
+
+        if (!items[id].stackable && amount > 1) {
+            this.add(id, amount - 1);
+        }
     }
 
     has(id, amount = 1) {

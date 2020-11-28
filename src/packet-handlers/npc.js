@@ -57,12 +57,12 @@ async function npcTalk({ player }, { index }) {
         // TODO test this with different delays
         const blocked = await world.callPlugin('onTalkToNPC', player, npc);
 
-        player.unlock();
-        npc.unlock();
-
         if (blocked) {
             return;
         }
+
+        player.unlock();
+        npc.unlock();
 
         player.message(
             `The ${npc.definition.name} does not appear interested in talking`

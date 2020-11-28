@@ -82,11 +82,21 @@ async function onTalkToNPC(player, npc) {
 
         await npc.say(
             'The shield of Arrav, eh?',
-            'Yes, I do recfall my father putting a reward out for that',
+            'Yes, I do recall my father putting a reward out for that',
             'Very well',
             'Go get the authenticity of the shield verified',
             'By the curator at the museum',
             'And I will grant you your reward'
+        );
+    } else {
+        await player.say('Greetings, your majesty');
+        await npc.say('Do you have anything of import to say?');
+        await player.say('Not really');
+
+        await npc.say(
+            'You will have to excuse me then',
+            'I am very busy',
+            'I have a kingdom to run'
         );
     }
 

@@ -129,8 +129,7 @@ class World {
             this.pathFinder.addObject(entity);
         } else if (type === 'wallObjects') {
             // always overwrite wallobjects
-            const exisiting =
-                this.wallObjects.getAtPoint(entity.x, entity.y);
+            const exisiting = this.wallObjects.getAtPoint(entity.x, entity.y);
 
             for (const wallObject of exisiting) {
                 this.wallObjects.remove(wallObject);
@@ -268,10 +267,9 @@ class World {
                 }
             } catch (e) {
                 if (handlerName === 'onTalkToNPC') {
-                    args[1].disengage();
-                }
-
-                if (e.message === 'interrupted ask') {
+                    args[0].disengage();
+                    return true;
+                } else if (e.message === 'interrupted ask') {
                     args[0].unlock();
                     return true;
                 }
@@ -301,8 +299,8 @@ class World {
         // if we never delete the owner property, it never shows up to other
         // players and still disappears after DROP_DISAPPEAR_TIMEOUT
         if (
-            !groundItem.definition.untradeable ||
-            (!this.members && !groundItem.definition.members)
+            !groundItem.definition.untradeable &&
+            (!this.members ? !groundItem.definition.members : true)
         ) {
             this.setTimeout(() => delete groundItem.owner, DROP_OWNER_TIMEOUT);
         }
@@ -401,8 +399,6 @@ class World {
 
         const startTime = Date.now();
 
-        this.server.readMessages();
-
         for (const [id, entry] of this.tickFunctions) {
             entry.ticks -= 1;
 
@@ -421,7 +417,7 @@ class World {
         }
 
         this.server.sendMessages();
-        //this.server.readMessages();
+        this.server.readMessages();
 
         const deltaTime = Date.now() - startTime;
 

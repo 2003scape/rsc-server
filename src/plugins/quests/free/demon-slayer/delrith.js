@@ -13,7 +13,6 @@ async function onNPCAttack(player, npc) {
 
     if (!questStage || questStage === 1) {
         await player.say("I'd rather not. He looks scary");
-
         return true;
     } else if (questStage === 2) {
         if (player.inventory.isEquipped(SILVERLIGHT_ID)) {

@@ -240,6 +240,7 @@ async function fortuneTold(player, npc) {
                 );
 
                 await defeatDelrith(player, npc);
+                break;
             case 2: // wally
                 await wallyUnheroic(player, npc);
                 break;

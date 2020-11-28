@@ -35,6 +35,8 @@ async function onGameObjectCommandTwo(player, gameObject) {
         return false;
     }
 
+    const { world } = player;
+
     player.message('You close the chest');
     world.replaceEntity('gameObjects', gameObject, CLOSED_CHEST_ID);
 

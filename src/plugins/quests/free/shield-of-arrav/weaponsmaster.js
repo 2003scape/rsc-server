@@ -35,6 +35,7 @@ async function onTalkToNPC(player, npc) {
     } else {
         await npc.say("Hey I don't know you");
         player.disengage();
+        player.lock();
         await npc.attack(player);
         return true;
     }
@@ -60,16 +61,17 @@ async function onGroundItemTake(player, groundItem) {
         player.engage(weaponsmaster);
 
         if (phoenixStage === -1) {
-            await npc.say(
+            await weaponsmaster.say(
                 "Hey, that's Straven's",
                 "He won't like you messing with that"
             );
 
             player.disengage();
         } else {
-            await npc.say('Hey thief!');
+            await weaponsmaster.say('Hey thief!');
             player.disengage();
-            await npc.attack(player);
+            player.lock();
+            await weaponsmaster.attack(player);
         }
 
         return true;

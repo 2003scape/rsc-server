@@ -82,7 +82,9 @@ async function alleyway(player, npc) {
                     "But don't upset her, she's pretty dangerous"
                 );
 
-                player.cache.blackArmStage = 1;
+                if (!player.cache.blackArmStage) {
+                    player.cache.blackArmStage = 1;
+                }
             }
             break;
     }

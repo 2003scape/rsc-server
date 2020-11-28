@@ -13,13 +13,20 @@ async function onGameObjectCommandOne(player, gameObject) {
             player.inventory.has(BLACK_ARM_BROKEN_SHIELD_ID) ||
             player.bank.has(BLACK_ARM_BROKEN_SHIELD_ID)
         ) {
+            player.message('@que@The cupboard is empty');
+        } else {
             player.inventory.add(BLACK_ARM_BROKEN_SHIELD_ID);
             player.message('@que@You find half a shield which you take');
-        } else {
-            player.message('@que@The cupboard is empty');
         }
 
         return true;
+    }
+
+    if (gameObject.id === CLOSED_CUPBOARD_ID) {
+        const { world } = player;
+
+        world.replaceEntity('gameObjects', gameObject, OPEN_CUPBOARD_ID);
+        player.message('You open the cupboard');
     }
 
     return false;
