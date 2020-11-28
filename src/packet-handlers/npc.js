@@ -32,6 +32,9 @@ async function getNPC(player, index) {
 async function npcTalk({ player }, { index }) {
     /*const npc = player.world.npcs.getByIndex(index);
     npc.walkToPoint(npc.x + 2, npc.y + 1);*/
+    if (player.locked) {
+        return;
+    }
 
     player.endWalkFunction = async () => {
         const { world } = player;
@@ -71,6 +74,10 @@ async function npcTalk({ player }, { index }) {
 }
 
 async function useWithNPC({ player }, { npcIndex, index }) {
+    if (player.locked) {
+        return;
+    }
+
     player.endWalkFunction = async () => {
         const item = player.inventory.items[index];
 
@@ -110,6 +117,10 @@ async function useWithNPC({ player }, { npcIndex, index }) {
 }
 
 async function npcAttack({ player }, { index }) {
+    if (player.locked) {
+        return;
+    }
+
     const { world } = player;
     const npc = world.npcs.getByIndex(index);
 

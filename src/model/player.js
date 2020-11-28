@@ -543,19 +543,22 @@ class Player extends Character {
     // update our sprites, combat level, skull status, etc. to us and the
     // players we know about
     broadcastPlayerAppearance(self = false) {
+        const { world } = this;
         const update = this.getAppearanceUpdate();
 
-        if (self) {
-            this.localEntities.characterUpdates.playerAppearances.push(
-                update
-            );
-        }
+        world.nextTick(() => {
+            if (self) {
+                this.localEntities.characterUpdates.playerAppearances.push(
+                    update
+                );
+            }
 
-        for (const player of this.localEntities.known.players) {
-            player.localEntities.characterUpdates.playerAppearances.push(
-                update
-            );
-        }
+            for (const player of this.localEntities.known.players) {
+                player.localEntities.characterUpdates.playerAppearances.push(
+                    update
+                );
+            }
+        });
     }
 
     // let everyone around us know about a message (don't send to self). if
@@ -1031,6 +1034,21 @@ class Player extends Character {
 
     toString() {
         return `[Player (username=${this.username}, x=${this.x}, y=${this.y})]`;
+    }
+
+    /*walkTo(dx, dy) {
+        super.walkTo(dx, dy);
+        console.log(this.username, 'walkTo', this.world.ticks, dx, dy);
+    }
+
+    faceDirection(dx, dy) {
+        super.faceDirection(dx, dy);
+        console.log(this.username, 'faceDirection', this.world.ticks, dx, dy);
+    }*/
+
+    lock() {
+        super.lock();
+        this.walkQueue.length = 0;
     }
 }
 
