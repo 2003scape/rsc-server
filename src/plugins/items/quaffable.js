@@ -130,8 +130,6 @@ const DRINK_EFFECTS = {
 
         await world.sleepTicks(3);
 
-        player.message('@que@It tastes pretty strong too');
-
         for (const skillName of ['attack', 'strength', 'defense']) {
             player.skills[skillName].current = Math.min(
                 0,
@@ -146,6 +144,9 @@ const DRINK_EFFECTS = {
             player.skills.hits.current + 1,
             player.skills.hits.base
         );
+
+        player.sendStats();
+        player.message('@que@It tastes pretty strong too');
     }
 };
 
