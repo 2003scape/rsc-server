@@ -78,6 +78,9 @@ async function walk({ player }, { targetX, targetY, steps }) {
 }
 
 async function walkAction(socket, message) {
+    const { player } = socket;
+
+    player.walkAction = true;
     await walk(socket, message);
 }
 

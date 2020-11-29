@@ -1123,28 +1123,32 @@ class Player extends Character {
 
         this.localEntities.sendRegions();
 
-        if (!this.walkQueue.length && this.endWalkFunction) {
-            if (this.dontAnswer) {
-                this.dontAnswer();
-            }
+        if (!this.walkQueue.length) {
+            this.walkAction = false;
 
-            if (this.locked || this.endWalkLocked) {
+            if (this.endWalkFunction) {
+                if (this.dontAnswer) {
+                    this.dontAnswer();
+                }
+
+                if (this.locked || this.endWalkLocked) {
+                    this.endWalkFunction = null;
+                    return;
+                }
+
+                this.endWalkLocked = true;
+
+                this.endWalkFunction()
+                    .catch((e) => {
+                        this.endWalkLocked = false;
+                        log.error(e);
+                    })
+                    .then(() => {
+                        this.endWalkLocked = false;
+                    });
+
                 this.endWalkFunction = null;
-                return;
             }
-
-            this.endWalkLocked = true;
-
-            this.endWalkFunction()
-                .catch((e) => {
-                    this.endWalkLocked = false;
-                    log.error(e);
-                })
-                .then(() => {
-                    this.endWalkLocked = false;
-                });
-
-            this.endWalkFunction = null;
         }
 
         this.isWalking = false;

@@ -10,7 +10,7 @@ async function onInventoryCommand(player, item) {
     const { world } = player;
 
     player.message('@que@You dig a hole in the ground');
-    await world.sleepTicks(2);
+    await world.sleepTicks(1);
 
     player.inventory.remove(item);
     player.addExperience('prayer', buryExperience[item.id])

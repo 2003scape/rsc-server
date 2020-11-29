@@ -21,11 +21,7 @@ function switchGoblins(player, wartface, bentnoze) {
     }
 }
 
-async function onTalkToNPC(player, npc) {
-    if (npc.id !== BENTNOZE_ID && npc.id !== WARTFACE_ID) {
-        return false;
-    }
-
+async function talkToGenerals(player) {
     const { world } = player;
     const questStage = player.questStages.goblinDiplomacy;
 
@@ -227,6 +223,17 @@ async function onTalkToNPC(player, npc) {
     bentnoze.interlocutor = null;
 
     return true;
+}
+
+async function onTalkToNPC(player, npc) {
+    if (
+        (npc.id !== BENTNOZE_ID && npc.id !== WARTFACE_ID) ||
+        player.questStages.dragonSlayer === 2
+    ) {
+        return false;
+    }
+
+    return await talkToGenerals(player);
 }
 
 module.exports = { onTalkToNPC };

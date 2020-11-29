@@ -4,6 +4,8 @@ const {
     otherThingsFromWool
 } = require('../../quests/free/prince-ali-rescue/ned');
 
+const { takeMeToCrandor } = require('../../quests/free/dragon-slayer/ned');
+
 const BALL_OF_WOOL_ID = 207;
 const NED_ID = 124;
 const ROPE_ID = 237;
@@ -26,17 +28,32 @@ async function onTalkToNPC(player, npc) {
         "No thanks Ned, I don't need any"
     ];
 
+    const dragonSlayerStage = player.questStages.dragonSlayer;
+    const nedInShip = player.cache.nedInShip;
     const princeAliRescueStage = player.questStages.princeAliRescue;
+
+    if (dragonSlayerStage === 2 && !nedInShip) {
+        choices.unshift(
+            "You're a sailor? Could you take me to the Isle of Crandor"
+        );
+    }
 
     // confirmed from video that this choice is at the end
     if (princeAliRescueStage === 2 || princeAliRescueStage === 3) {
         choices.push('Ned, could you make other things from wool?');
     }
 
-    const choice = await player.ask(choices, true);
+    let choice = await player.ask(choices, true);
+
+    if (dragonSlayerStage !== 2) {
+        choice += 1;
+    }
 
     switch (choice) {
-        case 0: // yes rope
+        case 0: // crandor
+            await takeMeToCrandor(player, npc);
+            break;
+        case 1: // yes rope
             await npc.say(
                 'Well, I can sell you some rope for 15 coins',
                 'Or I can be making you some if you gets me 4 balls of wool',
@@ -107,13 +124,13 @@ async function onTalkToNPC(player, npc) {
                     break;
             }
             break;
-        case 1: // no thanks
+        case 2: // no thanks
             await npc.say(
                 'Well, old Neddy is always here if you do',
                 'Tell your friends, I can always be using the business'
             );
             break;
-        case 2: // other things
+        case 3: // other things
             await otherThingsFromWool(player, npc);
             break;
     }

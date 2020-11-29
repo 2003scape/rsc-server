@@ -270,6 +270,7 @@ class Character extends Entity {
         // we aren't allowed to finish our path on a player (but walking through
         // them is fine)
         if (
+            !this.walkAction &&
             (this.stepsLeft === 0 ||
                 (this.walkQueue && !this.walkQueue.length)) &&
             (this.world.players.getAtPoint(destX, destY).length ||

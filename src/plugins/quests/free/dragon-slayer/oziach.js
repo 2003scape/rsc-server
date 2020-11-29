@@ -314,6 +314,9 @@ async function onTalkToNPC(player, npc) {
                 }
                 break;
         }
+    } else if (questStage >= 2) {
+        await npc.say('So how is thy quest going');
+        await promptFind(player, npc);
     } else if (questStage === -1) {
         await player.say('I have slain the dragon');
         await npc.say('Well done');

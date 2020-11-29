@@ -11,7 +11,8 @@ async function onTalkToNPC(player, npc) {
     const questStage = player.questStages.dragonSlayer;
 
     const seekShield =
-        questStage === 2 && !player.inventory.has(ANTI_DRAGON_BREATH_SHIELD_ID);
+        (questStage === -1 || questStage >= 2) &&
+        !player.inventory.has(ANTI_DRAGON_BREATH_SHIELD_ID);
 
     player.engage(npc);
 
