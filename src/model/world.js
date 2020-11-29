@@ -268,7 +268,11 @@ class World {
             } catch (e) {
                 if (handlerName === 'onTalkToNPC') {
                     args[0].disengage();
-                    log.error(e);
+
+                    if (e.message !== 'interrupted ask') {
+                        log.error(e);
+                    }
+
                     return true;
                 } else if (e.message === 'interrupted ask') {
                     args[0].unlock();

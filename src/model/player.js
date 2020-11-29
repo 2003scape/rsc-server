@@ -161,6 +161,7 @@ class Player extends Character {
         this.loggedIn = false;
 
         this.isWalking = false;
+        this.endWalkLocked = false;
     }
 
     // send a packet if the socket is connected
@@ -770,7 +771,9 @@ class Player extends Character {
         return Math.floor(defense + magic + Math.max(offence, ranged));
     }
 
-    getPrayerDrainEffect() {
+    // get the total drain rate from all of the enabled prayers. this is added
+    // to drain counter each tick
+    getPrayerDrainRate() {
         let drainEffect = 0;
 
         for (const [index, enabled] of this.prayers.entries()) {
@@ -782,6 +785,7 @@ class Player extends Character {
         return drainEffect;
     }
 
+    // this is the amount drain counter must reach before losing a prayer point
     getPrayerDrainResistance() {
         return 60 + this.equipmentBonuses.prayer * 2;
     }
@@ -981,20 +985,24 @@ class Player extends Character {
         return updated;
     }
 
+    // every tick, the drain rates of all the combined prayers is added to
+    // the drain counter. once the drain counter reaches your prayer resistance
+    // (a formula that takes into account your gear bonuses), it resets and
+    // you lose a prayer point.
     drainPrayer() {
         if (this.skills.prayer.current <= 0) {
             return false;
         }
 
-        const drainEffect = this.getPrayerDrainEffect();
+        const drainRate = this.getPrayerDrainRate();
 
-        if (drainEffect < 1) {
+        if (drainRate < 1) {
             return false;
         }
 
         let updated = false;
 
-        this.prayerDrainCounter += drainEffect;
+        this.prayerDrainCounter += drainRate;
 
         if (this.prayerDrainCounter >= this.getPrayerDrainResistance()) {
             this.prayerDrainCounter = 0;
@@ -1120,20 +1128,21 @@ class Player extends Character {
                 this.dontAnswer();
             }
 
-            if (this.locked) {
+            if (this.locked || this.endWalkLocked) {
                 this.endWalkFunction = null;
                 return;
             }
 
-            if (this.endWalkFunction.constructor.name === 'AsyncFunction') {
-                this.endWalkFunction().catch((e) => log.error(e));
-            } else {
-                try {
-                    this.endWalkFunction();
-                } catch (e) {
+            this.endWalkLocked = true;
+
+            this.endWalkFunction()
+                .catch((e) => {
+                    this.endWalkLocked = false;
                     log.error(e);
-                }
-            }
+                })
+                .then(() => {
+                    this.endWalkLocked = false;
+                });
 
             this.endWalkFunction = null;
         }
@@ -1164,16 +1173,6 @@ class Player extends Character {
     toString() {
         return `[Player (username=${this.username}, x=${this.x}, y=${this.y})]`;
     }
-
-    /*walkTo(dx, dy) {
-        super.walkTo(dx, dy);
-        console.log(this.username, 'walkTo', this.world.ticks, dx, dy);
-    }
-
-    faceDirection(dx, dy) {
-        super.faceDirection(dx, dy);
-        console.log(this.username, 'faceDirection', this.world.ticks, dx, dy);
-    }*/
 
     lock() {
         super.lock();
