@@ -14,9 +14,10 @@ const WISE_KNOWLEDGE = [
 ];
 
 async function wiseKnowledge(npc) {
-    await npc.say(
-        WISE_KNOWLEDGE[Math.floor(Math.random() * WISE_KNOWLEDGE.length)]
-    );
+    const message =
+        WISE_KNOWLEDGE[Math.floor(Math.random() * WISE_KNOWLEDGE.length)];
+
+    await npc.say(message);
 }
 
 async function seekMapPiece(npc) {
@@ -39,6 +40,8 @@ async function onTalkToNPC(player, npc) {
 
     const questStage = player.questStages.dragonSlayer;
 
+    player.engage(npc);
+
     if (questStage === 2) {
         const choice = await player.ask(
             [
@@ -57,9 +60,11 @@ async function onTalkToNPC(player, npc) {
                 break;
         }
     } else {
+        await player.say('Can you impart your wise knowledge to me oh oracle');
         await wiseKnowledge(npc);
     }
 
+    player.disengage();
     return true;
 }
 

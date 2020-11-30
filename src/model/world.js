@@ -56,6 +56,14 @@ const PLUGIN_TYPES = [
     'onNPCDeath'
 ];
 
+// prevent spawning entities outside of the f2p boundaries
+const FREE_BOUNDS = {
+    minX: 48,
+    maxX: 450,
+    minY: 128,
+    maxY: 766
+};
+
 class World {
     constructor(server) {
         this.server = server;
@@ -200,6 +208,18 @@ class World {
 
             // prevents doogle leaves and such showing up in free-to-play
             if (!this.members && entity.definition.members) {
+                continue;
+            }
+
+            const flatY = entity.y % this.planeElevation;
+
+            if (
+                !this.members &&
+                (entity.x > FREE_BOUNDS.maxX ||
+                    entity.x < FREE_BOUNDS.minX ||
+                    flatY > FREE_BOUNDS.maxY ||
+                    flatY < FREE_BOUNDS.minY)
+            ) {
                 continue;
             }
 

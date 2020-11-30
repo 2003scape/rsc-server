@@ -79,7 +79,6 @@ async function useWithObject({ player }, { x, y, index }) {
 
         player.lock();
         await world.sleepTicks(1);
-        player.faceEntity(gameObject);
 
         const blocked = await world.callPlugin(
             'onUseWithGameObject',

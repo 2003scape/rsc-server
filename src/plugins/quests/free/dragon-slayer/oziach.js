@@ -1,6 +1,6 @@
 // https://classic.runescape.wiki/w/Transcript:Oziach
 
-const MAZE_KEY = 421;
+const MAZE_KEY_ID = 421;
 const OZIACH_ID = 187;
 
 async function getEverything(npc) {
@@ -13,14 +13,17 @@ async function firstMapPiece(player, npc) {
         'Located north west of Rimmington'
     );
 
-    if (!player.inventory.has(MAZE_KEY)) {
+    if (!player.inventory.has(MAZE_KEY_ID)) {
+        const { world } = player;
+
         await npc.say(
             'You will need this to get in',
             'This is the key to the front entrance to the maze'
         );
 
-        player.inventory.add(MAZE_KEY);
+        player.inventory.add(MAZE_KEY_ID);
         player.message('@que@Oziach hands you a key');
+        await world.sleepTicks(3);
     }
 
     const choice = await player.ask(
@@ -271,13 +274,13 @@ async function onTalkToNPC(player, npc) {
 
         const choices = ["I'm not your friend", "Yes it's a very nice day"];
 
-        if (!questStage) {
+        if (questStage === 1) {
             choices.unshift('Can you sell me some rune plate mail?');
         }
 
         let choice = await player.ask(choices, true);
 
-        if (questStage) {
+        if (questStage !== 1) {
             choice += 1;
         }
 
@@ -312,6 +315,15 @@ async function onTalkToNPC(player, npc) {
                         await proveToMe(player, npc);
                         break;
                 }
+                break;
+            case 1: // not your friend
+                await npc.say(
+                    "I'd be surprised if your anyone's friend with that sort " +
+                        'of manners'
+                );
+                break;
+            case 2: // nice day
+                await npc.say('Aye may the Gods walk by your side');
                 break;
         }
     } else if (questStage >= 2) {

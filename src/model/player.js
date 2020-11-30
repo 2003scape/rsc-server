@@ -681,7 +681,7 @@ class Player extends Character {
             // sic
             this.message(
                 `@gre@You just advanced ${levelDelta} ` +
-                `${formatSkillName(skill).toLowerCase()} level!`
+                    `${formatSkillName(skill).toLowerCase()} level!`
             );
 
             this.sendStats();
@@ -828,19 +828,38 @@ class Player extends Character {
         return this.fatigue >= MAX_FATIGUE - offset;
     }
 
+    hasInterfaceOpen() {
+        for (const value of Object.values(this.interfaceOpen)) {
+            if (value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // enter a door with a blocked doorframe and close it
     async enterDoor(door, doorframeID = 11, delay = 1) {
-        const { world } = this;
-        const { id: doorID, direction } = door;
+        const { world, direction: oldDirection } = this;
+        const { id: doorID, direction: doorDirection } = door;
 
         const doorframe = world.replaceEntity('wallObjects', door, doorframeID);
         this.sendSound('opendoor');
 
-        if (direction === 0) {
+        // TODO walk in front of the door first depending on direction
+
+        if (doorDirection === 0) {
             this.walkTo(0, this.y < doorframe.y ? 1 : -1);
         } else {
             this.walkTo(this.x < doorframe.x ? 1 : -1, 0);
         }
+
+        // this seems to be accurate behaviour, see videos like:
+        // https://youtu.be/KPJYewzuHI8?t=501
+
+        await world.sleepTicks(1);
+        this.direction = oldDirection;
+        this.broadcastDirection();
 
         await world.sleepTicks(delay);
         world.replaceEntity('wallObjects', doorframe, doorID);
@@ -1018,7 +1037,7 @@ class Player extends Character {
         if (this.skills.prayer.current <= 0) {
             this.message(
                 'You have run out of prayer points. Return to a church to ' +
-                'recharge'
+                    'recharge'
             );
 
             for (let i = 0; i < this.prayers.length; i += 1) {
@@ -1029,15 +1048,6 @@ class Player extends Character {
         }
 
         return updated;
-    }
-
-    hasInterfaceOpen() {
-        for (const value of Object.values(this.interfaceOpen)) {
-            if (value) {
-                return true;
-            }
-        }
-        return false;
     }
 
     normalizeSkills() {

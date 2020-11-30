@@ -1,14 +1,17 @@
 // https://classic.runescape.wiki/w/Transcript:Hetty
-// TODO burntmeat
 
 const HETTY_ID = 148;
 
 // the rats that can drop a tail
 const RAT_IDS = new Set([19, 29, 47, 177, 367, 473]);
 
+const COOKS_RANGE_ID = 119;
+
 const CAULDRON_ID = 147;
+const COOKABLE_IDS = new Set([COOKS_RANGE_ID, 11, 97, 119, 274, 491]);
 
 const BURNTMEAT_ID = 134;
+const COOKEDMEAT_ID = 132;
 const EYE_OF_NEWT_ID = 270;
 const ONION_ID = 241;
 const RAT_TAIL_ID = 271;
@@ -214,4 +217,38 @@ async function onNPCDeath(player, npc) {
     return false;
 }
 
-module.exports = { onTalkToNPC, onGameObjectCommandTwo, onNPCDeath };
+async function onUseWithGameObject(player, gameObject, item) {
+    if (player.questStages.witchsPotion !== 1) {
+        return false;
+    }
+
+    if (
+        item.id !== COOKEDMEAT_ID ||
+        (gameObject.id === COOKS_RANGE_ID &&
+            player.questStages.cooksAssistant !== -1)
+    ) {
+        return false;
+    }
+
+    if (!COOKABLE_IDS.has(gameObject.id)) {
+        return false;
+    }
+
+    const type = /fire/i.test(gameObject.definition.name) ? 'fire' : 'stove';
+
+    player.sendBubble(item.id);
+    player.inventory.remove(COOKEDMEAT_ID);
+    player.inventory.add(BURNTMEAT_ID);
+
+    // no delay https://youtu.be/r6_LUl8-4uk?t=191
+    player.message(`You cook the meat on the ${type}...`, 'you burn the meat');
+
+    return true;
+}
+
+module.exports = {
+    onTalkToNPC,
+    onGameObjectCommandTwo,
+    onNPCDeath,
+    onUseWithGameObject
+};
