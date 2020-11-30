@@ -3,6 +3,7 @@ const Captcha = require('@2003scape/rsc-captcha');
 const Character = require('./character');
 const Inventory = require('./inventory');
 const LocalEntities = require('./local-entities');
+const Trade = require('./trade');
 const log = require('bole')('player');
 const prayers = require('@2003scape/rsc-data/config/prayers');
 const quests = require('@2003scape/rsc-data/quests');
@@ -126,11 +127,15 @@ class Player extends Character {
             bank: false,
             shop: false,
             sleep: false,
-            appearance: false
+            appearance: false,
+            trade: false
         };
 
         // current shop open the player has open, if any
         this.shop = null;
+
+        // trade object to manage trading
+        this.trade = new Trade(this);
 
         // incremented every time we change appearance
         this.appearanceIndex = 0;
@@ -676,7 +681,7 @@ class Player extends Character {
             // sic
             this.message(
                 `@gre@You just advanced ${levelDelta} ` +
-                    `${formatSkillName(skill).toLowerCase()} level!`
+                `${formatSkillName(skill).toLowerCase()} level!`
             );
 
             this.sendStats();
@@ -1013,7 +1018,7 @@ class Player extends Character {
         if (this.skills.prayer.current <= 0) {
             this.message(
                 'You have run out of prayer points. Return to a church to ' +
-                    'recharge'
+                'recharge'
             );
 
             for (let i = 0; i < this.prayers.length; i += 1) {
@@ -1024,6 +1029,15 @@ class Player extends Character {
         }
 
         return updated;
+    }
+
+    hasInterfaceOpen() {
+        for (const value of Object.values(this.interfaceOpen)) {
+            if (value) {
+                return true;
+            }
+        }
+        return false;
     }
 
     normalizeSkills() {

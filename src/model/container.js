@@ -1,3 +1,5 @@
+const items = require('@2003scape/rsc-data/config/items');
+
 // maximum stack size of an item is 2^31
 const MAX_STACK_SIZE = Math.pow(2, 31);
 
@@ -23,6 +25,10 @@ function IDComparator(a, b) {
 
 function defaultStackable(element) {
     return false;
+}
+
+function definitionStackable(element) {
+    return items[element.id].stackable;
 }
 
 class Container {
@@ -207,4 +213,7 @@ class Container {
     }
 }
 
-module.exports = { Container, StackPolicy, defaultComparator, IDComparator };
+module.exports = {
+    Container, StackPolicy, defaultComparator, IDComparator,
+    defaultStackable, definitionStackable
+};

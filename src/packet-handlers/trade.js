@@ -23,7 +23,25 @@ async function playerTrade({ player }, { index }) {
         return;
     }
 
-    console.log(`${player} wants to trade with ${otherPlayer}`);
+    player.trade.request(otherPlayer);
 }
 
-module.exports = { playerTrade };
+async function tradeAccept({ player }) {
+    player.trade.accept();
+}
+
+async function tradeConfirmAccept({ player }) {
+    player.trade.confirmAccept();
+}
+
+async function tradeDecline({ player }) {
+    player.trade.decline();
+}
+
+async function tradeItemUpdate({ player }, { items }) {
+    player.trade.updateItems(items);
+}
+
+module.exports = {
+    playerTrade, tradeAccept, tradeConfirmAccept, tradeDecline, tradeItemUpdate
+};
