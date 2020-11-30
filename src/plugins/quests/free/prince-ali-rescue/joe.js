@@ -78,7 +78,8 @@ async function chillOut(player, npc) {
     );
 
     switch (choice) {
-        case 0: // wages
+        // wages
+        case 0: {
             await npc.say(
                 'Really, after working here, theres only time for a drink or ' +
                     'three',
@@ -109,6 +110,7 @@ async function chillOut(player, npc) {
                     break;
             }
             break;
+        }
     }
 }
 

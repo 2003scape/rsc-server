@@ -11,6 +11,7 @@ async function onTalkToNPC(player, npc) {
         return false;
     }
 
+    const { world } = player;
     const wartface = world.npcs.getByID(WARTFACE_ID);
     const bentnoze = world.npcs.getByID(BENTNOZE_ID);
 

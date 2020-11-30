@@ -37,7 +37,7 @@ async function onTalkToNPC(player, npc) {
             await npc.say('Wanna fight?');
             player.disengage();
             await npc.attack(npc);
-            return
+            return true;
         case 7:
             await npc.say(
                 "I'm a little busy right now",

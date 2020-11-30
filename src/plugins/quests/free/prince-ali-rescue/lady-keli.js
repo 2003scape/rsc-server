@@ -162,7 +162,8 @@ async function latestPlan(player, npc) {
     );
 
     switch (choice) {
-        case 0: // skillful
+        // skillful
+        case 0: {
             await player.say('You must have been very skilful');
 
             await npc.say(
@@ -192,6 +193,7 @@ async function latestPlan(player, npc) {
                     break;
             }
             break;
+        }
         case 1: // will they pay?
             await willTheyPay(player, npc);
             break;
@@ -309,7 +311,8 @@ async function onTalkToNPC(player, npc) {
 
                 await promptDiscussion(player, npc);
                 break;
-            case 3: // no
+            // no
+            case 3: {
                 await player.say('No I have never really heard of you');
 
                 await npc.say(
@@ -328,7 +331,8 @@ async function onTalkToNPC(player, npc) {
                 );
 
                 switch (choice) {
-                    case 0: // no
+                    // no
+                    case 0: {
                         await player.say("No, still doesn't ring a bell");
 
                         await npc.say(
@@ -370,6 +374,7 @@ async function onTalkToNPC(player, npc) {
                                 break;
                         }
                         break;
+                    }
                     case 1: // yes of course
                         await heardOfYou(player, npc);
                         break;
@@ -381,6 +386,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
         }
     } else {
         await npc.say(

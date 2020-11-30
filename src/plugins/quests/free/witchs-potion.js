@@ -55,7 +55,8 @@ async function onTalkToNPC(player, npc) {
         );
 
         switch (choice) {
-            case 0: // search of quest
+            // search of quest
+            case 0: {
                 await npc.say(
                     'Hmm maybe I can think of something for you',
                     'Would you like to become more proficient in the dark arts?'
@@ -77,7 +78,8 @@ async function onTalkToNPC(player, npc) {
                     case 1: // denied quest
                         await npc.say("Suit yourself, but you're missing out");
                         break;
-                    case 2: // improve my magic?
+                    // improve my magic?
+                    case 2: {
                         await npc.say(
                             'Yes improve your magic',
                             'Do you have no sense of drama?'
@@ -110,8 +112,10 @@ async function onTalkToNPC(player, npc) {
                                 break;
                         }
                         break;
+                    }
                 }
                 break;
+            }
             case 1: // heard you're a witch
                 await npc.say(
                     'Yes it does seem to be getting fairly common knowledge',

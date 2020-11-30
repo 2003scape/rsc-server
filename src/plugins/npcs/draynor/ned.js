@@ -53,7 +53,8 @@ async function onTalkToNPC(player, npc) {
         case 0: // crandor
             await takeMeToCrandor(player, npc);
             break;
-        case 1: // yes rope
+        // yes rope
+        case 1: {
             await npc.say(
                 'Well, I can sell you some rope for 15 coins',
                 'Or I can be making you some if you gets me 4 balls of wool',
@@ -124,6 +125,7 @@ async function onTalkToNPC(player, npc) {
                     break;
             }
             break;
+        }
         case 2: // no thanks
             await npc.say(
                 'Well, old Neddy is always here if you do',

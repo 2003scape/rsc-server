@@ -75,7 +75,8 @@ async function onTalkToNPC(player, npc) {
         );
 
         switch (choice) {
-            case 0: // are you imcando
+            // are you imcando
+            case 0: {
                 await npc.say('Yeah what about it?');
 
                 const choice = await player.ask(
@@ -98,6 +99,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
             case 1: // want pie
                 await giveRedberryPie(player, npc);
                 break;

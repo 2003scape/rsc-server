@@ -285,7 +285,8 @@ async function onTalkToNPC(player, npc) {
         }
 
         switch (choice) {
-            case 0: // rune plate mail
+            // rune plate mail
+            case 0: {
                 await npc.say("Soo how does thee know I'ave some?");
 
                 const choice = await player.ask(
@@ -316,6 +317,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
             case 1: // not your friend
                 await npc.say(
                     "I'd be surprised if your anyone's friend with that sort " +

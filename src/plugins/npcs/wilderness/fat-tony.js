@@ -42,7 +42,8 @@ async function onTalkToNPC(player, npc) {
     );
 
     switch (choice) {
-        case 1: // what are you doing
+        // what are you doing
+        case 1: {
             await npc.say(
                 "I'm cooking pizzas for the people in this camp",
                 'Not that these louts appreciate my gourmet cooking'
@@ -58,7 +59,8 @@ async function onTalkToNPC(player, npc) {
             );
 
             switch (choice) {
-                case 0: // cooking for bandits
+                // cooking for bandits
+                case 0: {
                     await npc.say(
                         "Well I'm an outlaw",
                         'I was accused of giving the king food poisoning',
@@ -81,10 +83,12 @@ async function onTalkToNPC(player, npc) {
                         return await canIHavePizza(player, npc);
                     }
                     break;
+                }
                 case 1: // can i have pizza
                     return await canIHavePizza(player, npc);
             }
             break;
+        }
         case 2: // anything to sell
             await npc.say('Well I guess I can sell you some half made pizzas');
             player.openShop('pizza-base');

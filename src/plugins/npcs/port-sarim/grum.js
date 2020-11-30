@@ -4,21 +4,6 @@ const DOORFRAME_ID = 11;
 const DOOR_ID = 85;
 const GRUM_ID = 157;
 
-async function walkThroughDoor(player, wallObject) {
-    const { world } = player;
-
-    const doorframe = world.replaceEntity(
-        'wallObjects',
-        wallObject,
-        DOORFRAME_ID
-    );
-
-    player.sendSound('opendoor');
-    player.walkTo(player.x < doorframe.x ? 1 : -1, 0);
-    await world.sleepTicks(1);
-    world.replaceEntity('wallObjects', doorframe, DOOR_ID);
-}
-
 async function onTalkToNPC(player, npc) {
     if (npc.id !== GRUM_ID) {
         return false;

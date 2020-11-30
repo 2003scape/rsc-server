@@ -1,4 +1,4 @@
-const EXCLUDE_IDS = new Set([130, 198]);
+const EXCLUDE_IDS = new Set([130, 198, 227]);
 
 async function onGameObjectCommandOne(player, gameObject) {
     if (EXCLUDE_IDS.has(gameObject.id)) {

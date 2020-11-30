@@ -33,7 +33,8 @@ async function onTalkToNPC(player, npc) {
         );
 
         switch (choice) {
-            case 0: // give me a quest
+            // give me a quest
+            case 0: {
                 await npc.say('Give me a quest what?');
 
                 const choice = await player.ask(
@@ -81,6 +82,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
             case 1: // quiet friends
                 await quietFriends(npc);
                 break;

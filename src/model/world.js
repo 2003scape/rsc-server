@@ -75,6 +75,8 @@ class World {
         this.planeHeight = 1776;
         this.planeElevation = 944;
 
+        this.playerCapacity = 1250;
+
         // { pluginType: [function() {}, ...], ... }
         this.plugins = new Map();
 
@@ -376,7 +378,7 @@ class World {
         const delta = respawn.max - respawn.min;
 
         return Math.floor(
-            respawn.min + delta * (1 - this.players.size / PLAYER_CAPACITY)
+            respawn.min + delta * (1 - this.players.size / this.playerCapacity)
         );
     }
 

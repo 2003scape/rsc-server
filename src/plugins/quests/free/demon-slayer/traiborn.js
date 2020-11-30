@@ -31,7 +31,8 @@ async function whatsAThingummywut(player, npc) {
     );
 
     switch (choice) {
-        case 0: // called me a thingummywut
+        // called me a thingummywut
+        case 0: {
             await npc.say(
                 "You're a thingummywut?",
                 "I've never seen one up close before",
@@ -58,6 +59,7 @@ async function whatsAThingummywut(player, npc) {
                     break;
             }
             break;
+        }
         case 1: // mash em
             await npc.say(
                 "Don't be ridiculous",
@@ -139,7 +141,8 @@ async function tellMeIfYouHaveKey(player, npc) {
     );
 
     switch (choice) {
-        case 0: // for silverlight
+        // for silverlight
+        case 0: {
             await npc.say(
                 'Silverlight? Never heard of that',
                 'Sounds a good name for a ship',
@@ -156,7 +159,8 @@ async function tellMeIfYouHaveKey(player, npc) {
             );
 
             switch (choice) {
-                case 0: // pretty sure
+                // pretty sure
+                case 0: {
                     await npc.say("That's a pity", 'Waste of a name');
 
                     const choice = await player.ask(
@@ -176,11 +180,13 @@ async function tellMeIfYouHaveKey(player, npc) {
                             break;
                     }
                     break;
+                }
                 case 1: // keys knocking around
                     await keysKnockingAround(player, npc);
                     break;
             }
             break;
+        }
         case 1: // lost it
             await npc.say('Me?  Lose things?', 'Thats a nasty accusation');
             await player.say('Well, have you got any keys knocking around?');
@@ -268,7 +274,8 @@ async function sirPrysinsKey(player, npc) {
             );
 
             switch (choice) {
-                case 0: // yes please
+                // yes please
+                case 0: {
                     player.message(
                         '@que@Traiborn digs around in the pockets of his robes'
                     );
@@ -296,6 +303,7 @@ async function sirPrysinsKey(player, npc) {
                             break;
                     }
                     break;
+                }
                 case 1:
                     await tellMeIfYouHaveKey(player, npc);
                     break;
@@ -419,7 +427,8 @@ async function onTalkToNPC(player, npc) {
             case 0: // whats a thingummywut
                 await whatsAThingummywut(player, npc);
                 break;
-            case 1: // mighty and powerful
+            // mighty and powerful
+            case 1: {
                 await npc.say(
                     'Wizard, Eh?',
                     "You don't want any truck with that sort",
@@ -452,6 +461,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
             case 2: // key
                 await sirPrysinsKey(player, npc);
                 break;

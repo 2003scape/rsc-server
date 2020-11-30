@@ -36,7 +36,8 @@ async function onTalkToNPC(player, npc) {
         );
 
         switch (choice) {
-            case 0: // anvils
+            // anvils
+            case 0: {
                 await npc.say(
                     'My anvils get enough work with my own use',
                     'I make amulets, it takes a lot of work.',
@@ -81,6 +82,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
             case 1: // shortstuff
                 await npc.say(
                     'How nice to meet someone with such pleasant manners',

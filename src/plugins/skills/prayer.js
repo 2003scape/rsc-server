@@ -13,7 +13,7 @@ async function onInventoryCommand(player, item) {
     await world.sleepTicks(1);
 
     player.inventory.remove(item);
-    player.addExperience('prayer', buryExperience[item.id])
+    player.addExperience('prayer', buryExperience[item.id]);
     player.message(`@que@You bury the ${item.definition.name.toLowerCase()}`);
 
     return true;

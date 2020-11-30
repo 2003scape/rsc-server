@@ -41,13 +41,14 @@ async function command({ player }, { command, args }) {
         case 'appearance':
             player.sendAppearance();
             break;
-        case 'step':
+        case 'step': {
             const deltaX = +args[0];
             const deltaY = +args[1];
 
             player.message(player.canWalk(deltaX, deltaY).toString());
             player.walkTo(deltaX, deltaY);
             break;
+        }
         case 'npc': {
             const npc = new NPC(world, {
                 id: +args[0],
@@ -100,10 +101,11 @@ async function command({ player }, { command, args }) {
 
             player.teleport(+args[0], +args[1], true);
             break;
-        case 'ask':
+        case 'ask': {
             const choice = await player.ask(['hey?', 'sup?'], true);
             player.message('you chose ', choice);
             break;
+        }
         case 'say':
             await player.say(...args);
             break;

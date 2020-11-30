@@ -133,7 +133,7 @@ function rollPlayerNPCDamage(player, npc) {
     return rollDamage(accuracy, maxHit, protection);
 }
 
-function rollPlayerPlayerDamage(player, player) {
+function rollPlayerPlayerDamage(player, targetPlayer) {
     return 0;
 }
 

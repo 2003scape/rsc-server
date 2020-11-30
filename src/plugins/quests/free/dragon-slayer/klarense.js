@@ -63,7 +63,8 @@ async function onTalkToNPC(player, npc) {
                         'the old girl up'
                 );
                 break;
-            case 2: // buy it
+            // buy it
+            case 2: {
                 await npc.say(
                     'I guess you could',
                     "I'm sure the work needed to do on it wouldn't be too " +
@@ -99,6 +100,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
         }
     } else {
         const choice = await player.ask(

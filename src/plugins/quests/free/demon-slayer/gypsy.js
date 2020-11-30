@@ -272,7 +272,8 @@ async function howOldAreYou(player, npc) {
     );
 
     switch (choice) {
-        case 0: // imagination
+        // imagination
+        case 0: {
             await npc.say(
                 'You seem like just the sort of person',
                 'Who would want their fortune told then'
@@ -292,6 +293,7 @@ async function howOldAreYou(player, npc) {
                     break;
             }
             break;
+        }
         case 1: {
             // how do you know?
             await npc.say(
@@ -318,7 +320,8 @@ async function howOldAreYou(player, npc) {
                 case 1: // how old are you
                     await howOldAreYouCount(player, npc);
                     break;
-                case 2: // what's my future
+                // what's my future
+                case 2: {
                     await npc.say(
                         "Cross my palm with silver and I'll tell you"
                     );
@@ -337,6 +340,7 @@ async function howOldAreYou(player, npc) {
                             break;
                     }
                     break;
+                }
             }
             break;
         }
@@ -374,7 +378,8 @@ async function onTalkToNPC(player, npc) {
             case 0: // ok
                 await fortuneTold(player, npc);
                 break;
-            case 1: // young one
+            // young one
+            case 1: {
                 await npc.say(
                     'You have been on this world',
                     'A relatively short time',
@@ -403,6 +408,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
             case 2: // no
                 await dontBelieve(npc);
                 break;

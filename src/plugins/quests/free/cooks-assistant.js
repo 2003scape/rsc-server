@@ -71,7 +71,8 @@ async function onTalkToNPC(player, npc) {
             case 1: // money
                 await npc.say('HaHa very funny');
                 break;
-            case 2: // dont look happy
+            // dont look happy
+            case 2: {
                 await npc.say("No, I'm not");
 
                 const choice = await player.ask(
@@ -97,6 +98,7 @@ async function onTalkToNPC(player, npc) {
                 }
 
                 break;
+            }
             case 3: // nice hat
                 await niceHat(npc);
                 break;
@@ -224,7 +226,7 @@ async function onUseWithGameObject(player, gameObject) {
 
     if (cook && !cook.interlocutor) {
         player.engage(cook);
-        await cook.say("Hey! Who said you could use that?");
+        await cook.say('Hey! Who said you could use that?');
         player.disengage();
     }
 

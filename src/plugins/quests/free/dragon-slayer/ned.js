@@ -1,5 +1,7 @@
 // https://classic.runescape.wiki/w/Transcript:Ned
 
+const regions = require('@2003scape/rsc-data/regions');
+
 const MAP_ID = 415;
 const MAP_PIECE_IDS = [416, 417, 418];
 const NED_SHIP_ID = 194;
@@ -30,7 +32,7 @@ async function takeMeToCrandor(player, npc) {
         'If you could get me a ship I would take you anywhere'
     );
 
-    if (player.cache.fixedLumbridgeLady) {
+    if (player.cache.lumbridgeLadyFixStage === -1) {
         await player.say('As it happens I do have a ship ready to sail');
         await npc.say("That'd be grand, where is it");
 
@@ -43,7 +45,8 @@ async function takeMeToCrandor(player, npc) {
             'See you over there'
         );
 
-        player.cache.lumbirdgeLadyLocation = 'port-sarim';
+        player.cache.lumbirdgeLadyCrandor = false;
+        player.cache.nedInShip = true;
     } else {
         await player.say('I will work on finding a sea worthy ship then');
     }
@@ -51,6 +54,7 @@ async function takeMeToCrandor(player, npc) {
 
 async function travelToCrandor(player, npc) {
     const { world } = player;
+    const { spawnX, spawnY } = regions['lumbridge-lady-broken-ned'];
 
     for (const message of VOYAGE_MESSAGES) {
         player.message(`@que@${message}`);
@@ -59,8 +63,10 @@ async function travelToCrandor(player, npc) {
 
     await npc.say("Aha we've arrived");
 
-    delete player.cache.lumbridgeLadyFixed;
-    player.cache.lumbirdgeLadyLocation = 'crandor';
+    player.teleport(spawnX, spawnY);
+
+    delete player.cache.lumbridgeLadyFixStage;
+    player.cache.lumbirdgeLadyCrandor = true;
 }
 
 async function onTalkToNPC(player, npc) {
@@ -69,12 +75,12 @@ async function onTalkToNPC(player, npc) {
     }
 
     const questStage = player.questStages.dragonSlayer;
-    const shipLocation = player.cache.lumbirdgeLadyLocation;
-    const shipFixed = player.cache.lumbridgeLadyFixed;
+    const shipInCrandor = player.cache.lumbirdgeLadyCrandor;
+    const shipFixStage = player.cache.lumbridgeLadyFixStage;
 
     player.engage(npc);
 
-    if (shipLocation === 'crandor') {
+    if (shipInCrandor) {
         const choice = await player.ask(
             [
                 'Is the ship ready to sail back?',
@@ -100,8 +106,8 @@ async function onTalkToNPC(player, npc) {
                 );
                 break;
         }
-    } else if (shipLocation === 'port-sarim') {
-        await player.say('Hello again lad');
+    } else {
+        await npc.say('Hello again lad');
 
         if (questStage === 2) {
             const choice = await player.ask(
@@ -113,7 +119,7 @@ async function onTalkToNPC(player, npc) {
             );
 
             switch (choice) {
-                case 0:
+                case 0: {
                     await npc.say(
                         "Okay show me the map and we'll set sail now"
                     );
@@ -151,6 +157,7 @@ async function onTalkToNPC(player, npc) {
                         await travelToCrandor(player, npc);
                     }
                     break;
+                }
                 case 1:
                     await npc.say(
                         'Well I am a tad rusty',
@@ -171,7 +178,8 @@ async function onTalkToNPC(player, npc) {
 
             switch (choice) {
                 case 0: // back to crandor
-                    if (shipFixed) {
+                    if (shipFixStage === -1) {
+                        await npc.say('Okie Dokie');
                         await travelToCrandor(player, npc);
                     } else {
                         await npc.say(
