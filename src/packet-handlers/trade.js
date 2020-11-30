@@ -27,18 +27,34 @@ async function playerTrade({ player }, { index }) {
 }
 
 async function tradeAccept({ player }) {
+    if (!player.interfaceOpen.trade) {
+        return;
+    }
+
     player.trade.accept();
 }
 
 async function tradeConfirmAccept({ player }) {
+    if (!player.interfaceOpen.trade) {
+        return;
+    }
+
     player.trade.confirmAccept();
 }
 
 async function tradeDecline({ player }) {
+    if (!player.interfaceOpen.trade) {
+        return;
+    }
+
     player.trade.decline();
 }
 
 async function tradeItemUpdate({ player }, { items }) {
+    if (!player.interfaceOpen.trade) {
+        return;
+    }
+
     player.trade.updateItems(items);
 }
 

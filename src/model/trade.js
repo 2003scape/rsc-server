@@ -12,6 +12,12 @@ function processTradeRequest(playerA, playerB) {
     playerA.send({ type: 'tradeOpen', index: playerB.index });
 }
 
+function processTradeClose(player) {
+    player.interfaceOpen.trade = false;
+    player.trade.tradingWith = null;
+    player.send({ type: 'tradeClose' });
+}
+
 class Trade extends Container {
     constructor(player) {
         super(TRADE_CAPACITY, StackPolicy.USE_FUNCTION, IDComparator,
@@ -38,18 +44,27 @@ class Trade extends Container {
         // if we have a request from this player, open the trade screen
         // otherwise, send them a trade request
         if (this.requests.has(otherPlayer)) {
-            processTradeRequest(this.player);
-            processTradeRequest(otherPlayer);
+            processTradeRequest(this.player, otherPlayer);
+            processTradeRequest(otherPlayer, this.player);
         } else {
             this.player.message('Sending trade request');
             otherPlayer.message(`${this.player.username} wishes to trade with you`);
             otherPlayer.trade.requests.add(this.player);
+            this.tradingWith = otherPlayer;
         }
     }
 
     accept() { }
 
-    decline() { }
+    decline() {
+        // capture reference since processTradeClose mods this variable
+        const other = this.tradingWith;
+
+        processTradeClose(this.player);
+        processTradeClose(other);
+
+        other.message('Other player has declined trade');
+    }
 
     confirmAccept() { }
 
