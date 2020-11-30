@@ -28,6 +28,10 @@ function formatSkillName(skill) {
         return 'Woodcut';
     }
 
+    if (skill === 'defense') {
+        return 'Defence';
+    }
+
     return skill.slice(0, 1).toUpperCase() + skill.slice(1, skill.length);
 }
 

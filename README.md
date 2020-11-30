@@ -1,5 +1,6 @@
 # rsc-server
-runescape classic game server emulator. designed to work with the web-based
+[runescape classic](https://classic.runescape.wiki/w/RuneScape_Classic) mmorpg
+game server emulator. designed to work with the web-based
 [rsc-client](https://github.com/2003scape/rsc-client) or the java-based
 [mudclient204](https://github.com/2003scape/mudclient204).
 

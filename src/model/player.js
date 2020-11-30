@@ -711,7 +711,9 @@ class Player extends Character {
 
         const victor = this.opponent;
 
-        victor.retreat();
+        if (victor) {
+            victor.retreat();
+        }
 
         this.healTicks = 0;
 

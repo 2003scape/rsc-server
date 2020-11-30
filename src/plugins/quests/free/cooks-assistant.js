@@ -131,7 +131,7 @@ async function onTalkToNPC(player, npc) {
 
             player.message(
                 '@que@You give some milk, an egg and some flour to the cook',
-                "@que@Well done. You have completed the cook's assistant quest"
+                "Well done. You have completed the cook's assistant quest"
             );
 
             player.addExperience(
