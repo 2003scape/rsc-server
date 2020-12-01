@@ -13,9 +13,7 @@ async function awardWinner(player, otherPlayer) {
     }
 
     player.message('You get the prize from the cracker');
-    otherPlayer.message(
-        'The person you pull the cracker with gets the prize'
-    );
+    otherPlayer.message('The person you pull the cracker with gets the prize');
 }
 
 async function onUseWithPlayer(player, otherPlayer, item) {
@@ -25,8 +23,8 @@ async function onUseWithPlayer(player, otherPlayer, item) {
 
     player.inventory.remove(CHRISTMAS_CRACKER_ID);
     player.sendBubble(CHRISTMAS_CRACKER_ID);
-    player.message("You pull a christmas cracker");
-    otherPlayer.message("You pull a christmas cracker");
+    player.message('You pull a christmas cracker');
+    otherPlayer.message('You pull a christmas cracker');
 
     if (Math.random() >= 0.5) {
         await awardWinner(player, otherPlayer);

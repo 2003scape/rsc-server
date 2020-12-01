@@ -603,6 +603,15 @@ class Player extends Character {
             'broadcast direction',
             this.direction
         );
+        if (!this.moveTick) {
+            this.moveTick = this.world.ticks;
+        } else {
+            if (this.moveTick === this.world.ticks) {
+                throw new Error('two broadcasts in one tick');
+            }
+
+            this.moveTick = this.world.ticks;
+        }
         for (const player of this.localEntities.known.players) {
             if (!player.loggedIn) {
                 continue;

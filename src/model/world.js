@@ -429,21 +429,25 @@ class World {
 
         this.server.readMessages();
 
-        for (const [id, entry] of this.tickFunctions) {
-            entry.ticks -= 1;
+        try {
+            for (const [id, entry] of this.tickFunctions) {
+                entry.ticks -= 1;
 
-            if (entry.ticks === 0) {
-                entry.func();
-                this.tickFunctions.delete(id);
+                if (entry.ticks === 0) {
+                    entry.func();
+                    this.tickFunctions.delete(id);
+                }
             }
-        }
 
-        for (const npc of this.npcs.getAll()) {
-            npc.tick();
-        }
+            for (const npc of this.npcs.getAll()) {
+                npc.tick();
+            }
 
-        for (const player of this.players.getAll()) {
-            player.tick();
+            for (const player of this.players.getAll()) {
+                player.tick();
+            }
+        } catch (e) {
+            log.error(e);
         }
 
         this.server.sendMessages();

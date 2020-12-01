@@ -193,6 +193,8 @@ class Character extends Entity {
             return false;
         }
 
+        const { world } = this;
+
         this.toAttack = null;
         this.lock();
 
@@ -200,26 +202,18 @@ class Character extends Entity {
             this.chasing = null;
         }
 
-        let deltaX = character.x - this.x;
-        let deltaY = character.y - this.y;
+        let distance = this.getDistance(character);
 
-        if (deltaX !== 0 || deltaY !== 0) {
-            await this.chase(character, 8, true);
+        if (distance > 1) {
+            await this.chase(character, 8, false);
         }
 
-        deltaX = character.x - this.x;
-        deltaY = character.y - this.y;
+        distance = this.getDistance(character);
 
-        if (deltaX !== 0 || deltaY !== 0) {
+        if (distance > 1) {
             this.unlock();
             return false;
         }
-
-        this.opponent = character;
-        this.combatRounds = 0;
-        this.fightStage = 0;
-        this.direction = 9;
-        this.broadcastDirection();
 
         character.lock();
         character.opponent = this;
@@ -231,23 +225,69 @@ class Character extends Entity {
             character.broadcastDirection();
         }
 
+        const deltaX = character.x - this.x;
+        const deltaY = character.y - this.y;
+
+        this.opponent = character;
+        this.combatRounds = 0;
+        this.fightStage = 0;
+
+        world.nextTick(() => {
+            if (deltaX !== 0 || deltaY !== 0) {
+                this.walkTo(deltaX, deltaY);
+
+                world.setTickTimeout(() => {
+                    this.direction = 9;
+                    this.broadcastDirection();
+                }, 2);
+            } else {
+                this.direction = 9;
+                this.broadcastDirection();
+            }
+        });
+
         return true;
     }
 
     async retreat() {
+        if (this.fightStage < 0) {
+            return;
+        }
+
+        const { world } = this;
+
         this.unlock();
         this.fightStage = -1;
-        this.direction = 0;
-        this.broadcastDirection();
+
+        world.nextTick(() => {
+            const isMoving = this.walkQueue
+                ? !!this.walkQueue.length
+                : this.stepsLeft > 0;
+
+            if (!isMoving) {
+                this.direction = 0;
+                this.broadcastDirection();
+            }
+        });
 
         if (this.opponent) {
             this.opponent.fightStage = -1;
-            this.opponent.direction = 0;
-            this.opponent.broadcastDirection();
-            this.opponent.opponent = null;
+
+            world.nextTick(() => {
+                const isMoving = this.opponent.walkQueue
+                    ? !!this.opponent.walkQueue.length
+                    : this.opponent.stepsLeft > 0;
+
+                if (!isMoving) {
+                    this.opponent.direction = 0;
+                    this.opponent.broadcastDirection();
+                }
+
+                this.opponent.opponent = null;
+                this.opponent = null;
+            });
 
             this.opponent.unlock();
-            this.opponent = null;
         }
     }
 

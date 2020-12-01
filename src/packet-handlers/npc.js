@@ -55,7 +55,6 @@ async function npcTalk({ player }, { index }) {
 
         npc.lock();
 
-        // TODO test this with different delays
         const blocked = await world.callPlugin('onTalkToNPC', player, npc);
 
         if (blocked) {
@@ -153,7 +152,9 @@ async function npcAttack({ player }, { index }) {
         const blocked = await world.callPlugin('onNPCAttack', player, npc);
 
         if (!blocked) {
-            await player.attack(npc);
+            if (!await player.attack(npc)) {
+                npc.unlock();
+            }
         } else {
             player.unlock();
             npc.unlock();

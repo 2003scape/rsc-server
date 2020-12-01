@@ -34,6 +34,10 @@ async function useWithPlayer({ player }, { playerIndex, index }) {
         return;
     }
 
+    // so players face the other player when using items, instead of walking
+    // through them
+    player.walkAction = false;
+
     player.endWalkFunction = async () => {
         const item = player.inventory.items[index];
 
