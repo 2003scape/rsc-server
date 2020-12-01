@@ -24,8 +24,11 @@ async function groundItemTake({ player }, { x, y, id }) {
     }
 
     player.endWalkFunction = async () => {
-        const { world } = player;
+        if (player.locked) {
+            return;
+        }
 
+        const { world } = player;
         const groundItem = getGroundItem(player, id, x, y);
 
         if (!groundItem) {
@@ -40,6 +43,7 @@ async function groundItemTake({ player }, { x, y, id }) {
             return;
         }
 
+        player.lock();
         player.faceEntity(groundItem);
 
         const blocked = await world.callPlugin(
@@ -52,9 +56,10 @@ async function groundItemTake({ player }, { x, y, id }) {
             return;
         }
 
-        player.inventory.add(groundItem);
         world.removeEntity('groundItems', groundItem);
+        player.inventory.add(groundItem);
         player.sendSound('takeobject');
+        player.unlock();
     };
 }
 
@@ -78,6 +83,10 @@ async function useWithGroundItem({ player }, { x, y, groundItemID, index }) {
     }
 
     player.endWalkFunction = async () => {
+        if (player.locked) {
+            return;
+        }
+
         const item = player.inventory.items[index];
 
         if (!item) {

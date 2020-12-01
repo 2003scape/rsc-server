@@ -58,13 +58,13 @@ class Server {
             }
 
             const queue = this.incomingMessages.get(socket);
-            const messagesSent = queue.length;
+            //const messagesSent = queue.length;
 
-            if (messagesSent < 10) {
-                queue.push(message);
-                log.debug(`incoming message from ${socket}`, message);
-            } else {
-                log.debug(`message discarded from ${socket}`, message);
+            log.debug(`incoming message from ${socket}`, message);
+            queue.push(message);
+
+            if (queue.length >= 10) {
+                queue.shift();
             }
         });
 
@@ -147,9 +147,7 @@ class Server {
                 continue;
             }
 
-            if (!this.incomingLocked.get(socket)) {
-                const message = queue.shift();
-
+            for (const message of queue) {
                 const handler = this.handlers[message.type];
 
                 if (!handler) {
@@ -157,15 +155,12 @@ class Server {
                     return;
                 }
 
-                this.incomingLocked.set(socket, true);
-
-                handler(socket, message).then(() => {
-                    this.incomingLocked.set(socket, false);
-                }).catch((e) => {
-                    this.incomingLocked.set(socket, false);
+                handler(socket, message).catch((e) => {
                     log.error(e, socket.toString());
                 });
             }
+
+            queue.length = 0;
         }
     }
 

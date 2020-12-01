@@ -30,8 +30,6 @@ async function getNPC(player, index) {
 }
 
 async function npcTalk({ player }, { index }) {
-    /*const npc = player.world.npcs.getByIndex(index);
-    npc.walkToPoint(npc.x + 2, npc.y + 1);*/
     if (player.locked) {
         return;
     }
@@ -136,6 +134,7 @@ async function npcAttack({ player }, { index }) {
         const npc = await getNPC(player, index);
 
         if (!npc) {
+            player.toAttack = null;
             return;
         }
 

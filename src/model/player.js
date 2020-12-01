@@ -595,6 +595,14 @@ class Player extends Character {
 
     // broadcast the player changing sprites
     broadcastDirection() {
+        console.log(
+            'tick #',
+            this.world.ticks,
+            '-',
+            this.username,
+            'broadcast direction',
+            this.direction
+        );
         for (const player of this.localEntities.known.players) {
             if (!player.loggedIn) {
                 continue;
@@ -611,6 +619,25 @@ class Player extends Character {
 
     // broadcast the player moving in their current direction
     broadcastMove() {
+        console.log(
+            'tick #',
+            this.world.ticks,
+            '-',
+            this.username,
+            'broadcast move',
+            this.direction
+        );
+
+        if (!this.moveTick) {
+            this.moveTick = this.world.ticks;
+        } else {
+            if (this.moveTick === this.world.ticks) {
+                throw new Error('two broadcasts in one tick');
+            }
+
+            this.moveTick = this.world.ticks;
+        }
+
         for (const player of this.getNearbyEntities('players', 16)) {
             if (!player.loggedIn) {
                 continue;

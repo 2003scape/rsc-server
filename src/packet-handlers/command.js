@@ -195,6 +195,11 @@ async function command({ player }, { command, args }) {
             player.teleport(otherPlayer.x, otherPlayer.y);
             break;
         }
+        case 'clearinventory': {
+            player.inventory.items = [];
+            player.inventory.sendAll();
+            break;
+        }
     }
 }
 

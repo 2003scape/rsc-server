@@ -87,13 +87,17 @@ class Character extends Entity {
     }
 
     faceDirection(deltaX, deltaY) {
+        if (this.isWalking) {
+            return this.direction;
+        }
+
         const direction = getDirection(deltaX, deltaY);
 
         if (this.direction === direction) {
             return this.direction;
         }
 
-        this.direction = direction; //deltaDirections[deltaX + 1][deltaY + 1];
+        this.direction = direction;
         this.broadcastDirection();
         return this.direction;
     }
@@ -390,9 +394,7 @@ class Character extends Entity {
 
             ticks += 1;
 
-            if (!steps.length) {
-                await world.sleepTicks(1);
-            }
+            await world.sleepTicks(1);
 
             if (ticks >= 10) {
                 break;

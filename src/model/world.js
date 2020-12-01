@@ -51,6 +51,7 @@ const PLUGIN_TYPES = [
     'onUseWithWallObject',
     'onUseWithInventory',
     'onUseWithNPC',
+    'onUseWithPlayer',
     'onInventoryCommand',
     'onNPCAttack',
     'onNPCDeath'
