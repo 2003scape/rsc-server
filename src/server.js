@@ -14,8 +14,10 @@ class Server {
         this.dataClient = new DataClient(this);
 
         // { socket: messagesSentInTick }
-        this.incomingThrottle = new Map();
-        this.incomingMessages = [];
+        //this.incomingThrottle = new Map();
+        //this.incomingMessages = [];
+        this.incomingMessages = new Map();
+        this.incomingLocked = new Map();
         this.outgoingMessages = [];
     }
 
@@ -38,7 +40,9 @@ class Server {
         socket.setTimeout(5000);
         socket.server = this;
 
-        this.incomingThrottle.set(socket, 0);
+        //this.incomingThrottle.set(socket, 0);
+        this.incomingMessages.set(socket, []);
+        this.incomingLocked.set(socket, false);
 
         socket.on('error', (err) => log.error(err));
         socket.on('timeout', () => socket.close());
@@ -53,11 +57,11 @@ class Server {
                 return;
             }
 
-            const messagesSent = this.incomingThrottle.get(socket);
+            const queue = this.incomingMessages.get(socket);
+            const messagesSent = queue.length;
 
             if (messagesSent < 10) {
-                this.incomingThrottle.set(socket, messagesSent + 1);
-                this.incomingMessages.push({ socket, message });
+                queue.push(message);
                 log.debug(`incoming message from ${socket}`, message);
             } else {
                 log.debug(`message discarded from ${socket}`, message);
@@ -75,7 +79,9 @@ class Server {
             }
 
             socket.removeAllListeners();
-            this.incomingThrottle.delete(this);
+            //this.incomingThrottle.delete(this);
+            this.incomingMessages.delete(this);
+            this.incomingLocked.delete(this);
             log.info(`${socket} disconnected`);
         });
 
@@ -118,7 +124,7 @@ class Server {
     }
 
     readMessages() {
-        while (this.incomingMessages.length) {
+        /*while (this.incomingMessages.length) {
             const { socket, message } = this.incomingMessages.shift();
             const handler = this.handlers[message.type];
 
@@ -134,6 +140,32 @@ class Server {
 
         for (const [socket] of this.incomingThrottle) {
             this.incomingThrottle.set(socket, 0);
+        }*/
+
+        for (const [socket, queue] of this.incomingMessages) {
+            if (!queue.length) {
+                continue;
+            }
+
+            if (!this.incomingLocked.get(socket)) {
+                const message = queue.shift();
+
+                const handler = this.handlers[message.type];
+
+                if (!handler) {
+                    log.warn(`${socket} no handler for type ${message.type}`);
+                    return;
+                }
+
+                this.incomingLocked.set(socket, true);
+
+                handler(socket, message).then(() => {
+                    this.incomingLocked.set(socket, false);
+                }).catch((e) => {
+                    this.incomingLocked.set(socket, false);
+                    log.error(e, socket.toString());
+                });
+            }
         }
     }
 

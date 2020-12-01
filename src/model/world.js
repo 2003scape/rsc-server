@@ -426,6 +426,8 @@ class World {
 
         const startTime = Date.now();
 
+        this.server.readMessages();
+
         for (const [id, entry] of this.tickFunctions) {
             entry.ticks -= 1;
 
@@ -444,7 +446,6 @@ class World {
         }
 
         this.server.sendMessages();
-        this.server.readMessages();
 
         const deltaTime = Date.now() - startTime;
 
