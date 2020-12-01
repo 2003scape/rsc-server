@@ -4,8 +4,8 @@
 const COOKS_RANGE_ID = 119;
 const COOK_ID = 7;
 const EGG_ID = 19;
-const FLOUR_ID = 23;
-const MILK_ID = 21;
+const FLOUR_ID = 136;
+const MILK_ID = 22;
 
 async function whatsWrong(player, npc) {
     await npc.say(
@@ -112,6 +112,7 @@ async function onTalkToNPC(player, npc) {
             !player.inventory.has(EGG_ID)
         ) {
             await player.say("I'm afraid I don't have any yet!");
+
             await npc.say(
                 'Oh dear oh dear!',
                 'I need flour, eggs, and milk',
@@ -209,7 +210,6 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.disengage();
-
     return true;
 }
 

@@ -1,6 +1,7 @@
 const Character = require('./character');
 const dropDefinitions = require('@2003scape/rsc-data/rolls/drops');
 const items = require('@2003scape/rsc-data/config/items');
+const log = require('bole')('npc');
 const npcRespawn = require('@2003scape/rsc-data/npc-respawn');
 const npcs = require('@2003scape/rsc-data/config/npcs');
 const { rollItemDrop } = require('../rolls');

@@ -162,4 +162,7 @@ async function npcAttack({ player }, { index }) {
     };
 }
 
-module.exports = { npcTalk, useWithNPC, npcAttack };
+// noop for now
+async function npcCommand() {}
+
+module.exports = { npcTalk, useWithNPC, npcAttack, npcCommand };

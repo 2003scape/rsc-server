@@ -107,6 +107,7 @@ async function useWithGroundItem({ player }, { x, y, groundItemID, index }) {
             return;
         }
 
+        player.lock();
         player.faceEntity(groundItem);
 
         const blocked = await world.callPlugin(
@@ -115,6 +116,8 @@ async function useWithGroundItem({ player }, { x, y, groundItemID, index }) {
             groundItem,
             item
         );
+
+        player.unlock();
 
         if (blocked) {
             return;

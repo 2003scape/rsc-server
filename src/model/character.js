@@ -264,7 +264,7 @@ class Character extends Entity {
                 ? !!this.walkQueue.length
                 : this.stepsLeft > 0;
 
-            if (!isMoving) {
+            if (!isMoving && !this.isWalking) {
                 this.direction = 0;
                 this.broadcastDirection();
             }
@@ -278,7 +278,7 @@ class Character extends Entity {
                     ? !!this.opponent.walkQueue.length
                     : this.opponent.stepsLeft > 0;
 
-                if (!isMoving) {
+                if (!isMoving && !this.isWalking) {
                     this.opponent.direction = 0;
                     this.opponent.broadcastDirection();
                 }
@@ -445,7 +445,13 @@ class Character extends Entity {
                     break newSteps;
                 }
 
-                if (!this.chasing || this.chasing.getDistance(this) >= range) {
+                if (
+                    !this.chasing ||
+                    (this.walkQueue
+                        ? this.walkQueue.length
+                        : this.stepsLeft > 0) ||
+                    this.chasing.getDistance(this) >= range
+                ) {
                     break newSteps;
                 }
 

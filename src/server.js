@@ -13,11 +13,7 @@ class Server {
         this.world = new World(this);
         this.dataClient = new DataClient(this);
 
-        // { socket: messagesSentInTick }
-        //this.incomingThrottle = new Map();
-        //this.incomingMessages = [];
         this.incomingMessages = new Map();
-        this.incomingLocked = new Map();
         this.outgoingMessages = [];
     }
 
@@ -40,9 +36,7 @@ class Server {
         socket.setTimeout(5000);
         socket.server = this;
 
-        //this.incomingThrottle.set(socket, 0);
         this.incomingMessages.set(socket, []);
-        this.incomingLocked.set(socket, false);
 
         socket.on('error', (err) => log.error(err));
         socket.on('timeout', () => socket.close());
@@ -79,9 +73,7 @@ class Server {
             }
 
             socket.removeAllListeners();
-            //this.incomingThrottle.delete(this);
             this.incomingMessages.delete(this);
-            this.incomingLocked.delete(this);
             log.info(`${socket} disconnected`);
         });
 
@@ -124,24 +116,6 @@ class Server {
     }
 
     readMessages() {
-        /*while (this.incomingMessages.length) {
-            const { socket, message } = this.incomingMessages.shift();
-            const handler = this.handlers[message.type];
-
-            if (!handler) {
-                log.warn(`${socket} no handler for type ${message.type}`);
-                return;
-            }
-
-            handler(socket, message).catch((e) => {
-                log.error(e, socket.toString());
-            });
-        }
-
-        for (const [socket] of this.incomingThrottle) {
-            this.incomingThrottle.set(socket, 0);
-        }*/
-
         for (const [socket, queue] of this.incomingMessages) {
             if (!queue.length) {
                 continue;
