@@ -26,16 +26,13 @@ async function onNPCAttack(player, npc) {
         player.message('You are fried');
     }
 
-    player.damage(fireDamage);
-
     player.skills.prayer.current = Math.max(
         0,
         player.skills.prayer.current - prayerDebuff
     );
 
-    player.sendStats();
-
-    return false;
+    // if the dragon's fire kills us, don't initiate combat
+    return player.damage(fireDamage);
 }
 
 module.exports = { onNPCAttack };

@@ -12,6 +12,10 @@ const deltaDirections = [
 ];
 
 function getDirection(deltaX, deltaY) {
+    if (deltaX === 0 && deltaY === 0) {
+        return 0;
+    }
+
     return deltaDirections[deltaX + 1][deltaY + 1];
 }
 
@@ -70,6 +74,7 @@ class Character extends Entity {
         }
     }
 
+    // returns whether or not we died
     damage(damage, player) {
         if (player) {
             const totalDamage = this.playerDamage.get(player.id) || 0;
@@ -80,10 +85,11 @@ class Character extends Entity {
 
         if (this.skills.hits.current <= 0) {
             this.die();
-            return;
+            return true;
         }
 
         this.broadcastDamage(damage);
+        return false;
     }
 
     faceDirection(deltaX, deltaY) {

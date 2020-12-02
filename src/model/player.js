@@ -447,8 +447,9 @@ class Player extends Character {
 
     // send the red hitsplat
     damage(damage) {
-        super.damage(damage);
+        const isDead = super.damage(damage);
         this.sendStats();
+        return isDead;
     }
 
     // send the blue or red teleport bubbles to the nearby players
@@ -942,6 +943,8 @@ class Player extends Character {
     }
 
     teleport(x, y, bubble = false) {
+        const { world } = this;
+
         if (y < 0) {
             y += this.world.planeElevation * 4;
         }
@@ -960,7 +963,9 @@ class Player extends Character {
             }
         }
 
-        this.faceDirection(0, 0);
+        world.nextTick(() => {
+            this.faceDirection(0, 0);
+        });
 
         if (this.x === x && this.y === y) {
             return;

@@ -130,6 +130,10 @@ async function onTalkToNPC(player, npc) {
 
             await npc.say('I am saved thankyou!');
 
+            player.inventory.remove(MILK_ID);
+            player.inventory.remove(FLOUR_ID);
+            player.inventory.remove(EGG_ID);
+
             player.message(
                 '@que@You give some milk, an egg and some flour to the cook',
                 "Well done. You have completed the cook's assistant quest"

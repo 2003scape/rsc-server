@@ -126,7 +126,7 @@ class Server {
 
                 if (!handler) {
                     log.warn(`${socket} no handler for type ${message.type}`);
-                    return;
+                    continue;
                 }
 
                 handler(socket, message).catch((e) => {
