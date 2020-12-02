@@ -52,6 +52,8 @@ async function groundItemTake({ player }, { x, y, id }) {
             groundItem
         );
 
+        player.unlock();
+
         if (blocked) {
             return;
         }
@@ -59,7 +61,6 @@ async function groundItemTake({ player }, { x, y, id }) {
         world.removeEntity('groundItems', groundItem);
         player.inventory.add(groundItem);
         player.sendSound('takeobject');
-        player.unlock();
     };
 }
 
