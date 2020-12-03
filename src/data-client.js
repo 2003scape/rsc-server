@@ -28,7 +28,9 @@ class DataClient {
             setTimeout(async () => {
                 try {
                     await this.init();
-                } catch (e) {}
+                } catch (e) {
+                    // pass
+                }
             }, 5000);
         });
     }
@@ -49,7 +51,7 @@ class DataClient {
             if (config.dataServerFile) {
                 this.socket.connect(config.dataServerFile);
             } else {
-                const [host, port] = dataServerTCP.split(':');
+                const [host, port] = config.dataServerTCP.split(':');
                 this.socket.connect(+port, host);
             }
         });

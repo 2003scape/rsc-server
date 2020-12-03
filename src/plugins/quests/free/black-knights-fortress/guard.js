@@ -57,7 +57,8 @@ async function enterExitFortress(player, wallObject) {
     );
 
     switch (choice) {
-        case 0: // I work here
+        // i work here
+        case 0: {
             await guard.say(
                 'Well this is the guards entrance',
                 'And I might be new here',
@@ -82,6 +83,7 @@ async function enterExitFortress(player, wallObject) {
                     break;
             }
             break;
+        }
         case 1: // apologizing
             await guard.say("Don't let it happen again");
             break;
@@ -147,4 +149,3 @@ async function onWallObjectCommandOne(player, wallObject) {
 }
 
 module.exports = { onWallObjectCommandOne };
-

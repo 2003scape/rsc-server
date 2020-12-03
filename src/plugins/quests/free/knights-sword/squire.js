@@ -169,7 +169,8 @@ async function onTalkToNPC(player, npc) {
         );
 
         switch (choice) {
-            case 0: // how is life
+            // how is life
+            case 0: {
                 await npc.say(
                     'Well Sir Vyvin is a good guy to work for',
                     "However I'm in a spot of trouble today",
@@ -197,6 +198,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
             case 1: // squire for me
                 await npc.say("No, sorry I'm loyal to Vyvin");
                 break;

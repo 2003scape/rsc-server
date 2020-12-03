@@ -4,8 +4,8 @@
 const COOKS_RANGE_ID = 119;
 const COOK_ID = 7;
 const EGG_ID = 19;
-const FLOUR_ID = 23;
-const MILK_ID = 21;
+const FLOUR_ID = 136;
+const MILK_ID = 22;
 
 async function whatsWrong(player, npc) {
     await npc.say(
@@ -71,7 +71,8 @@ async function onTalkToNPC(player, npc) {
             case 1: // money
                 await npc.say('HaHa very funny');
                 break;
-            case 2: // dont look happy
+            // dont look happy
+            case 2: {
                 await npc.say("No, I'm not");
 
                 const choice = await player.ask(
@@ -97,6 +98,7 @@ async function onTalkToNPC(player, npc) {
                 }
 
                 break;
+            }
             case 3: // nice hat
                 await niceHat(npc);
                 break;
@@ -110,6 +112,7 @@ async function onTalkToNPC(player, npc) {
             !player.inventory.has(EGG_ID)
         ) {
             await player.say("I'm afraid I don't have any yet!");
+
             await npc.say(
                 'Oh dear oh dear!',
                 'I need flour, eggs, and milk',
@@ -127,9 +130,13 @@ async function onTalkToNPC(player, npc) {
 
             await npc.say('I am saved thankyou!');
 
+            player.inventory.remove(MILK_ID);
+            player.inventory.remove(FLOUR_ID);
+            player.inventory.remove(EGG_ID);
+
             player.message(
                 '@que@You give some milk, an egg and some flour to the cook',
-                "@que@Well done. You have completed the cook's assistant quest"
+                "Well done. You have completed the cook's assistant quest"
             );
 
             player.addExperience(
@@ -207,7 +214,6 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.disengage();
-
     return true;
 }
 
@@ -224,7 +230,7 @@ async function onUseWithGameObject(player, gameObject) {
 
     if (cook && !cook.interlocutor) {
         player.engage(cook);
-        await cook.say("Hey! Who said you could use that?");
+        await cook.say('Hey! Who said you could use that?');
         player.disengage();
     }
 

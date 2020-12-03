@@ -42,12 +42,18 @@ class Bank {
 
     deposit(id, amount) {
         if (!this.player.inventory.has(id, amount)) {
-            throw new RangeError(`${player} depositing item they don't have`);
+            throw new RangeError(`${this} depositing item they don't have`);
+        }
+
+        const bankItem = this.getItem({ id });
+
+        if (this.isFull() && !bankItem) {
+            this.message("You don't have room for that in your bank");
+            return;
         }
 
         this.player.inventory.remove(id, amount);
 
-        const bankItem = this.getItem({ id });
         let index;
 
         if (bankItem) {
@@ -64,7 +70,7 @@ class Bank {
         const bankItem = this.getItem({ id });
 
         if (!bankItem || bankItem.amount < amount) {
-            throw new RangeError(`${player} withdrawing item they don't have`);
+            throw new RangeError(`${this} withdrawing item they don't have`);
         }
 
         this.player.inventory.add(id, amount);
@@ -103,6 +109,10 @@ class Bank {
         }
 
         return false;
+    }
+
+    isFull() {
+        return this.items.length >= this.maxItems;
     }
 
     toJSON() {

@@ -39,7 +39,8 @@ async function onTalkToNPC(player, npc) {
         );
 
         switch (choice) {
-            case 0: // yes
+            // yes
+            case 0: {
                 await player.say(
                     'I did see Romeo somewhere.',
                     'He seemed a bit depressed.'
@@ -73,6 +74,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
             // no
             case 1: {
                 await player.say('No, I think I would have remembered');

@@ -104,7 +104,8 @@ async function onTalkToNPC(player, npc) {
 
                 await howMuch(player, npc);
                 break;
-            case 1: // who told you
+            // who told you
+            case 1: {
                 await npc.say(
                     "I can't remember now. Someone who visits this park",
                     'I happen to have some woad leaves lying around',
@@ -120,6 +121,7 @@ async function onTalkToNPC(player, npc) {
                     await howMuch(player, npc);
                 }
                 break;
+            }
         }
     }
 

@@ -14,9 +14,6 @@ function getWallObject(player, x, y) {
 }
 
 function wallObjectCommand(pluginHandler, { player }, { x, y }) {
-    /*console.log('player locked?', !!player.locked);
-    console.log('player opponent?', !!player.opponent);*/
-
     if (player.locked) {
         return;
     }
@@ -34,8 +31,19 @@ function wallObjectCommand(pluginHandler, { player }, { x, y }) {
         }
 
         player.lock();
+
         await world.sleepTicks(1);
-        await world.callPlugin(pluginHandler, player, wallObject);
+
+        const blocked = await world.callPlugin(
+            pluginHandler,
+            player,
+            wallObject
+        );
+
+        if (!blocked) {
+            player.message('Nothing interesting happens');
+        }
+
         player.unlock();
     };
 }
@@ -73,6 +81,8 @@ async function useWithWallObject({ player }, { x, y, index }) {
         const { world } = player;
 
         player.lock();
+
+        await world.sleepTicks(1);
 
         const blocked = await world.callPlugin(
             'onUseWithWallObject',

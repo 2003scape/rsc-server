@@ -64,7 +64,8 @@ async function cantGoThere(player, npc) {
     }
 
     switch (choice) {
-        case 0: // i know who you are
+        // i know who you are
+        case 0: {
             await npc.say('I see', 'Carry on');
 
             await player.say(
@@ -94,6 +95,7 @@ async function cantGoThere(player, npc) {
                     break;
             }
             break;
+        }
         case 1: // get a job
             await npc.say(
                 'Get a copy of the Varrock Herald',

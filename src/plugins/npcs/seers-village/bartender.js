@@ -45,8 +45,11 @@ async function onTalkToNPC(player, npc) {
         "I don't really want anything thanks"
     ];
 
-    if (shouldHandleBar('foresterArms')) {
+    let handleBarcrawl = false;
+
+    if (shouldHandleBar(player, 'foresterArms')) {
         choices.splice(2, 0, "I'm doing Alfred Grimhand's barcrawl");
+        handleBarcrawl = true;
     }
 
     const choice = await player.ask(choices, true);
@@ -98,7 +101,6 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.disengage();
-
     return true;
 }
 

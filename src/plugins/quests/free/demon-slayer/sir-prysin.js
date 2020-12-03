@@ -31,7 +31,8 @@ async function yourKeyLocation(player, npc) {
     );
 
     switch (choice) {
-        case 0: // drain
+        // drain
+        case 0: {
             await npc.say(
                 'It is the drain',
                 'For the drainpipe running from the sink in the kitchen',
@@ -59,6 +60,7 @@ async function yourKeyLocation(player, npc) {
                     break;
             }
             break;
+        }
         case 1: // captain rovin
             await captainRovinLocation(player, npc);
             break;
@@ -242,7 +244,8 @@ async function onTalkToNPC(player, npc) {
             case 1: // tell me
                 await npc.say("Well I've never met you before");
                 break;
-            case 2: // gypsy aris
+            // gypsy aris
+            case 2: {
                 await npc.say(
                     'Gypsy Aris?  Is she still alive?',
                     'I remember her from when I was pretty young',
@@ -270,6 +273,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
         }
     } else if (questStage === 2) {
         if (player.inventory.has(SILVERLIGHT_ID)) {

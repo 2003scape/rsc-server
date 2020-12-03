@@ -4,7 +4,7 @@ function getGroundItem(player, id, x, y) {
     const groundItems = world.groundItems.getAtPoint(x, y);
 
     for (const groundItem of groundItems) {
-        if (!groundItem.withinRange(player, 2)) {
+        if (!groundItem.withinRange(player, 2, true)) {
             player.message("I can't reach that!");
             return;
         }
@@ -24,8 +24,11 @@ async function groundItemTake({ player }, { x, y, id }) {
     }
 
     player.endWalkFunction = async () => {
-        const { world } = player;
+        if (player.locked) {
+            return;
+        }
 
+        const { world } = player;
         const groundItem = getGroundItem(player, id, x, y);
 
         if (!groundItem) {
@@ -40,6 +43,7 @@ async function groundItemTake({ player }, { x, y, id }) {
             return;
         }
 
+        player.lock();
         player.faceEntity(groundItem);
 
         const blocked = await world.callPlugin(
@@ -48,18 +52,20 @@ async function groundItemTake({ player }, { x, y, id }) {
             groundItem
         );
 
+        player.unlock();
+
         if (blocked) {
             return;
         }
 
-        player.inventory.add(groundItem);
         world.removeEntity('groundItems', groundItem);
+        player.inventory.add(groundItem);
         player.sendSound('takeobject');
     };
 }
 
 async function inventoryDrop({ player }, { index }) {
-    player.endWalkFunction = () => player.inventory.drop(index);
+    player.endWalkFunction = async () => player.inventory.drop(index);
 }
 
 async function inventoryWear({ player }, { index }) {
@@ -78,6 +84,10 @@ async function useWithGroundItem({ player }, { x, y, groundItemID, index }) {
     }
 
     player.endWalkFunction = async () => {
+        if (player.locked) {
+            return;
+        }
+
         const item = player.inventory.items[index];
 
         if (!item) {
@@ -98,6 +108,7 @@ async function useWithGroundItem({ player }, { x, y, groundItemID, index }) {
             return;
         }
 
+        player.lock();
         player.faceEntity(groundItem);
 
         const blocked = await world.callPlugin(
@@ -106,6 +117,8 @@ async function useWithGroundItem({ player }, { x, y, groundItemID, index }) {
             groundItem,
             item
         );
+
+        player.unlock();
 
         if (blocked) {
             return;

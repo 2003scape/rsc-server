@@ -26,7 +26,8 @@ async function onTalkToNPC(player, npc) {
         );
 
         switch (choice) {
-            case 0: // no
+            // no
+            case 0: {
                 await player.say("No. That's too much for me");
                 await npc.say(
                     "Two coins and that's as low as I'll go",
@@ -60,6 +61,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
             case 1: // ok
                 await player.say('Ok, that sounds good');
 
@@ -75,7 +77,6 @@ async function onTalkToNPC(player, npc) {
     }
 
     player.disengage();
-
     return true;
 }
 

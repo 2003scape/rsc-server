@@ -83,7 +83,7 @@ class LocalEntities {
                 }
             }
 
-            this.player.localEntities.added[type].add(entity);
+            this.added[type].add(entity);
         }
     }
 

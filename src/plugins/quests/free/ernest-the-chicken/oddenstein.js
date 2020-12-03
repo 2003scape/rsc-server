@@ -57,7 +57,8 @@ async function onTalkToNPC(player, npc) {
         }
 
         switch (choice) {
-            case 0: // looking for ernest
+            // looking for ernest
+            case 0: {
                 await npc.say(
                     'Ah Ernest, top notch bloke',
                     "He's helping me with my experiments"
@@ -111,6 +112,7 @@ async function onTalkToNPC(player, npc) {
                 }
 
                 break;
+            }
             case 1: // what does the machine do
                 await npc.say(
                     'Nothing at the moment',

@@ -3,6 +3,7 @@ const Captcha = require('@2003scape/rsc-captcha');
 const Character = require('./character');
 const Inventory = require('./inventory');
 const LocalEntities = require('./local-entities');
+const Trade = require('./trade');
 const log = require('bole')('player');
 const prayers = require('@2003scape/rsc-data/config/prayers');
 const quests = require('@2003scape/rsc-data/quests');
@@ -44,6 +45,9 @@ const MAX_FATIGUE = 75000;
 
 // how many ticks to wait before re-generating health
 const RESTORE_TICKS = 100;
+
+const RAPID_RESTORE_ID = 6;
+const RAPID_HEAL_ID = 7;
 
 class Player extends Character {
     constructor(world, socket, playerData) {
@@ -116,15 +120,22 @@ class Player extends Character {
         this.prayers.length = prayers.length;
         this.prayers.fill(false);
 
+        // https://oldschool.runescape.wiki/w/Prayer#Prayer_drain_resistance
+        this.prayerDrainCounter = 0;
+
         this.interfaceOpen = {
             bank: false,
             shop: false,
             sleep: false,
-            appearance: false
+            appearance: false,
+            trade: false
         };
 
         // current shop open the player has open, if any
         this.shop = null;
+
+        // trade object to manage trading
+        this.trade = new Trade(this);
 
         // incremented every time we change appearance
         this.appearanceIndex = 0;
@@ -146,12 +157,16 @@ class Player extends Character {
         // Date.now() of last sleep word request
         this.lastSleepWord = 0;
 
-        // how many ticks left until we re-generate 1 health again
+        // how many ticks left until we re-generate skills (restoreTicks is
+        // everything besides prayer and hits)
         this.healTicks = RESTORE_TICKS;
+        this.restoreTicks = RESTORE_TICKS;
+        this.debuffTicks = RESTORE_TICKS;
 
         this.loggedIn = false;
 
         this.isWalking = false;
+        this.endWalkLocked = false;
     }
 
     // send a packet if the socket is connected
@@ -164,8 +179,6 @@ class Player extends Character {
             socket: this.socket,
             message
         });
-
-        //this.socket.sendMessage(message);
 
         log.debug(`sending message to ${this.socket}`, message);
     }
@@ -355,6 +368,10 @@ class Player extends Character {
         this.send({ type: 'sound', soundName });
     }
 
+    sendPrayerStatus() {
+        this.send({ type: 'prayerStatus', prayersOn: this.prayers });
+    }
+
     // the blue menu text prompting the player for a choice. if repeat is true,
     // the player will say the option they picked
     async ask(options, repeat = false) {
@@ -430,8 +447,9 @@ class Player extends Character {
 
     // send the red hitsplat
     damage(damage) {
-        super.damage(damage);
+        const isDead = super.damage(damage);
         this.sendStats();
+        return isDead;
     }
 
     // send the blue or red teleport bubbles to the nearby players
@@ -578,6 +596,23 @@ class Player extends Character {
 
     // broadcast the player changing sprites
     broadcastDirection() {
+        console.log(
+            'tick #',
+            this.world.ticks,
+            '-',
+            this.username,
+            'broadcast direction',
+            this.direction
+        );
+        if (!this.moveTick) {
+            this.moveTick = this.world.ticks;
+        } else {
+            if (this.moveTick === this.world.ticks) {
+                throw new Error('two broadcasts in one tick');
+            }
+
+            this.moveTick = this.world.ticks;
+        }
         for (const player of this.localEntities.known.players) {
             if (!player.loggedIn) {
                 continue;
@@ -594,6 +629,25 @@ class Player extends Character {
 
     // broadcast the player moving in their current direction
     broadcastMove() {
+        console.log(
+            'tick #',
+            this.world.ticks,
+            '-',
+            this.username,
+            'broadcast move',
+            this.direction
+        );
+
+        if (!this.moveTick) {
+            this.moveTick = this.world.ticks;
+        } else {
+            if (this.moveTick === this.world.ticks) {
+                throw new Error('two broadcasts in one tick');
+            }
+
+            this.moveTick = this.world.ticks;
+        }
+
         for (const player of this.getNearbyEntities('players', 16)) {
             if (!player.loggedIn) {
                 continue;
@@ -694,7 +748,9 @@ class Player extends Character {
 
         const victor = this.opponent;
 
-        victor.retreat();
+        if (victor) {
+            victor.retreat();
+        }
 
         this.healTicks = 0;
 
@@ -759,6 +815,25 @@ class Player extends Character {
         return Math.floor(defense + magic + Math.max(offence, ranged));
     }
 
+    // get the total drain rate from all of the enabled prayers. this is added
+    // to drain counter each tick
+    getPrayerDrainRate() {
+        let drainEffect = 0;
+
+        for (const [index, enabled] of this.prayers.entries()) {
+            if (enabled) {
+                drainEffect += prayers[index].drain;
+            }
+        }
+
+        return drainEffect;
+    }
+
+    // this is the amount drain counter must reach before losing a prayer point
+    getPrayerDrainResistance() {
+        return 60 + this.equipmentBonuses.prayer * 2;
+    }
+
     getElevation() {
         return Math.floor(this.y / this.world.planeElevation);
     }
@@ -792,19 +867,38 @@ class Player extends Character {
         return this.fatigue >= MAX_FATIGUE - offset;
     }
 
+    hasInterfaceOpen() {
+        for (const value of Object.values(this.interfaceOpen)) {
+            if (value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // enter a door with a blocked doorframe and close it
     async enterDoor(door, doorframeID = 11, delay = 1) {
-        const { world } = this;
-        const { id: doorID, direction } = door;
+        const { world, direction: oldDirection } = this;
+        const { id: doorID, direction: doorDirection } = door;
 
         const doorframe = world.replaceEntity('wallObjects', door, doorframeID);
         this.sendSound('opendoor');
 
-        if (direction === 0) {
+        // TODO walk in front of the door first depending on direction
+
+        if (doorDirection === 0) {
             this.walkTo(0, this.y < doorframe.y ? 1 : -1);
         } else {
             this.walkTo(this.x < doorframe.x ? 1 : -1, 0);
         }
+
+        // this seems to be accurate behaviour, see videos like:
+        // https://youtu.be/KPJYewzuHI8?t=501
+
+        await world.sleepTicks(1);
+        this.direction = oldDirection;
+        this.broadcastDirection();
 
         await world.sleepTicks(delay);
         world.replaceEntity('wallObjects', doorframe, doorID);
@@ -849,6 +943,8 @@ class Player extends Character {
     }
 
     teleport(x, y, bubble = false) {
+        const { world } = this;
+
         if (y < 0) {
             y += this.world.planeElevation * 4;
         }
@@ -867,7 +963,9 @@ class Player extends Character {
             }
         }
 
-        this.faceDirection(0, 0);
+        world.nextTick(() => {
+            this.faceDirection(0, 0);
+        });
 
         if (this.x === x && this.y === y) {
             return;
@@ -886,20 +984,124 @@ class Player extends Character {
         }, 2);
     }
 
-    regenerateHealth() {
-        if (this.skills.hits.current < this.skills.hits.base) {
-            if (this.healTicks <= 0) {
-                this.healTicks = RESTORE_TICKS;
-                this.skills.hits.current += 1;
-                this.sendStats();
-            } else {
-                this.healTicks -= 1 + (this.prayers[7] ? 1 : 0);
-            }
+    restoreHealth() {
+        if (this.healTicks > 0) {
+            this.healTicks -= 1 + Number(this.prayers[RAPID_HEAL_ID]);
+            return false;
         }
+
+        this.healTicks = RESTORE_TICKS;
+
+        if (this.skills.hits.current < this.skills.hits.base) {
+            this.skills.hits.current += 1;
+            return true;
+        }
+
+        return false;
     }
 
-    normalizeStats() {
-        this.regenerateHealth();
+    restoreSkills() {
+        if (this.restoreTicks > 0) {
+            this.restoreTicks -= 1 + Number(this.prayers[RAPID_RESTORE_ID]);
+            return false;
+        }
+
+        let updated = false;
+
+        this.restoreTicks = RESTORE_TICKS;
+
+        for (const [skillName, { base, current }] of Object.entries(
+            this.skills
+        )) {
+            if (skillName === 'hits' || skillName === 'prayer') {
+                continue;
+            }
+
+            if (current < base) {
+                this.skills[skillName].current += 1;
+                updated = true;
+            }
+        }
+
+        return updated;
+    }
+
+    debuffSkills() {
+        if (this.debuffTicks > 0) {
+            this.debuffTicks -= 1;
+            return;
+        }
+
+        let updated = false;
+
+        this.debuffTicks = RESTORE_TICKS;
+
+        for (const [skillName, { base, current }] of Object.entries(
+            this.skills
+        )) {
+            if (skillName === 'prayer') {
+                continue;
+            }
+
+            if (current > base) {
+                this.skills[skillName].current -= 1;
+                updated = true;
+            }
+        }
+
+        return updated;
+    }
+
+    // every tick, the drain rates of all the combined prayers is added to
+    // the drain counter. once the drain counter reaches your prayer resistance
+    // (a formula that takes into account your gear bonuses), it resets and
+    // you lose a prayer point.
+    drainPrayer() {
+        if (this.skills.prayer.current <= 0) {
+            return false;
+        }
+
+        const drainRate = this.getPrayerDrainRate();
+
+        if (drainRate < 1) {
+            return false;
+        }
+
+        let updated = false;
+
+        this.prayerDrainCounter += drainRate;
+
+        if (this.prayerDrainCounter >= this.getPrayerDrainResistance()) {
+            this.prayerDrainCounter = 0;
+            this.skills.prayer.current -= 1;
+            updated = true;
+        }
+
+        if (this.skills.prayer.current <= 0) {
+            this.message(
+                'You have run out of prayer points. Return to a church to ' +
+                    'recharge'
+            );
+
+            for (let i = 0; i < this.prayers.length; i += 1) {
+                this.prayers[i] = false;
+            }
+
+            this.sendPrayerStatus();
+        }
+
+        return updated;
+    }
+
+    normalizeSkills() {
+        if (
+            this.restoreHealth() ||
+            this.restoreSkills() ||
+            this.debuffSkills() ||
+            this.drainPrayer()
+        ) {
+            this.sendStats();
+        }
     }
 
     refreshDisplayFatigue() {
@@ -921,7 +1123,9 @@ class Player extends Character {
 
     fight() {
         if (this.fightStage % 3 === 0) {
-            const damage = !!this.opponent.username
+            const isPlayer = !!this.opponent.username;
+
+            const damage = isPlayer
                 ? rollPlayerPlayerDamage(this, this.opponent)
                 : rollPlayerNPCDamage(this, this.opponent);
 
@@ -934,7 +1138,7 @@ class Player extends Character {
     }
 
     tick() {
-        this.normalizeStats();
+        this.normalizeSkills();
 
         if (this.interfaceOpen.sleep) {
             this.refreshDisplayFatigue();
@@ -986,27 +1190,32 @@ class Player extends Character {
 
         this.localEntities.sendRegions();
 
-        if (!this.walkQueue.length && this.endWalkFunction) {
-            if (this.dontAnswer) {
-                this.dontAnswer();
-            }
+        if (!this.walkQueue.length) {
+            this.walkAction = false;
 
-            if (this.locked) {
-                this.endWalkFunction = null;
-                return;
-            }
-
-            if (this.endWalkFunction.constructor.name === 'AsyncFunction') {
-                this.endWalkFunction().catch((e) => log.error(e));
-            } else {
-                try {
-                    this.endWalkFunction();
-                } catch (e) {
-                    log.error(e);
+            if (this.endWalkFunction) {
+                if (this.dontAnswer) {
+                    this.dontAnswer();
                 }
-            }
 
-            this.endWalkFunction = null;
+                if (this.locked || this.endWalkLocked) {
+                    this.endWalkFunction = null;
+                    return;
+                }
+
+                this.endWalkLocked = true;
+
+                this.endWalkFunction()
+                    .catch((e) => {
+                        this.endWalkLocked = false;
+                        log.error(e);
+                    })
+                    .then(() => {
+                        this.endWalkLocked = false;
+                    });
+
+                this.endWalkFunction = null;
+            }
         }
 
         this.isWalking = false;
@@ -1035,16 +1244,6 @@ class Player extends Character {
     toString() {
         return `[Player (username=${this.username}, x=${this.x}, y=${this.y})]`;
     }
-
-    /*walkTo(dx, dy) {
-        super.walkTo(dx, dy);
-        console.log(this.username, 'walkTo', this.world.ticks, dx, dy);
-    }
-
-    faceDirection(dx, dy) {
-        super.faceDirection(dx, dy);
-        console.log(this.username, 'faceDirection', this.world.ticks, dx, dy);
-    }*/
 
     lock() {
         super.lock();

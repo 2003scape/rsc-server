@@ -1,14 +1,17 @@
 // https://classic.runescape.wiki/w/Transcript:Hetty
-// TODO burntmeat
 
 const HETTY_ID = 148;
 
 // the rats that can drop a tail
 const RAT_IDS = new Set([19, 29, 47, 177, 367, 473]);
 
+const COOKS_RANGE_ID = 119;
+
 const CAULDRON_ID = 147;
+const COOKABLE_IDS = new Set([COOKS_RANGE_ID, 11, 97, 119, 274, 491]);
 
 const BURNTMEAT_ID = 134;
+const COOKEDMEAT_ID = 132;
 const EYE_OF_NEWT_ID = 270;
 const ONION_ID = 241;
 const RAT_TAIL_ID = 271;
@@ -52,7 +55,8 @@ async function onTalkToNPC(player, npc) {
         );
 
         switch (choice) {
-            case 0: // search of quest
+            // search of quest
+            case 0: {
                 await npc.say(
                     'Hmm maybe I can think of something for you',
                     'Would you like to become more proficient in the dark arts?'
@@ -74,7 +78,8 @@ async function onTalkToNPC(player, npc) {
                     case 1: // denied quest
                         await npc.say("Suit yourself, but you're missing out");
                         break;
-                    case 2: // improve my magic?
+                    // improve my magic?
+                    case 2: {
                         await npc.say(
                             'Yes improve your magic',
                             'Do you have no sense of drama?'
@@ -107,8 +112,10 @@ async function onTalkToNPC(player, npc) {
                                 break;
                         }
                         break;
+                    }
                 }
                 break;
+            }
             case 1: // heard you're a witch
                 await npc.say(
                     'Yes it does seem to be getting fairly common knowledge',
@@ -214,4 +221,38 @@ async function onNPCDeath(player, npc) {
     return false;
 }
 
-module.exports = { onTalkToNPC, onGameObjectCommandTwo, onNPCDeath };
+async function onUseWithGameObject(player, gameObject, item) {
+    if (player.questStages.witchsPotion !== 1) {
+        return false;
+    }
+
+    if (
+        item.id !== COOKEDMEAT_ID ||
+        (gameObject.id === COOKS_RANGE_ID &&
+            player.questStages.cooksAssistant !== -1)
+    ) {
+        return false;
+    }
+
+    if (!COOKABLE_IDS.has(gameObject.id)) {
+        return false;
+    }
+
+    const type = /fire/i.test(gameObject.definition.name) ? 'fire' : 'stove';
+
+    player.sendBubble(item.id);
+    player.inventory.remove(COOKEDMEAT_ID);
+    player.inventory.add(BURNTMEAT_ID);
+
+    // no delay https://youtu.be/r6_LUl8-4uk?t=191
+    player.message(`You cook the meat on the ${type}...`, 'you burn the meat');
+
+    return true;
+}
+
+module.exports = {
+    onTalkToNPC,
+    onGameObjectCommandTwo,
+    onNPCDeath,
+    onUseWithGameObject
+};

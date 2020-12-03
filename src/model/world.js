@@ -51,10 +51,19 @@ const PLUGIN_TYPES = [
     'onUseWithWallObject',
     'onUseWithInventory',
     'onUseWithNPC',
+    'onUseWithPlayer',
     'onInventoryCommand',
     'onNPCAttack',
     'onNPCDeath'
 ];
+
+// prevent spawning entities outside of the f2p boundaries
+const FREE_BOUNDS = {
+    minX: 48,
+    maxX: 450,
+    minY: 128,
+    maxY: 766
+};
 
 class World {
     constructor(server) {
@@ -66,6 +75,8 @@ class World {
         this.planeWidth = 2304;
         this.planeHeight = 1776;
         this.planeElevation = 944;
+
+        this.playerCapacity = 1250;
 
         // { pluginType: [function() {}, ...], ... }
         this.plugins = new Map();
@@ -203,6 +214,18 @@ class World {
                 continue;
             }
 
+            const flatY = entity.y % this.planeElevation;
+
+            if (
+                !this.members &&
+                (entity.x > FREE_BOUNDS.maxX ||
+                    entity.x < FREE_BOUNDS.minX ||
+                    flatY > FREE_BOUNDS.maxY ||
+                    flatY < FREE_BOUNDS.minY)
+            ) {
+                continue;
+            }
+
             this.addEntity(type, entity);
         }
 
@@ -268,6 +291,11 @@ class World {
             } catch (e) {
                 if (handlerName === 'onTalkToNPC') {
                     args[0].disengage();
+
+                    if (e.message !== 'interrupted ask') {
+                        log.error(e);
+                    }
+
                     return true;
                 } else if (e.message === 'interrupted ask') {
                     args[0].unlock();
@@ -351,7 +379,7 @@ class World {
         const delta = respawn.max - respawn.min;
 
         return Math.floor(
-            respawn.min + delta * (1 - this.players.size / PLAYER_CAPACITY)
+            respawn.min + delta * (1 - this.players.size / this.playerCapacity)
         );
     }
 
@@ -399,25 +427,30 @@ class World {
 
         const startTime = Date.now();
 
-        for (const [id, entry] of this.tickFunctions) {
-            entry.ticks -= 1;
+        this.server.readMessages();
 
-            if (entry.ticks === 0) {
-                entry.func();
-                this.tickFunctions.delete(id);
+        try {
+            for (const [id, entry] of this.tickFunctions) {
+                entry.ticks -= 1;
+
+                if (entry.ticks === 0) {
+                    entry.func();
+                    this.tickFunctions.delete(id);
+                }
             }
-        }
 
-        for (const npc of this.npcs.getAll()) {
-            npc.tick();
-        }
+            for (const npc of this.npcs.getAll()) {
+                npc.tick();
+            }
 
-        for (const player of this.players.getAll()) {
-            player.tick();
+            for (const player of this.players.getAll()) {
+                player.tick();
+            }
+        } catch (e) {
+            log.error(e);
         }
 
         this.server.sendMessages();
-        this.server.readMessages();
 
         const deltaTime = Date.now() - startTime;
 

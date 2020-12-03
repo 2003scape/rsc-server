@@ -12,6 +12,10 @@ const deltaDirections = [
 ];
 
 function getDirection(deltaX, deltaY) {
+    if (deltaX === 0 && deltaY === 0) {
+        return 0;
+    }
+
     return deltaDirections[deltaX + 1][deltaY + 1];
 }
 
@@ -70,6 +74,7 @@ class Character extends Entity {
         }
     }
 
+    // returns whether or not we died
     damage(damage, player) {
         if (player) {
             const totalDamage = this.playerDamage.get(player.id) || 0;
@@ -80,20 +85,25 @@ class Character extends Entity {
 
         if (this.skills.hits.current <= 0) {
             this.die();
-            return;
+            return true;
         }
 
         this.broadcastDamage(damage);
+        return false;
     }
 
     faceDirection(deltaX, deltaY) {
+        if (this.isWalking) {
+            return this.direction;
+        }
+
         const direction = getDirection(deltaX, deltaY);
 
         if (this.direction === direction) {
             return this.direction;
         }
 
-        this.direction = direction; //deltaDirections[deltaX + 1][deltaY + 1];
+        this.direction = direction;
         this.broadcastDirection();
         return this.direction;
     }
@@ -189,6 +199,8 @@ class Character extends Entity {
             return false;
         }
 
+        const { world } = this;
+
         this.toAttack = null;
         this.lock();
 
@@ -196,26 +208,18 @@ class Character extends Entity {
             this.chasing = null;
         }
 
-        let deltaX = character.x - this.x;
-        let deltaY = character.y - this.y;
+        let distance = this.getDistance(character);
 
-        if (deltaX !== 0 || deltaY !== 0) {
-            await this.chase(character, 8, true);
+        if (distance > 1) {
+            await this.chase(character, 8, false);
         }
 
-        deltaX = character.x - this.x;
-        deltaY = character.y - this.y;
+        distance = this.getDistance(character);
 
-        if (deltaX !== 0 || deltaY !== 0) {
+        if (distance > 1) {
             this.unlock();
             return false;
         }
-
-        this.opponent = character;
-        this.combatRounds = 0;
-        this.fightStage = 0;
-        this.direction = 9;
-        this.broadcastDirection();
 
         character.lock();
         character.opponent = this;
@@ -227,23 +231,69 @@ class Character extends Entity {
             character.broadcastDirection();
         }
 
+        const deltaX = character.x - this.x;
+        const deltaY = character.y - this.y;
+
+        this.opponent = character;
+        this.combatRounds = 0;
+        this.fightStage = 0;
+
+        world.nextTick(() => {
+            if (deltaX !== 0 || deltaY !== 0) {
+                this.walkTo(deltaX, deltaY);
+
+                world.setTickTimeout(() => {
+                    this.direction = 9;
+                    this.broadcastDirection();
+                }, 2);
+            } else {
+                this.direction = 9;
+                this.broadcastDirection();
+            }
+        });
+
         return true;
     }
 
     async retreat() {
+        if (this.fightStage < 0) {
+            return;
+        }
+
+        const { world } = this;
+
         this.unlock();
         this.fightStage = -1;
-        this.direction = 0;
-        this.broadcastDirection();
+
+        world.nextTick(() => {
+            const isMoving = this.walkQueue
+                ? !!this.walkQueue.length
+                : this.stepsLeft > 0;
+
+            if (!isMoving && !this.isWalking) {
+                this.direction = 0;
+                this.broadcastDirection();
+            }
+        });
 
         if (this.opponent) {
             this.opponent.fightStage = -1;
-            this.opponent.direction = 0;
-            this.opponent.broadcastDirection();
-            this.opponent.opponent = null;
+
+            world.nextTick(() => {
+                const isMoving = this.opponent.walkQueue
+                    ? !!this.opponent.walkQueue.length
+                    : this.opponent.stepsLeft > 0;
+
+                if (!isMoving && !this.isWalking) {
+                    this.opponent.direction = 0;
+                    this.opponent.broadcastDirection();
+                }
+
+                this.opponent.opponent = null;
+                this.opponent = null;
+            });
 
             this.opponent.unlock();
-            this.opponent = null;
         }
     }
 
@@ -270,6 +320,7 @@ class Character extends Entity {
         // we aren't allowed to finish our path on a player (but walking through
         // them is fine)
         if (
+            !this.walkAction &&
             (this.stepsLeft === 0 ||
                 (this.walkQueue && !this.walkQueue.length)) &&
             (this.world.players.getAtPoint(destX, destY).length ||
@@ -389,9 +440,7 @@ class Character extends Entity {
 
             ticks += 1;
 
-            if (!steps.length) {
-                await world.sleepTicks(1);
-            }
+            await world.sleepTicks(1);
 
             if (ticks >= 10) {
                 break;
@@ -402,7 +451,13 @@ class Character extends Entity {
                     break newSteps;
                 }
 
-                if (!this.chasing || this.chasing.getDistance(this) >= range) {
+                if (
+                    !this.chasing ||
+                    (this.walkQueue
+                        ? this.walkQueue.length
+                        : this.stepsLeft > 0) ||
+                    this.chasing.getDistance(this) >= range
+                ) {
                     break newSteps;
                 }
 

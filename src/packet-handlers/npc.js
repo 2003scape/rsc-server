@@ -30,8 +30,6 @@ async function getNPC(player, index) {
 }
 
 async function npcTalk({ player }, { index }) {
-    /*const npc = player.world.npcs.getByIndex(index);
-    npc.walkToPoint(npc.x + 2, npc.y + 1);*/
     if (player.locked) {
         return;
     }
@@ -57,7 +55,6 @@ async function npcTalk({ player }, { index }) {
 
         npc.lock();
 
-        // TODO test this with different delays
         const blocked = await world.callPlugin('onTalkToNPC', player, npc);
 
         if (blocked) {
@@ -136,6 +133,7 @@ async function npcAttack({ player }, { index }) {
         const npc = await getNPC(player, index);
 
         if (!npc) {
+            player.toAttack = null;
             return;
         }
 
@@ -154,7 +152,9 @@ async function npcAttack({ player }, { index }) {
         const blocked = await world.callPlugin('onNPCAttack', player, npc);
 
         if (!blocked) {
-            await player.attack(npc);
+            if (!await player.attack(npc)) {
+                npc.unlock();
+            }
         } else {
             player.unlock();
             npc.unlock();
@@ -162,4 +162,7 @@ async function npcAttack({ player }, { index }) {
     };
 }
 
-module.exports = { npcTalk, useWithNPC, npcAttack };
+// noop for now
+async function npcCommand() {}
+
+module.exports = { npcTalk, useWithNPC, npcAttack, npcCommand };

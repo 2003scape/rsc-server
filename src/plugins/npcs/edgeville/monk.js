@@ -24,7 +24,8 @@ async function onTalkToNPC(player, npc) {
     );
 
     switch (choice) {
-        case 0: // heal me
+        // heal me
+        case 0: {
             await player.say('Can you heal me?', "I'm injured");
             await npc.say('Ok');
 
@@ -41,6 +42,7 @@ async function onTalkToNPC(player, npc) {
 
             player.message('@que@You feel a little better');
             break;
+        }
         case 1: // out of the way
             await player.say("Isn't this place built a bit out the way?");
 

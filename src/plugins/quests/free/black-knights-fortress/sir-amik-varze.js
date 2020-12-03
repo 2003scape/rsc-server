@@ -55,7 +55,8 @@ async function onTalkToNPC(player, npc) {
         );
 
         switch (choice) {
-            case 0: // seeking a quest
+            // seeking a quest
+            case 0: {
                 if (player.questPoints < MINIMUM_QP) {
                     await npc.say(
                         'Well i do have a task, but it is very dangerous',
@@ -94,7 +95,8 @@ async function onTalkToNPC(player, npc) {
 
                         await initiateQuest(player, npc);
                         break;
-                    case 1: // cowers in a corner
+                    // cowers in a corner
+                    case 1: {
                         await npc.say(
                             'Err',
                             'Well',
@@ -115,9 +117,10 @@ async function onTalkToNPC(player, npc) {
                             await initiateQuest(player, npc);
                         }
                         break;
+                    }
                 }
                 break;
-
+            }
             case 1: // just looking around
                 await npc.say("Ok, don't break anything");
                 break;

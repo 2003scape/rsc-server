@@ -1,12 +1,16 @@
 const Character = require('./character');
 const dropDefinitions = require('@2003scape/rsc-data/rolls/drops');
 const items = require('@2003scape/rsc-data/config/items');
+const log = require('bole')('npc');
 const npcRespawn = require('@2003scape/rsc-data/npc-respawn');
 const npcs = require('@2003scape/rsc-data/config/npcs');
 const { rollItemDrop } = require('../rolls');
 const { rollNPCDamage } = require('../combat');
 
 const HERB_IDS = new Set(dropDefinitions.herb.map((entry) => entry.id));
+const PARALYZE_MONSTER_ID = 12;
+
+const RESTORE_TICKS = 100;
 
 class NPC extends Character {
     constructor(world, { id, x, y, minX, maxX, minY, maxY }) {
@@ -68,6 +72,8 @@ class NPC extends Character {
 
         // we only need to know which players can see the NPC
         this.knownPlayers = new Set();
+
+        this.restoreTicks = RESTORE_TICKS;
     }
 
     getDrops() {
@@ -285,8 +291,11 @@ class NPC extends Character {
 
     fight() {
         if (this.fightStage % 3 === 0) {
-            const damage = rollNPCDamage(this, this.opponent);
-            this.opponent.damage(damage);
+            if (!this.opponent.prayers[PARALYZE_MONSTER_ID]) {
+                const damage = rollNPCDamage(this, this.opponent);
+                this.opponent.damage(damage);
+            }
+
             this.fightStage = 1;
             this.combatRounds += 1;
         } else {
@@ -294,7 +303,28 @@ class NPC extends Character {
         }
     }
 
+    normalizeSkills() {
+        if (this.restoreTicks > 0) {
+            this.restoreTicks -= 1;
+            return;
+        }
+
+        this.restoreTicks = 100;
+
+        for (const [skillName, { base, current }] of Object.entries(
+            this.skills
+        )) {
+            if (current < base) {
+                this.skills[skillName].current += 1;
+            } else if (current > base) {
+                this.skills[skillName].current -= 1;
+            }
+        }
+    }
+
     tick() {
+        this.normalizeSkills();
+
         if (this.opponent) {
             this.fight();
         }

@@ -46,11 +46,7 @@ async function onTalkToNPC(player, npc) {
         'Hello I am in search of a quest'
     ];
 
-    if (
-        shieldOfArravStage === 3 &&
-        phoenixStage !== -1 &&
-        phoenixStage < 2
-    ) {
+    if (shieldOfArravStage === 3 && phoenixStage !== -1 && phoenixStage < 2) {
         choices.unshift('Can you tell me where I can find the phoenix gang?');
     }
 
@@ -69,11 +65,7 @@ async function onTalkToNPC(player, npc) {
 
     let choice = await player.ask(choices, true);
 
-    if (
-        shieldOfArravStage !== 3 ||
-        phoenixStage === -1 ||
-        phoenixStage > 2
-    ) {
+    if (shieldOfArravStage !== 3 || phoenixStage === -1 || phoenixStage > 2) {
         choice += 1;
     }
 
@@ -85,7 +77,8 @@ async function onTalkToNPC(player, npc) {
         case 0: // where i can find the phoenix gang
             await whereIsPhoenix(player, npc);
             break;
-        case 1: // sell me furs
+        // sell me furs
+        case 1: {
             await npc.say("Yeah sure they're 20 gold coins a piece");
 
             const choice = await player.ask(
@@ -114,6 +107,7 @@ async function onTalkToNPC(player, npc) {
                     break;
             }
             break;
+        }
         case 2: // quest
             await npc.say(
                 "Sorry kiddo, I'm a fur trader not a damsel in distress"

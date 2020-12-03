@@ -43,7 +43,8 @@ async function whatDoYouWant(player, npc) {
     );
 
     switch (choice) {
-        case 0: // become a member
+        // become a member
+        case 0: {
             await player.say('I want to become a member of your gang');
 
             await npc.say(
@@ -79,6 +80,7 @@ async function whatDoYouWant(player, npc) {
                     break;
             }
             break;
+        }
         case 1: // hints
             await player.say('I want some hints for becomming a thief');
 

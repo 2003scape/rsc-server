@@ -3,7 +3,7 @@ function getGameObject(player, x, y) {
     const [gameObject] = world.gameObjects.getAtPoint(x, y);
 
     if (!gameObject) {
-        throw new RangeError(`invalid gameObject index ${index}`);
+        throw new RangeError(`invalid gameObject at point ${x}, ${y}`);
     }
 
     if (!gameObject.withinRange(player, 2, true)) {
@@ -32,9 +32,8 @@ function gameObjectCommand(pluginHandler, { player }, { x, y }) {
         const { world } = player;
 
         player.lock();
-
+        //player.faceEntity(gameObject);
         await world.sleepTicks(1);
-        player.faceEntity(gameObject);
         await world.callPlugin(pluginHandler, player, gameObject);
         player.unlock();
     };
@@ -79,7 +78,6 @@ async function useWithObject({ player }, { x, y, index }) {
 
         player.lock();
         await world.sleepTicks(1);
-        player.faceEntity(gameObject);
 
         const blocked = await world.callPlugin(
             'onUseWithGameObject',

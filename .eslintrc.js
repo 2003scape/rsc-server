@@ -30,6 +30,7 @@ module.exports = {
                 'checkLoops': false
             }
         ],
-        'require-atomic-updates': false
+        'require-atomic-updates': 0,
+        'no-prototype-builtins': 0
     }
 };

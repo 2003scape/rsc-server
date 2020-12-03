@@ -1,7 +1,7 @@
 {
   "name": "@2003scape/rsc-server",
   "version": "1.0.1",
-  "description": "runescape classic game server emulator",
+  "description": "runescape classic mmorpg game server emulator",
   "main": "src/server.js",
   "scripts": {
     "start": "./src/bin.js | garnish"
@@ -26,7 +26,7 @@
   "homepage": "https://github.com/2003scape/rsc-server#readme",
   "dependencies": {
     "@2003scape/rsc-captcha": "^1.0.0",
-    "@2003scape/rsc-data": "^1.0.10",
+    "@2003scape/rsc-data": "^1.0.12",
     "@2003scape/rsc-landscape": "^2.0.1",
     "@2003scape/rsc-path-finder": "^1.1.1",
     "@2003scape/rsc-socket": "^1.0.6",

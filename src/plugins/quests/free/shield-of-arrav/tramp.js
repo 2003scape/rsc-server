@@ -48,7 +48,8 @@ async function alleyway(player, npc) {
                             'And you hear those sorta things sometimes'
                         );
                         break;
-                    case 1: // how to get in there
+                    // how to get in there
+                    case 1: {
                         await npc.say(
                             'Hmm I dunno',
                             'Your best bet would probably be to get someone ' +
@@ -73,6 +74,7 @@ async function alleyway(player, npc) {
                             );
                         }
                         break;
+                    }
                 }
             } else {
                 await npc.say(
@@ -116,7 +118,8 @@ async function onTalkToNPC(player, npc) {
         case 1: // get a job
             await npc.say('You startin?');
             break;
-        case 2: // here you go
+        // here you go
+        case 2: {
             if (player.inventory.has(10)) {
                 player.inventory.remove(10);
             }
@@ -138,6 +141,7 @@ async function onTalkToNPC(player, npc) {
                 );
             }
             break;
+        }
         case 3: // anything down this alleyway
             await alleyway(player, npc);
             break;

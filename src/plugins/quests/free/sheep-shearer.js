@@ -75,7 +75,8 @@ async function onTalkToNPC(player, npc) {
                     case 0: // okay
                         await initiateQuest(player, npc);
                         break;
-                    case 1: // not exciting
+                    // not exciting
+                    case 1: {
                         await npc.say(
                             'Well what do you expect if you ask a farmer for ' +
                                 'a quest?',
@@ -94,6 +95,7 @@ async function onTalkToNPC(player, npc) {
                             await initiateQuest(player, npc);
                         }
                         break;
+                    }
                     // the thing
                     case 2: {
                         await npc.say(
@@ -204,10 +206,10 @@ async function onTalkToNPC(player, npc) {
     } else {
         await npc.say('What are you doing on my land?');
 
-        const choice = await player.ask([
-            "I'm looking for something to kill",
-            "I'm lost"
-        ], true);
+        const choice = await player.ask(
+            ["I'm looking for something to kill", "I'm lost"],
+            true
+        );
 
         switch (choice) {
             case 0: // something to kill

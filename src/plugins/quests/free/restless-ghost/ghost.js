@@ -45,7 +45,8 @@ async function interesting(player, npc) {
     );
 
     switch (choice) {
-        case 0: // did he
+        // did he
+        case 0: {
             await npc.say('Woo');
 
             const choice = await player.ask(
@@ -57,7 +58,8 @@ async function interesting(player, npc) {
             );
 
             switch (choice) {
-                case 0: // brother
+                // brother
+                case 0: {
                     await npc.say('Woo Wooooo', 'Wooooo Woo woo woo');
 
                     const choice = await player.ask(
@@ -78,12 +80,14 @@ async function interesting(player, npc) {
                     }
 
                     break;
+                }
                 case 1: // goodbye
                     await goodbyeThanks(npc);
                     break;
             }
 
             break;
+        }
         case 1: // yeah
             await npc.say('Wooo woooooooooooooo');
             await goodbyeNotSure(player, npc);
@@ -111,7 +115,8 @@ async function noAmulet(player, npc) {
         case 1: // interesting
             await interesting(player, npc);
             break;
-        case 2: // treasure
+        // treasure
+        case 2: {
             await npc.say('Wooooooo woo!');
 
             const choice = await player.ask(
@@ -132,6 +137,7 @@ async function noAmulet(player, npc) {
             }
 
             break;
+        }
     }
 }
 
@@ -231,7 +237,8 @@ async function onTalkToNPC(player, npc) {
                 await npc.say("I'm not sure");
                 await taskToBeCompleted(player, npc);
                 break;
-            case 1: // no
+            // no
+            case 1: {
                 await player.say('No');
                 await npc.say("Oh that's a pity. You got my hopes up there");
                 await player.say('Yeah, it is pity. Sorry');
@@ -258,6 +265,7 @@ async function onTalkToNPC(player, npc) {
                         break;
                 }
                 break;
+            }
             case 2: // wow
                 await player.say('Wow, this amulet works');
 

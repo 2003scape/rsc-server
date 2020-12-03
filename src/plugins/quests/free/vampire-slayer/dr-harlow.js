@@ -66,7 +66,8 @@ async function onTalkToNPC(player, npc) {
         case 1: // ok
             await giveBeer(player, npc);
             break;
-        case 2: // morgan needs help
+        // morgan needs help
+        case 2: {
             await npc.say('Morgan you shhay?');
 
             await player.say(
@@ -97,6 +98,7 @@ async function onTalkToNPC(player, npc) {
                     break;
             }
             break;
+        }
     }
 
     player.disengage();

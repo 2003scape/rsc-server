@@ -23,7 +23,41 @@ async function playerTrade({ player }, { index }) {
         return;
     }
 
-    console.log(`${player} wants to trade with ${otherPlayer}`);
+    player.trade.request(otherPlayer);
 }
 
-module.exports = { playerTrade };
+async function tradeAccept({ player }) {
+    if (!player.interfaceOpen.trade) {
+        return;
+    }
+
+    player.trade.accept();
+}
+
+async function tradeConfirmAccept({ player }) {
+    if (!player.interfaceOpen.trade) {
+        return;
+    }
+
+    player.trade.confirmAccept();
+}
+
+async function tradeDecline({ player }) {
+    if (!player.interfaceOpen.trade) {
+        return;
+    }
+
+    player.trade.decline();
+}
+
+async function tradeItemUpdate({ player }, { items }) {
+    if (!player.interfaceOpen.trade) {
+        return;
+    }
+
+    player.trade.updateItems(items);
+}
+
+module.exports = {
+    playerTrade, tradeAccept, tradeConfirmAccept, tradeDecline, tradeItemUpdate
+};

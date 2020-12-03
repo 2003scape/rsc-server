@@ -24,14 +24,18 @@ async function onTalkToNPC(player, npc) {
         if (player.inventory.has(10, 3000)) {
             player.inventory.remove(10, 3000);
             player.message('You pay the mage 3000 coins');
+            player.disengage();
+            player.lock();
             player.sendAppearance();
             player.cache.sendAppearance = true;
+            return true;
         } else {
             await player.say("I'll just go get the cash");
         }
     }
 
     player.disengage();
-
     return true;
 }
+
+module.exports = { onTalkToNPC };
