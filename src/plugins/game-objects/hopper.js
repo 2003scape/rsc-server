@@ -90,12 +90,10 @@ async function onUseWithGroundItem(player, groundItem, item) {
 
     const { world } = player;
 
-    player.message('You put the flour in the pot');
-
     world.removeEntity('groundItems', groundItem);
-
     player.inventory.remove(POT_ID);
     player.inventory.add(FLOUR_ID);
+    player.message('You put the flour in the pot');
 
     return true;
 }

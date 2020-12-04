@@ -222,7 +222,7 @@ class NPC extends Character {
         if (this.stepsLeft > 0) {
             if (
                 this.stepsLeft < 3 &&
-                Math.random() <= 2 / 3 &&
+                Math.random() <= 0.15 &&
                 this.canWalk(this.lastDeltaX, this.lastDeltaY)
             ) {
                 this.stepsLeft -= 1;
