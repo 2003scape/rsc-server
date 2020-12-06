@@ -9,6 +9,7 @@ const BRONZE_WIRE_ID = 979;
 const DORICS_ANVIL_ID = 177;
 const HAMMER_ID = 168;
 const STEEL_BAR_ID = 171;
+const STEEL_NAILS_ID = 419;
 
 // for when you initially use the bar on the anvil
 // { barID: minimumSmithingLevel }
@@ -22,7 +23,6 @@ for (const [barID, { items }] of Object.entries(smithing.items)) {
 const FORGING_MENUS = [
     {
         menu: 'Make Weapon',
-        message: 'Choose a type of weapon to make',
         types: [
             'Dagger',
             'Throwing Knife',
@@ -41,7 +41,6 @@ const FORGING_MENUS = [
     },
     {
         menu: 'Make Armour',
-        message: 'Choose a type of armour to make',
         types: [
             {
                 menu: 'Helmet',
@@ -70,7 +69,6 @@ const FORGING_MENUS = [
 
 const CRAFT_ITEM_MENU = {
     menu: 'Make Craft Item',
-    message: 'What sort of craft item do you want to make?',
     types: ['Bronze Wire(1 bar)']
 };
 
@@ -91,7 +89,7 @@ async function promptForgeItem(player, menus, items, barID, depth = 0) {
         if (barID === BRONZE_BAR_ID) {
             menus = menus.concat(CRAFT_ITEM_MENU);
         } else if (barID === STEEL_BAR_ID) {
-            menus = menus.concat('Make Steel Nails');
+            menus = menus.concat('Make Nails');
         }
 
         barID = smithing.bars;
@@ -144,11 +142,8 @@ async function promptForgeItem(player, menus, items, barID, depth = 0) {
         // generic item name used for smithing message
         let itemName = choices[choice]
             .toLowerCase()
-            .replace(/ \((\d+) bars\)$/, '');
-
-        if (itemName === 'hatchet') {
-            itemName = 'axe';
-        }
+            .replace(/ \((\d+) bars\)$/, '')
+            .replace('hatchet', 'axe');
 
         if (!item.bars) {
             return { ...item, bars: barID[choice], itemName };
@@ -260,6 +255,9 @@ async function onUseWithGameObject(player, gameObject, item) {
         player.message(
             '@que@You hammer the Bronze Bar and make some bronze wire'
         );
+    } else if (id === STEEL_NAILS_ID) {
+        // some nails instead of 2 nails
+        player.message('@que@You hammer the metal and make some nails');
     } else {
         player.message(
             `@que@You hammer the metal and make ${determiner} ${itemName}`
