@@ -32,8 +32,12 @@ function definitionStackable(element) {
 }
 
 class Container {
-    constructor(capacity, stackPolicy = StackPolicy.NEVER,
-        comparator = defaultComparator, stackable = defaultStackable) {
+    constructor(
+        capacity,
+        stackPolicy = StackPolicy.NEVER,
+        comparator = defaultComparator,
+        stackable = defaultStackable
+    ) {
         // pre-allocate the element slots. as of now, there isn't a use-case
         // where dynamic size allocation is necessary. the objects held in
         // this.slots depends on which stack policy is used. see below.
@@ -56,6 +60,11 @@ class Container {
         this.stackable = stackable;
     }
 
+    clear() {
+        this.slots = new Array(this.capacity);
+        this.size = 0;
+    }
+
     add(element, amount = 1) {
         if (element === null || amount < 0 || amount > MAX_STACK_SIZE) {
             return false;
@@ -63,7 +72,7 @@ class Container {
 
         switch (this.stackPolicy) {
             case StackPolicy.NEVER:
-                if ((this.size + amount) > this.capacity) {
+                if (this.size + amount > this.capacity) {
                     return false;
                 }
 
@@ -99,7 +108,7 @@ class Container {
                 this.slots[this.size] = [element, amount];
                 this.size += 1;
                 return true;
-            case StackPolicy.USE_PROPERTY:
+            case StackPolicy.USE_FUNCTION:
                 const stackable = this.stackable(elem);
 
                 for (let i = 0; stackable && i < this.size; i++) {
@@ -137,7 +146,7 @@ class Container {
 
         switch (this.stackPolicy) {
             case StackPolicy.NEVER:
-                if ((this.size - amount) < 0) {
+                if (this.size - amount < 0) {
                     return false;
                 }
 
@@ -163,7 +172,7 @@ class Container {
                 }
 
             case StackPolicy.ALWAYS:
-            case StackPolicy.USE_PROPERTY:
+            case StackPolicy.USE_FUNCTION:
                 for (let i = 0; i < this.size; i++) {
                     const [elem, count] = this.slots[i];
 
@@ -209,11 +218,15 @@ class Container {
     }
 
     toJSON() {
-        return this.slots;
+        return this.slots.filter(Boolean);
     }
 }
 
 module.exports = {
-    Container, StackPolicy, defaultComparator, IDComparator,
-    defaultStackable, definitionStackable
+    Container,
+    StackPolicy,
+    defaultComparator,
+    IDComparator,
+    defaultStackable,
+    definitionStackable
 };

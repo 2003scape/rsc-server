@@ -1,6 +1,11 @@
 async function playerTrade({ player }, { index }) {
     const { world } = player;
 
+    if (player.locked) {
+        player.message('You are busy');
+        return;
+    }
+
     if (player.index === index) {
         throw new RangeError(`${player} trading with self`);
     }
@@ -20,6 +25,11 @@ async function playerTrade({ player }, { index }) {
 
     if (!player.withinLineOfSight(otherPlayer)) {
         player.message('There is an obstacle in the way');
+        return;
+    }
+
+    if (otherPlayer.locked) {
+        player.message('That player is busy at the moment');
         return;
     }
 
@@ -59,5 +69,9 @@ async function tradeItemUpdate({ player }, { items }) {
 }
 
 module.exports = {
-    playerTrade, tradeAccept, tradeConfirmAccept, tradeDecline, tradeItemUpdate
+    playerTrade,
+    tradeAccept,
+    tradeConfirmAccept,
+    tradeDecline,
+    tradeItemUpdate
 };

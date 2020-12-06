@@ -1,6 +1,8 @@
 const {
-    Container, StackPolicy,
-    IDComparator, definitionStackable
+    Container,
+    StackPolicy,
+    IDComparator,
+    definitionStackable
 } = require('./container');
 
 const TRADE_CAPACITY = 12;
@@ -15,13 +17,18 @@ function processTradeRequest(playerA, playerB) {
 function processTradeClose(player) {
     player.interfaceOpen.trade = false;
     player.trade.tradingWith = null;
+    player.trade.clear();
     player.send({ type: 'tradeClose' });
 }
 
 class Trade extends Container {
     constructor(player) {
-        super(TRADE_CAPACITY, StackPolicy.USE_FUNCTION, IDComparator,
-            definitionStackable);
+        super(
+            TRADE_CAPACITY,
+            StackPolicy.USE_FUNCTION,
+            IDComparator,
+            definitionStackable
+        );
 
         // the owner of this object
         this.player = player;
@@ -48,13 +55,15 @@ class Trade extends Container {
             processTradeRequest(otherPlayer, this.player);
         } else {
             this.player.message('Sending trade request');
-            otherPlayer.message(`${this.player.username} wishes to trade with you`);
+            otherPlayer.message(
+                `${this.player.username} wishes to trade with you`
+            );
             otherPlayer.trade.requests.add(this.player);
             this.tradingWith = otherPlayer;
         }
     }
 
-    accept() { }
+    accept() {}
 
     decline() {
         // capture reference since processTradeClose mods this variable
@@ -66,9 +75,33 @@ class Trade extends Container {
         other.message('Other player has declined trade');
     }
 
-    confirmAccept() { }
+    confirmAccept() {}
 
-    updateItems(items) { }
+    updateItems(items) {
+        // clear all previous items
+        super.clear();
+
+        for (const item of items) {
+            if (!this.player.inventory.has(item)) {
+                // they don't have this item
+                this.player.message('You dont have that item');
+                break;
+            }
+            if (!super.add(item, item.amount)) {
+                // unable to add item to container, could be full
+                this.player.message('Failed to add item to trade');
+                break;
+            }
+        }
+
+        console.log(super.toJSON());
+
+        // add to next tick counter
+        this.tradingWith.send({
+            type: 'tradeItems',
+            items: super.toJSON()
+        });
+    }
 }
 
 module.exports = Trade;

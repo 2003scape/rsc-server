@@ -228,6 +228,11 @@ class Player extends Character {
         }
 
         this.exitShop(true);
+
+        if (this.interfaceOpen.trade) {
+            this.trade.decline();
+        }
+
         this.send({ type: 'logoutSuccess' });
 
         await this.world.sleepTicks(2);
