@@ -29,7 +29,7 @@ function storeLever(player, letter) {
     if (!player.cache.oilCanLevers) {
         player.cache.oilCanLevers = {};
 
-        for (const [, letter] of Object.entries(LEVER_IDS)) {
+        for (const letter of Object.values(LEVER_IDS)) {
             player.cache.oilCanLevers[letter] = false;
         }
     }

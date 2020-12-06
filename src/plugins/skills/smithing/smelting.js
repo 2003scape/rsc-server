@@ -14,7 +14,7 @@ const STEEL_BAR_ID = 171;
 
 const ORE_IDS = new Set();
 
-for (const [, { ores }] of Object.entries(smelting)) {
+for (const { ores } of Object.values(smelting)) {
     for (const { id } of ores) {
         ORE_IDS.add(id);
     }

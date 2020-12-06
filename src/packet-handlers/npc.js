@@ -34,6 +34,8 @@ async function npcTalk({ player }, { index }) {
         return;
     }
 
+    player.walkAction = false;
+
     player.endWalkFunction = async () => {
         const { world } = player;
         const npc = await getNPC(player, index);
@@ -74,6 +76,8 @@ async function useWithNPC({ player }, { npcIndex, index }) {
     if (player.locked) {
         return;
     }
+
+    player.walkAction = false;
 
     player.endWalkFunction = async () => {
         const item = player.inventory.items[index];
@@ -143,6 +147,7 @@ async function npcAttack({ player }, { index }) {
         }
 
         if (npc.locked) {
+            player.toAttack = null;
             player.unlock();
             return;
         }
@@ -152,7 +157,7 @@ async function npcAttack({ player }, { index }) {
         const blocked = await world.callPlugin('onNPCAttack', player, npc);
 
         if (!blocked) {
-            if (!await player.attack(npc)) {
+            if (!(await player.attack(npc))) {
                 npc.unlock();
             }
         } else {
