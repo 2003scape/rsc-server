@@ -12,7 +12,6 @@ async function getNPC(player, index) {
 
     if (!npc.withinRange(player, 3, true)) {
         if (npc.withinRange(player, 8)) {
-            await world.sleepTicks(1);
             await player.chase(npc);
         } else {
             return;
@@ -118,6 +117,11 @@ async function useWithNPC({ player }, { npcIndex, index }) {
 }
 
 async function npcAttack({ player }, { index }) {
+    if (player.opponent) {
+        player.message('You are already busy fighting!');
+        return;
+    }
+
     if (player.locked) {
         return;
     }

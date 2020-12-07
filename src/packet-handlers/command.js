@@ -135,10 +135,7 @@ async function command({ player }, { command, args }) {
             player.sendFatigue();
             break;
         case 'chaseobj':
-            await player.chase(
-                world.gameObjects.getByID(+args[0]),
-                false
-            );
+            await player.chase(world.gameObjects.getByID(+args[0]), false);
             break;
         case 'gotoentity': {
             const entities = world[args[0]];
@@ -199,6 +196,17 @@ async function command({ player }, { command, args }) {
             player.inventory.items = [];
             player.inventory.sendAll();
             break;
+        }
+        case 'npcchase': {
+            const npc = Array.from(player.localEntities.known.npcs).find(
+                (npc) => {
+                    return npc.id === +args[0];
+                }
+            );
+
+            if (npc) {
+                await npc.attack(player);
+            }
         }
     }
 }

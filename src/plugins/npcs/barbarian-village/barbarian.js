@@ -11,7 +11,7 @@ async function onTalkToNPC(player, npc) {
     player.engage(npc);
     await player.say('Hello');
 
-    const roll = Math.floor(Math.random() * 11);
+    const roll = 6;//Math.floor(Math.random() * 11);
 
     switch (roll) {
         case 0:
@@ -36,7 +36,7 @@ async function onTalkToNPC(player, npc) {
         case 6:
             await npc.say('Wanna fight?');
             player.disengage();
-            await npc.attack(npc);
+            await npc.attack(player);
             return true;
         case 7:
             await npc.say(

@@ -33,11 +33,13 @@ class NPC extends Character {
             throw new RangeError(`invalid NPC id ${this.id}`);
         }
 
-        // store aggressive here because we make every NPC in the wilderness
-        // aggressive
-        this.aggressive = this.definition.aggressive;
-
         this.respawn = npcRespawn[id];
+
+        if (this.withinRegion('wilderness')) {
+            this.aggressive = true;
+        } else {
+            this.aggressive = this.definition.hostility === 'aggressive';
+        }
 
         this.skills = {
             attack: {
@@ -74,6 +76,8 @@ class NPC extends Character {
         this.knownPlayers = new Set();
 
         this.restoreTicks = RESTORE_TICKS;
+
+        this.retreatTicks = 0;
     }
 
     getDrops() {
@@ -333,11 +337,36 @@ class NPC extends Character {
             this.updateKnownPlayers();
 
             if (!this.chasing) {
-                this.walkNextRandomStep();
+                let foundPlayer = false;
+
+                if (this.aggressive && this.retreatTicks <= 0) {
+                    for (const player of this.knownPlayers) {
+                        if (!player.opponent && this.isAggressive(player)) {
+                            foundPlayer = true;
+                            this.attack(player);
+                            break;
+                        }
+                    }
+                }
+
+                if (!foundPlayer) {
+                    this.walkNextRandomStep();
+                }
             }
         }
 
+        if (this.retreatTicks > 0) {
+            this.retreatTicks -= 1;
+        }
+
         this.isWalking = false;
+    }
+
+    isAggressive(player) {
+        return (
+            player.combatLevel < this.combatLevel * 2 ||
+            player.withinRegion('wilderness')
+        );
     }
 
     toString() {

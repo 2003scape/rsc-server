@@ -956,6 +956,7 @@ class Player extends Character {
 
         y = y % (this.world.planeElevation * 4);
 
+        this.lock();
         this.endWalkFunction = null;
         this.walkQueue.length = 0;
 
@@ -986,6 +987,8 @@ class Player extends Character {
             this.localEntities.updateNearby('npcs');
             this.localEntities.updateNearby('gameObjects');
             this.localEntities.updateNearby('wallObjects');
+
+            this.unlock();
         }, 2);
     }
 
@@ -1213,13 +1216,16 @@ class Player extends Character {
                 this.endWalkFunction()
                     .catch((e) => {
                         this.endWalkLocked = false;
+                        this.walkAction = false;
                         log.error(e);
                     })
                     .then(() => {
                         this.endWalkLocked = false;
+                        this.walkAction = false;
                     });
 
                 this.endWalkFunction = null;
+
             }
         }
 

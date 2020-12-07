@@ -97,6 +97,8 @@ class Character extends Entity {
             return this.direction;
         }
 
+        this.isWalking = true;
+
         const direction = getDirection(deltaX, deltaY);
 
         if (this.direction === direction) {
@@ -105,6 +107,7 @@ class Character extends Entity {
 
         this.direction = direction;
         this.broadcastDirection();
+
         return this.direction;
     }
 
@@ -112,8 +115,10 @@ class Character extends Entity {
     // a ground item for instance)
     faceEntity(entity) {
         if (this.isWalking) {
-            return;
+            return this.direction;
         }
+
+        this.isWalking = true;
 
         if (this.x === entity.x && this.y === entity.y) {
             if (entity.direction === 0) {
@@ -141,8 +146,15 @@ class Character extends Entity {
             deltaY = -1;
         }
 
-        this.direction = deltaDirections[deltaX + 1][deltaY + 1];
+        const direction = deltaDirections[deltaX + 1][deltaY + 1];
+
+        if (this.direction === direction) {
+            return this.direction;
+        }
+
+        this.direction = direction;
         this.broadcastDirection();
+
         return this.direction;
     }
 
@@ -210,15 +222,19 @@ class Character extends Entity {
 
         let distance = this.getDistance(character);
 
-        if (distance > 1) {
+        if (distance > 1.5) {
             await this.chase(character, 8, false);
         }
 
         distance = this.getDistance(character);
 
-        if (distance > 1) {
+        if (character.opponent || distance > 1.5) {
             this.unlock();
             return false;
+        }
+
+        if (character.constructor.name === 'Player') {
+            character.message('You are under attack!');
         }
 
         character.lock();
@@ -227,8 +243,16 @@ class Character extends Entity {
         character.fightStage = 1;
 
         if (character.direction !== 8) {
-            character.direction = 8;
-            character.broadcastDirection();
+            if (character.walkQueue) {
+                character.walkQueue.length = 0;
+            } else {
+                character.stepsLeft = 0;
+            }
+
+            world.nextTick(() => {
+                character.direction = 8;
+                character.broadcastDirection();
+            });
         }
 
         const deltaX = character.x - this.x;
@@ -238,63 +262,65 @@ class Character extends Entity {
         this.combatRounds = 0;
         this.fightStage = 0;
 
-        world.nextTick(() => {
-            if (deltaX !== 0 || deltaY !== 0) {
+        if (deltaX !== 0 || deltaY !== 0) {
+            world.setTickTimeout(() => {
                 this.walkTo(deltaX, deltaY);
 
                 world.setTickTimeout(() => {
                     this.direction = 9;
                     this.broadcastDirection();
                 }, 2);
-            } else {
+            }, 2);
+        } else {
+            world.nextTick(() => {
                 this.direction = 9;
                 this.broadcastDirection();
-            }
-        });
+            });
+        }
 
         return true;
     }
 
     async retreat() {
-        if (this.fightStage < 0) {
+        if (this.fightStage === -1 || this.retreating) {
             return;
         }
 
         const { world } = this;
+        const opponent = this.opponent;
 
+        this.retreating = true;
         this.unlock();
         this.fightStage = -1;
 
-        world.nextTick(() => {
-            const isMoving = this.walkQueue
-                ? !!this.walkQueue.length
-                : this.stepsLeft > 0;
+        if (opponent) {
+            opponent.unlock();
+            opponent.fightStage = -1;
 
-            if (!isMoving && !this.isWalking) {
-                this.direction = 0;
-                this.broadcastDirection();
+            if (opponent.constructor.name === 'NPC' ) {
+                opponent.retreatTicks = 4;
             }
-        });
+        }
 
-        if (this.opponent) {
-            this.opponent.fightStage = -1;
+        world.nextTick(() => {
+            if (
+                this.direction >= 8 &&
+                (this.walkQueue ? !this.walkQueue.length : !this.stepsLeft)
+            ) {
+                this.faceDirection(0, 0);
+            }
 
-            world.nextTick(() => {
-                const isMoving = this.opponent.walkQueue
-                    ? !!this.opponent.walkQueue.length
-                    : this.opponent.stepsLeft > 0;
-
-                if (!isMoving && !this.isWalking) {
-                    this.opponent.direction = 0;
-                    this.opponent.broadcastDirection();
+            if (opponent) {
+                if (opponent.direction >= 8) {
+                    opponent.faceDirection(0, 0);
                 }
 
-                this.opponent.opponent = null;
+                opponent.opponent = null;
                 this.opponent = null;
-            });
+            }
 
-            this.opponent.unlock();
-        }
+            this.retreating = false;
+        });
     }
 
     // collision detection for players and NPCs to determine if next step is
@@ -317,6 +343,15 @@ class Character extends Entity {
             return true;
         }
 
+        // attackable? npcs always break our path
+        const npcs = this.world.npcs.getAtPoint(destX, destY);
+
+        for (const npc of npcs) {
+            if (npc.definition.hostility) {
+                return false;
+            }
+        }
+
         // we aren't allowed to finish our path on a player (but walking through
         // them is fine)
         if (
@@ -327,15 +362,6 @@ class Character extends Entity {
                 this.world.npcs.getAtPoint(destX, destY).length)
         ) {
             return false;
-        }
-
-        // attackable? npcs always break our path
-        const npcs = this.world.npcs.getAtPoint(destX, destY);
-
-        for (const npc of npcs) {
-            if (npc.definition.hostility) {
-                return false;
-            }
         }
 
         return this.world.pathFinder.isValidGameStep(
@@ -425,10 +451,6 @@ class Character extends Entity {
     async chase(entity, range = 8, overlap = false) {
         const { world } = this;
 
-        if (this.isWalking) {
-            return;
-        }
-
         let ticks = 0;
         this.chasing = entity;
 
@@ -439,8 +461,6 @@ class Character extends Entity {
             const steps = this.getPositionSteps(destX, destY, overlap);
 
             ticks += 1;
-
-            await world.sleepTicks(1);
 
             if (ticks >= 10) {
                 break;
@@ -472,8 +492,12 @@ class Character extends Entity {
                     break newSteps;
                 }
 
-                this.walkTo(deltaX, deltaY);
+                if (!overlap && !this.canWalk(deltaX, deltaY)) {
+                    break newSteps;
+                }
+
                 await world.sleepTicks(1);
+                this.walkTo(deltaX, deltaY);
 
                 ticks += 1;
             }
