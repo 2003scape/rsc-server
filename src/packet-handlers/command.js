@@ -207,7 +207,12 @@ async function command({ player }, { command, args }) {
             if (npc) {
                 await npc.attack(player);
             }
+
+            break;
         }
+        case 'npccoords':
+            player.message(world.npcs.getAtPoint(+args[0], +args[1]).length);
+            break;
     }
 }
 

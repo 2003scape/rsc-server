@@ -12,7 +12,7 @@ async function onInventoryCommand(player, item) {
     player.message('@que@You dig a hole in the ground');
     await world.sleepTicks(1);
 
-    player.inventory.remove(item);
+    player.inventory.remove(item.id);
     player.addExperience('prayer', buryExperience[item.id]);
     player.message(`@que@You bury the ${item.definition.name.toLowerCase()}`);
 

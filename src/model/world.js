@@ -166,8 +166,7 @@ class World {
 
     removeEntity(type, entity) {
         if (!this[type].remove(entity)) {
-            //throw new Error(`unable to remove entity ${entity}`);
-            return;
+            throw new Error(`unable to remove entity ${entity}`);
         }
 
         if (type === 'players') {
@@ -178,6 +177,9 @@ class World {
 
         if (entity.respawn) {
             this.setTimeout(() => {
+                entity.x = entity.spawnX || entity.x;
+                entity.y = entity.spawnY || entity.y;
+
                 this.addEntity(
                     type,
                     new entityConstructors[type](this, entity)

@@ -1159,7 +1159,7 @@ class Player extends Character {
         this.localEntities.updateNearby('players');
         this.localEntities.updateNearby('groundItems');
 
-        if (this.walkQueue.length) {
+        if (this.walkQueue.length && !this.locked) {
             if (this.dontAnswer) {
                 this.dontAnswer();
             }

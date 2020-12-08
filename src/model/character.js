@@ -242,13 +242,13 @@ class Character extends Entity {
         character.combatRounds = 0;
         character.fightStage = 1;
 
-        if (character.direction !== 8) {
-            if (character.walkQueue) {
-                character.walkQueue.length = 0;
-            } else {
-                character.stepsLeft = 0;
-            }
+        if (character.walkQueue) {
+            character.walkQueue.length = 0;
+        } else {
+            character.stepsLeft = 0;
+        }
 
+        if (character.direction !== 8) {
             world.nextTick(() => {
                 character.direction = 8;
                 character.broadcastDirection();
@@ -270,7 +270,7 @@ class Character extends Entity {
                     this.direction = 9;
                     this.broadcastDirection();
                 }, 2);
-            }, 2);
+            }, 1);
         } else {
             world.nextTick(() => {
                 this.direction = 9;
@@ -297,13 +297,14 @@ class Character extends Entity {
             opponent.unlock();
             opponent.fightStage = -1;
 
-            if (opponent.constructor.name === 'NPC' ) {
+            if (opponent.constructor.name === 'NPC') {
                 opponent.retreatTicks = 4;
             }
         }
 
         world.nextTick(() => {
             if (
+                !this.isWalking &&
                 this.direction >= 8 &&
                 (this.walkQueue ? !this.walkQueue.length : !this.stepsLeft)
             ) {
@@ -345,6 +346,8 @@ class Character extends Entity {
 
         // attackable? npcs always break our path
         const npcs = this.world.npcs.getAtPoint(destX, destY);
+
+        //console.log(Date.now(), this.index, this.world.ticks, destX, destY, npcs.length);
 
         for (const npc of npcs) {
             if (npc.definition.hostility) {
@@ -496,8 +499,8 @@ class Character extends Entity {
                     break newSteps;
                 }
 
-                await world.sleepTicks(1);
                 this.walkTo(deltaX, deltaY);
+                await world.sleepTicks(1);
 
                 ticks += 1;
             }
@@ -511,10 +514,16 @@ class Character extends Entity {
         this.chasing = null;
     }
 
-    getFreeDirection() {
+    getFreeDirection(visitedTiles) {
         for (let deltaX = -1; deltaX < 2; deltaX += 1) {
             for (let deltaY = -1; deltaY < 2; deltaY += 1) {
-                if (deltaX === 0 && deltaY === 0) {
+                const destX = this.x + deltaX;
+                const destY = this.y + deltaY;
+
+                if (
+                    (deltaX === 0 && deltaY === 0) ||
+                    (visitedTiles && visitedTiles.has(`${destX},${destY}`))
+                ) {
                     continue;
                 }
 

@@ -82,10 +82,6 @@ async function walkAction(socket, message) {
 
     player.walkAction = true;
 
-    if (player.opponent) {
-        return;
-    }
-
     await walk(socket, message);
 }
 

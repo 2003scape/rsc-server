@@ -35,11 +35,14 @@ class NPC extends Character {
 
         this.respawn = npcRespawn[id];
 
-        if (this.withinRegion('wilderness')) {
-            this.aggressive = true;
-        } else {
-            this.aggressive = this.definition.hostility === 'aggressive';
-        }
+        this.aggressive =
+            this.withinRegion('wilderness') ||
+            this.definition.hostility === 'aggressive';
+
+        // TODO add list of other NPCs that retreat
+        this.retreats =
+            !this.definition.hostility ||
+            this.definition.hostility === 'retreats';
 
         this.skills = {
             attack: {
@@ -176,6 +179,32 @@ class NPC extends Character {
             .catch((e) => log.error(e));
     }
 
+    // run away after retreating
+    async flee(ticks = 8) {
+        const { world } = this;
+        const visitedTiles = new Set();
+
+        this.retreatTicks = ticks;
+
+        for (let i = 0; i < ticks; i += 1) {
+            if (this.locked) {
+                break;
+            }
+
+            const step = this.getFreeDirection(visitedTiles);
+
+            if (step) {
+                this.walkTo(step.deltaX, step.deltaY);
+                await world.sleepTicks(1);
+                visitedTiles.add(`${this.x},${this.y}`);
+            } else {
+                break;
+            }
+        }
+
+        this.retreatTicks = 0;
+    }
+
     updateKnownPlayers() {
         for (const player of this.knownPlayers) {
             if (!player.loggedIn || !player.withinRange(this, 16)) {
@@ -269,12 +298,30 @@ class NPC extends Character {
     }
 
     broadcastDirection() {
+        console.log(
+            'tick #',
+            this.world.ticks,
+            '-',
+            this.definition.name,
+            'broadcast direction',
+            this.direction
+        );
+
         for (const player of this.knownPlayers) {
             player.localEntities.spriteChanged.npcs.add(this);
         }
     }
 
     broadcastMove() {
+        console.log(
+            'tick #',
+            this.world.ticks,
+            '-',
+            this.definition.name,
+            'broadcast move',
+            this.direction
+        );
+
         for (const player of this.knownPlayers) {
             player.localEntities.moved.npcs.add(this);
         }
@@ -304,6 +351,18 @@ class NPC extends Character {
             this.combatRounds += 1;
         } else {
             this.fightStage += 1;
+        }
+
+        if (
+            this.retreats &&
+            this.combatRounds > 3 &&
+            this.skills.hits.current <= Math.ceil(this.skills.hits.base * 0.25)
+        ) {
+            this.opponent.message('Your opponent is retreating');
+
+            this.retreat()
+                .then(() => this.flee())
+                .catch((err) => log.error(err));
         }
     }
 
@@ -341,7 +400,11 @@ class NPC extends Character {
 
                 if (this.aggressive && this.retreatTicks <= 0) {
                     for (const player of this.knownPlayers) {
-                        if (!player.opponent && this.isAggressive(player)) {
+                        if (
+                            !player.opponent &&
+                            this.isAggressive(player) &&
+                            player.withinRange(8)
+                        ) {
                             foundPlayer = true;
                             this.attack(player);
                             break;
