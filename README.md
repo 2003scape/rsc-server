@@ -11,15 +11,15 @@ game server emulator. designed to work with the web-based
 
 * for the latest stable release, run:
 
-        # npm install -g @2003scape/rsc-data-server @2003scape/rsc-server
+      # npm install -g @2003scape/rsc-data-server @2003scape/rsc-server
 
 * to check out the latest unstable features, install
 [git](https://git-scm.com/downloads) and run:
 
-        $ git clone https://github.com/2003scape/rsc-data-server
-        $ cd rsc-data-server && npm install
-        $ git clone https://github.com/2003scape/rsc-server
-        $ cd ../rsc-server && npm install
+      $ git clone https://github.com/2003scape/rsc-data-server
+      $ cd rsc-data-server && npm install && cd ../
+      $ git clone https://github.com/2003scape/rsc-server
+      $ cd rsc-server && npm install
 
 * install
 [rsc-client](https://github.com/2003scape/rsc-client#install) or
@@ -34,13 +34,13 @@ TLS or IPC [domain sockets](https://en.wikipedia.org/wiki/Unix_domain_socket).
 * if installed with npm, use (`-c <config-file>` is optional for both,
 they will look for *config.json* in their own directory first):
 
-        $ rsc-data-server -c /etc/rsc-data-server/config.json &
-        $ rsc-server -c /etc/rsc-server/config.json
+      $ rsc-data-server -c /etc/rsc-data-server/config.json &
+      $ rsc-server -c /etc/rsc-server/config.json
 
 * if cloned from git:
 
-        $ cd rsc-data-server && npm start &
-        $ cd ../rsc-server && npm start
+      $ cd rsc-data-server && npm start &
+      $ cd ../rsc-server && npm start
 
 ## config.json
 when using `$ rsc-server`, pass in `-c <config-file>` (or edit `config.json`
