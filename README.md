@@ -6,7 +6,24 @@ game server emulator. designed to work with the web-based
 
 ## install
 
-    # npm install -g @2003scape/rsc-data-server @2003scape/rsc-server
+* download and install [nodejs](https://nodejs.org/en/) (which comes with
+[npm](https://docs.npmjs.com/about-npm))
+
+* for the latest stable release, run:
+
+        # npm install -g @2003scape/rsc-data-server @2003scape/rsc-server
+
+* to check out the latest unstable features, install
+[git](https://git-scm.com/downloads) and run:
+
+        $ git clone https://github.com/2003scape/rsc-data-server
+        $ cd rsc-data-server && npm install
+        $ git clone https://github.com/2003scape/rsc-server
+        $ cd ../rsc-server && npm install
+
+* install
+[rsc-client](https://github.com/2003scape/rsc-client#install) or
+[mudclient204](https://github.com/2003scape/mudclient204#build-and-run)
 
 ## cli usage
 rsc-server connects to
@@ -14,8 +31,67 @@ rsc-server connects to
 saving/loading and managing friends lists across worlds. it supports TCP with
 TLS or IPC [domain sockets](https://en.wikipedia.org/wiki/Unix_domain_socket).
 
-    $ rsc-data-server -c /etc/rsc-data-server/config.json &
-    $ rsc-server -c /etc/rsc-server/config.json
+* if installed with npm, use (`-c <config-file>` is optional for both,
+they will look for *config.json* in their own directory first):
+
+        $ rsc-data-server -c /etc/rsc-data-server/config.json &
+        $ rsc-server -c /etc/rsc-server/config.json
+
+* if cloned from git:
+
+        $ cd rsc-data-server && npm start &
+        $ cd ../rsc-server && npm start
+
+## config.json
+when using `$ rsc-server`, pass in `-c <config-file>` (or edit `config.json`
+in the *rsc-server* directory if cloned from git) to modify the following:
+
+```javascript
+{
+    // UNIX socket file used if connecting to rsc-data-server on the same
+    // machine
+    "dataServerFile": "/tmp/rsc-data-server.sock",
+
+    // optional IP/port if connecting to rsc-data-server on another network
+    "dataServerTCP": "localhost:9001" || null,
+
+    // password used to authenticate with rsc-data-server
+    "dataServerPassword": "test",
+
+    // version to check clients on login
+    "version": 204,
+
+    // the unique world index to communicate to rsc-data-server
+    "worldID": 1,
+
+    // port to listen to for non-websocket regular TCP clients
+    // (for mudclient204)
+    "tcpPort": 43594,
+
+    // port to listen to https://en.wikipedia.org/wiki/WebSocket connections
+    // (for rsc-client)
+    "websocketPort": 43595,
+
+    // country flag to use on the website
+    "country": "CAN",
+
+    // disable members features and non-members logins & registration for this
+    // world
+    "members": false,
+
+    // boost or lower the experience rate
+    "experienceRate": 1,
+
+    // enable or disable fatigue gaining
+    "fatigue": true,
+
+    // add from/to bank options for certing NPCs (not supported in real RSC)
+    "bankCertificates": false,
+
+    // store player combat style in database (not supported in real RSC)
+    "rememberCombatStyle": false
+}
+```
 
 ## see also
 * [RSCGo](https://github.com/spkaeros/RSCGo) by @spkaeros
