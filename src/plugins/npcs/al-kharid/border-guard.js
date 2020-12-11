@@ -1,7 +1,5 @@
 // https://classic.runescape.wiki/w/Transcript:Border_Guard
 
-const GameObject = require('../../../model/game-object');
-
 const CLOSED_GATE_ID = 180;
 const OPEN_GATE_ID = 181;
 
@@ -11,67 +9,16 @@ const BORDER_GUARD_ENTRY = 161;
 // the guard inside of al-kharid (to lumbridge from al-kharid)
 const BORDER_GUARD_EXIT = 162;
 
-// replace the gate and move the player through it (it's still a blocked object,
-// so people can't steal your toll)
-async function enterGate(player, entry) {
-    const { world } = player;
-
-    const gameObject = world.gameObjects.getByID(CLOSED_GATE_ID);
-    const { x, y, direction } = gameObject;
-
-    if (entry) {
-        await player.walkToPoint(92, 649, true);
-        player.faceDirection(0, 0);
-    } else {
-        await player.walkToPoint(91, 649, true);
-        player.faceDirection(0, 0);
-    }
-
-    world.removeEntity('gameObjects', gameObject);
-
-    const openGate = new GameObject(world, {
-        id: OPEN_GATE_ID,
-        x,
-        y,
-        direction
-    });
-
-    world.addEntity('gameObjects', openGate);
-
-    if (entry) {
-        player.walkTo(-1, 0);
-    } else {
-        player.walkTo(1, 0);
-    }
-
-    player.message('The gate swings open');
-    player.sendSound('opendoor'); // TODO check this
-
-    await world.sleepTicks(1);
-
-    world.removeEntity('gameObjects', openGate);
-
-    const closedGate = new GameObject(world, {
-        id: CLOSED_GATE_ID,
-        x,
-        y,
-        direction
-    });
-
-    world.addEntity('gameObjects', closedGate);
-}
-
 async function onTalkToNPC(player, npc) {
     if (npc.id !== BORDER_GUARD_ENTRY && npc.id !== BORDER_GUARD_EXIT) {
         return false;
     }
 
+    const { world } = player;
+    const gate = world.gameObjects.getByID(CLOSED_GATE_ID);
     const princeAliRescueStage = player.questStages.princeAliRescue;
 
     player.engage(npc);
-
-    // entering or exiting al-kharid?
-    const entry = npc.id === BORDER_GUARD_ENTRY;
 
     await player.say('Can I come through this gate?');
 
@@ -103,7 +50,7 @@ async function onTalkToNPC(player, npc) {
                     player.inventory.remove(10, 10);
                     player.message('You pay the guard');
                     await npc.say('You may pass');
-                    await enterGate(player, entry);
+                    await player.enterGate(gate, OPEN_GATE_ID);
                 } else {
                     await player.say(
                         "Oh dear I don't actually seem to have enough money"
@@ -113,7 +60,7 @@ async function onTalkToNPC(player, npc) {
         }
     } else {
         await npc.say('You may pass for free, you are a friend of Al Kharid');
-        await enterGate(player, entry);
+        await player.enterGate(gate, OPEN_GATE_ID);
     }
 
     player.disengage();

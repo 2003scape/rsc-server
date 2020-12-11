@@ -98,7 +98,7 @@ class Entity {
 
     getNearbyEntitiesByID(type, id, range = 48) {
         return this.getNearbyEntities(type, range).filter(
-            entity => entity.id === id
+            (entity) => entity.id === id
         );
     }
 

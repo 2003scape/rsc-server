@@ -252,6 +252,7 @@ class NPC extends Character {
     }
 
     walkNextRandomStep() {
+        // TODO visitedTiles
         if (this.stepsLeft > 0) {
             if (
                 this.stepsLeft < 3 &&
@@ -372,7 +373,7 @@ class NPC extends Character {
             return;
         }
 
-        this.restoreTicks = 100;
+        this.restoreTicks = RESTORE_TICKS;
 
         for (const [skillName, { base, current }] of Object.entries(
             this.skills

@@ -882,7 +882,7 @@ class Player extends Character {
         return false;
     }
 
-    // enter a door with a blocked doorframe and close it
+    // enter a wall object with a blocked doorframe and close it
     async enterDoor(door, doorframeID = 11, delay = 1) {
         const { world, direction: oldDirection } = this;
         const { id: doorID, direction: doorDirection } = door;
@@ -890,17 +890,19 @@ class Player extends Character {
         const doorframe = world.replaceEntity('wallObjects', door, doorframeID);
         this.sendSound('opendoor');
 
-        // TODO walk in front of the door first depending on direction
-
         if (doorDirection === 0) {
             this.walkTo(0, this.y < doorframe.y ? 1 : -1);
-        } else {
+        } else if (doorDirection === 1) {
             this.walkTo(this.x < doorframe.x ? 1 : -1, 0);
+        } else {
+            this.walkTo(
+                this.x < doorframe.x ? 1 : -1,
+                this.y < doorframe.y ? 1 : -1
+            );
         }
 
         // this seems to be accurate behaviour, see videos like:
         // https://youtu.be/KPJYewzuHI8?t=501
-
         await world.sleepTicks(1);
         this.direction = oldDirection;
         this.broadcastDirection();
@@ -909,7 +911,59 @@ class Player extends Character {
         world.replaceEntity('wallObjects', doorframe, doorID);
     }
 
-    climb(gameObject, up) {
+    // enter a gate with blocked open gate and close it
+    async enterGate(gate, openGateID = 181) {
+        const { world } = this;
+        const { id: gateID, direction } = gate;
+
+        let deltaX = 0;
+        let deltaY = 0;
+
+        if (direction === 0) {
+            if (this.x >= gate.x) {
+                await this.walkToPoint(gate.x, gate.y, true);
+                deltaX = -1;
+            } else {
+                await this.walkToPoint(gate.x - 1, gate.y, true);
+                deltaX = 1;
+            }
+        } else if (direction === 4) {
+            if (this.x <= gate.x) {
+                await this.walkToPoint(gate.x, gate.y, true);
+                deltaX = 1;
+            } else {
+                await this.walkToPoint(gate.x + 1, gate.y, true);
+                deltaX = -1;
+            }
+        } else if (direction === 6) {
+            if (this.y >= gate.y) {
+                await this.walkToPoint(gate.x, gate.y, true);
+                deltaY -= 1;
+            } else {
+                await this.walkToPoint(gate.x, gate.y - 1, true);
+                deltaY += 1;
+            }
+        }
+
+        this.faceDirection(0, 0);
+        await world.sleepTicks(1);
+
+        const openGate = world.replaceEntity('gameObjects', gate, openGateID);
+
+        this.walkTo(deltaX, deltaY);
+        this.message('The gate swings open');
+        this.sendSound('opendoor');
+
+        await world.sleepTicks(1);
+
+        world.replaceEntity('gameObjects', openGate, gateID);
+
+        this.faceDirection(0, 0);
+        await world.sleepTicks(1);
+    }
+
+    // climb ladders or stairs (go up or down a plane)
+    climb(gameObject, up = false) {
         const { world } = this;
         const direction = this.direction;
         const height = gameObject.definition.height;
@@ -1225,7 +1279,6 @@ class Player extends Character {
                     });
 
                 this.endWalkFunction = null;
-
             }
         }
 

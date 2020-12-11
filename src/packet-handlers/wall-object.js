@@ -10,6 +10,20 @@ function getWallObject(player, x, y) {
         return;
     }
 
+    if (wallObject.direction === 0) {
+        if (player.x !== wallObject.x) {
+            return;
+        }
+    } else if (wallObject.direction === 1) {
+        if (player.y !== wallObject.y) {
+            return;
+        }
+    } else {
+        if (player.x === wallObject.x && player.y === wallObject.y) {
+            return;
+        }
+    }
+
     return wallObject;
 }
 

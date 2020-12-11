@@ -2,13 +2,18 @@
 // https://classic.runescape.wiki/w/Dragon_(Dragon_Slayer)
 
 const ANTI_DRAGON_BREATH_SHIELD_ID = 420;
-const DRAGON_IDS = new Set([196]);
+
+const DRAGON_IDS = new Set([
+    // elvarg
+    196
+]);
 
 async function onNPCAttack(player, npc) {
     if (!DRAGON_IDS.has(npc.id)) {
         return false;
     }
 
+    // TODO scale max flame damage with the dragon's combat level
     let fireDamage = Math.floor(Math.random() * 65);
     const prayerDebuff = Math.floor(player.skills.prayer.base * 0.25);
 

@@ -50,6 +50,7 @@ async function walk({ player }, { targetX, targetY, steps }) {
         return;
     }
 
+    player.toAttack = null;
     player.chasing = null;
     player.endWalkFunction = null;
     player.walkQueue.length = 0;
@@ -79,6 +80,10 @@ async function walk({ player }, { targetX, targetY, steps }) {
 
 async function walkAction(socket, message) {
     const { player } = socket;
+
+    if (player.opponent) {
+        return;
+    }
 
     player.walkAction = true;
 

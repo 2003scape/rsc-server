@@ -11,12 +11,29 @@ const deltaDirections = [
     [directions.southEast, directions.east, directions.northEast]
 ];
 
-function getDirection(deltaX, deltaY) {
+// { 0: { deltaX: 0, deltaY: 1 }, ... }
+const numberDirections = {};
+
+for (let deltaX = -1; deltaX < 2; deltaX += 1) {
+    for (let deltaY = -1; deltaY < 2; deltaY += 1) {
+        const directionNumber = deltaDirections[deltaX + 1][deltaY + 1];
+
+        if (typeof directionNumber === 'number') {
+            numberDirections[directionNumber] = { deltaX, deltaY };
+        }
+    }
+}
+
+function getDirectionNumber(deltaX, deltaY) {
     if (deltaX === 0 && deltaY === 0) {
         return 0;
     }
 
     return deltaDirections[deltaX + 1][deltaY + 1];
+}
+
+function getDirectionDelta(directionNumber) {
+    return numberDirections[directionNumber];
 }
 
 class Character extends Entity {
@@ -99,7 +116,7 @@ class Character extends Entity {
 
         this.isWalking = true;
 
-        const direction = getDirection(deltaX, deltaY);
+        const direction = getDirectionNumber(deltaX, deltaY);
 
         if (this.direction === direction) {
             return this.direction;
@@ -233,6 +250,11 @@ class Character extends Entity {
             return false;
         }
 
+        if (!this.withinLineOfSight(character)) {
+            this.unlock();
+            return false;
+        }
+
         if (character.constructor.name === 'Player') {
             character.message('You are under attack!');
         }
@@ -263,14 +285,14 @@ class Character extends Entity {
         this.fightStage = 0;
 
         if (deltaX !== 0 || deltaY !== 0) {
-            world.setTickTimeout(() => {
+            world.nextTick(() => {
                 this.walkTo(deltaX, deltaY);
 
                 world.setTickTimeout(() => {
                     this.direction = 9;
                     this.broadcastDirection();
                 }, 2);
-            }, 1);
+            });
         } else {
             world.nextTick(() => {
                 this.direction = 9;
@@ -297,8 +319,14 @@ class Character extends Entity {
             opponent.unlock();
             opponent.fightStage = -1;
 
-            if (opponent.constructor.name === 'NPC') {
+            if (opponent.constructor.name === 'NPC' && !opponent.retreats) {
                 opponent.retreatTicks = 4;
+
+                world.setTickTimeout(() => {
+                    if (!this.locked) {
+                        opponent.attack(this);
+                    }
+                }, 4);
             }
         }
 
@@ -347,10 +375,8 @@ class Character extends Entity {
         // attackable? npcs always break our path
         const npcs = this.world.npcs.getAtPoint(destX, destY);
 
-        //console.log(Date.now(), this.index, this.world.ticks, destX, destY, npcs.length);
-
         for (const npc of npcs) {
-            if (npc.definition.hostility) {
+            if (npc.definition.hostility && !npc.opponent) {
                 return false;
             }
         }
@@ -387,11 +413,11 @@ class Character extends Entity {
         this.x += deltaX;
         this.y += deltaY;
 
-        this.direction = getDirection(oldX - this.x, oldY - this.y);
+        this.direction = getDirectionNumber(oldX - this.x, oldY - this.y);
         this.broadcastMove();
     }
 
-    getPositionSteps(destX, destY, overlap = true) {
+    getPointSteps(destX, destY, overlap = true) {
         const { world } = this;
 
         const steps = [];
@@ -436,7 +462,7 @@ class Character extends Entity {
 
     async walkToPoint(destX, destY, overlap = true) {
         const { world } = this;
-        const steps = this.getPositionSteps(destX, destY, overlap);
+        const steps = this.getPointSteps(destX, destY, overlap);
 
         for (const { deltaX, deltaY } of steps) {
             if (
@@ -461,7 +487,7 @@ class Character extends Entity {
             const destX = this.chasing.x;
             const destY = this.chasing.y;
 
-            const steps = this.getPositionSteps(destX, destY, overlap);
+            const steps = this.getPointSteps(destX, destY, overlap);
 
             ticks += 1;
 
@@ -532,6 +558,24 @@ class Character extends Entity {
                 }
             }
         }
+    }
+
+    getFrontPoint() {
+        const { deltaX, deltaY } = getDirectionDelta(this.direction);
+
+        return {
+            x: this.x + deltaX,
+            y: this.y + deltaY
+        };
+    }
+
+    getBackPoint() {
+        const { deltaX, deltaY } = getDirectionDelta(this.direction);
+
+        return {
+            x: this.x - deltaX,
+            y: this.y - deltaY
+        };
     }
 
     getCombatExperience() {
