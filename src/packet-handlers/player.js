@@ -12,7 +12,6 @@ async function getPlayer(player, index) {
 
     if (!otherPlayer.withinRange(player, 3, true)) {
         if (otherPlayer.withinRange(player, 8)) {
-            await world.sleepTicks(1);
             await player.chase(otherPlayer);
         } else {
             return;

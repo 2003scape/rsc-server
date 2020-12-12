@@ -227,7 +227,9 @@ class Player extends Character {
             this.dontAnswer();
         }
 
-        this.exitShop(true);
+        if (this.interfaceOpen.shop) {
+            this.exitShop(true);
+        }
 
         if (this.interfaceOpen.trade) {
             this.trade.decline();
@@ -601,14 +603,14 @@ class Player extends Character {
 
     // broadcast the player changing sprites
     broadcastDirection() {
-        console.log(
+        /*console.log(
             'tick #',
             this.world.ticks,
             '-',
             this.username,
             'broadcast direction',
             this.direction
-        );
+        );*/
         if (!this.moveTick) {
             this.moveTick = this.world.ticks;
         } else {
@@ -634,14 +636,14 @@ class Player extends Character {
 
     // broadcast the player moving in their current direction
     broadcastMove() {
-        console.log(
+        /*console.log(
             'tick #',
             this.world.ticks,
             '-',
             this.username,
             'broadcast move',
             this.direction
-        );
+        );*/
 
         if (!this.moveTick) {
             this.moveTick = this.world.ticks;
@@ -841,6 +843,10 @@ class Player extends Character {
 
     getElevation() {
         return Math.floor(this.y / this.world.planeElevation);
+    }
+
+    getFormattedUsername() {
+        return this.username[0].toUpperCase() + this.username.slice(1);
     }
 
     isMale() {
@@ -1245,6 +1251,7 @@ class Player extends Character {
                     this.localEntities.updateNearby('wallObjects');
                 }
             } else {
+                this.following = null;
                 this.walkQueue.length = 0;
                 this.faceDirection(deltaX * -1, deltaY * -1);
             }
@@ -1283,6 +1290,11 @@ class Player extends Character {
         }
 
         this.isWalking = false;
+
+        if (!this.locked && this.following && this.following.walkQueue.length) {
+            const { x, y } = this.following.getBackPoint();
+            this.walkQueue = this.getPointSteps(x, y, false);
+        }
     }
 
     async save() {

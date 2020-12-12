@@ -117,10 +117,6 @@ class Server {
 
     readMessages() {
         for (const [socket, queue] of this.incomingMessages) {
-            if (!queue.length) {
-                continue;
-            }
-
             for (const message of queue) {
                 const handler = this.handlers[message.type];
 

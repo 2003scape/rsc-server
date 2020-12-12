@@ -50,6 +50,7 @@ async function walk({ player }, { targetX, targetY, steps }) {
         return;
     }
 
+    player.following = null;
     player.toAttack = null;
     player.chasing = null;
     player.endWalkFunction = null;

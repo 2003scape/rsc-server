@@ -299,14 +299,14 @@ class NPC extends Character {
     }
 
     broadcastDirection() {
-        console.log(
+        /*console.log(
             'tick #',
             this.world.ticks,
             '-',
             this.definition.name,
             'broadcast direction',
             this.direction
-        );
+        );*/
 
         for (const player of this.knownPlayers) {
             player.localEntities.spriteChanged.npcs.add(this);
