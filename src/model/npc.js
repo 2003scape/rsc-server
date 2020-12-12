@@ -314,14 +314,14 @@ class NPC extends Character {
     }
 
     broadcastMove() {
-        console.log(
+        /*console.log(
             'tick #',
             this.world.ticks,
             '-',
             this.definition.name,
             'broadcast move',
             this.direction
-        );
+        );*/
 
         for (const player of this.knownPlayers) {
             player.localEntities.moved.npcs.add(this);

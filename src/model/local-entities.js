@@ -194,6 +194,8 @@ class LocalEntities {
             known: this.formatKnownCharacters('players')
         });
 
+        //console.log('#'+this.player.world.ticks, this.player.username, this.player.x, this.player.y, this.moved.players.size);
+
         this.updateKnown('players');
 
         this.moved.players.clear();

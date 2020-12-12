@@ -448,6 +448,10 @@ class World {
             for (const player of this.players.getAll()) {
                 player.tick();
             }
+
+            for (const player of this.players.getAll()) {
+                player.localEntities.sendRegions();
+            }
         } catch (e) {
             log.error(e);
         }

@@ -1257,7 +1257,7 @@ class Player extends Character {
             }
         }
 
-        this.localEntities.sendRegions();
+        //this.localEntities.sendRegions();
 
         if (!this.walkQueue.length) {
             this.walkAction = false;
