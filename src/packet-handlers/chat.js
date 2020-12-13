@@ -1,10 +1,8 @@
 async function chat({ player }, { message }) {
-    if (player.isMuted() || (Date.now() - player.lastChat) < 500) {
-        return;
+    if (player.canChat()) {
+        player.lastChat = Date.now();
+        player.broadcastChat(message);
     }
-
-    player.lastChat = Date.now();
-    player.broadcastChat(message);
 }
 
 module.exports = { chat };

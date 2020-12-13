@@ -350,24 +350,12 @@ class World {
                 return player;
             }
         }
-
-        return null;
     }
 
-    sendForeignPlayerLogin(username) {
-        const player = this.getPlayerByUsername(username);
-
-        if (player) {
-            // do friend update
-        }
-    }
-
-    sendForeignPlayerLogout(username) {
-        for (const player of this.players) {
-            for (const friend of Object.keys(player.friends)) {
-                if (friend === username) {
-                    player.sendFriendUpdate(friend, 0);
-                }
+    sendForeignPlayerWorld(username, worldID) {
+        for (const player of this.players.getAll()) {
+            if (player.friends.indexOf(username) > -1) {
+                player.sendFriendWorld(username, worldID);
             }
         }
     }

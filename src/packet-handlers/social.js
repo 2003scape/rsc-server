@@ -1,18 +1,73 @@
+const MAX_SOCIAL_LIST_LENGTH = 100;
+
 async function friendAdd({ player }, { username }) {
-    if (username.toLowerCase() === player.username) {
+    username = username.toLowerCase();
+
+    if (username === player.username) {
         return;
     }
 
-    player.addFriend(username);
+    if (player.friends.length >= MAX_SOCIAL_LIST_LENGTH) {
+        return;
+    }
+
+    if (player.friends.indexOf(username) > -1) {
+        return;
+    }
+
+    if (player.ignores.indexOf(username) > -1) {
+        return;
+    }
+
+    await player.addFriend(username);
 }
 
-async function friendRemove(socket, message) {
+async function friendRemove({ player }, { username }) {
+    username = username.toLowerCase();
+    player.removeFriend(username);
 }
 
-async function ignoreAdd(socket, message) {
+async function ignoreAdd({ player }, { username }) {
+    username = username.toLowerCase();
+
+    if (username === player.username) {
+        return;
+    }
+
+    if (player.ignores.length >= MAX_SOCIAL_LIST_LENGTH) {
+        return;
+    }
+
+    if (player.friends.indexOf(username) > -1) {
+        return;
+    }
+
+    if (player.ignores.indexOf(username) > -1) {
+        return;
+    }
+
+    player.addIgnore(username);
 }
 
-async function ignoreRemove(socket, message) {
+async function ignoreRemove({ player }, { username }) {
+    username = username.toLowerCase();
+    player.removeIgnore(username);
 }
 
-module.exports = { friendAdd, friendRemove, ignoreAdd, ignoreRemove };
+async function privateMessage({ player }, { username, message }) {
+    username = username.toLowerCase();
+
+    if (player.friends.indexOf(username) === -1) {
+        throw new Error(`player messaging un-added friend: ${username}`);
+    }
+
+    player.sendPrivateMessage(username, message);
+}
+
+module.exports = {
+    friendAdd,
+    friendRemove,
+    ignoreAdd,
+    ignoreRemove,
+    privateMessage
+};

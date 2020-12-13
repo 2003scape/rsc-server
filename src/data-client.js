@@ -71,23 +71,33 @@ class DataClient {
         log.debug('received message', message);
 
         switch (message.handler) {
-            case 'playerLogin':
-                this.world.sendForeignPlayerLogin(
+            case 'playerLoggedIn':
+            case 'playerWorldChange':
+                this.world.sendForeignPlayerWorld(
                     message.username,
                     message.world
                 );
                 break;
-            case 'playerLogout':
-                this.world.sendForeignPlayerLogout(message.username);
+            case 'playerLoggedOut':
+                this.world.sendForeignPlayerWorld(message.username, 0);
                 break;
             case 'playerMessage': {
-                const player = this.world.getPlayerByUsername(message.username);
+                const player = this.world.getPlayerByUsername(
+                    message.toUsername
+                );
 
-                if (!player) {
+                if (
+                    !player ||
+                    player.blockPrivateChat ||
+                    player.ignores.indexOf(message.fromUsername) > -1
+                ) {
                     return;
                 }
 
-                player.receivePrivateMessage(message.from, message.message);
+                player.receivePrivateMessage(
+                    message.fromUsername,
+                    message.message
+                );
                 break;
             }
         }
@@ -196,6 +206,14 @@ class DataClient {
             ip,
             reconnecting
         });
+    }
+
+    playerLogout(username) {
+        this.send({ handler: 'playerLogout', username });
+    }
+
+    playerWorldChange(username, worldID) {
+        this.send({ handler: 'playerWorldChange', username, world: worldID });
     }
 
     async playerRegister({ username, password, ip }) {

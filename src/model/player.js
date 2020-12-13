@@ -194,6 +194,8 @@ class Player extends Character {
         this.sendFatigue();
         this.inventory.sendAll();
         this.sendEquipmentBonuses();
+        this.sendFriendList();
+        this.sendIgnoreList();
 
         // check the cache's sendAppearance in case the player disconnected
         // before they finished
@@ -242,35 +244,106 @@ class Player extends Character {
 
         process.nextTick(() => {
             this.world.removeEntity('players', this);
-
-            this.world.server.dataClient.send({
-                handler: 'playerLogout',
-                username: this.username
-            });
-
+            this.world.server.dataClient.playerLogout(this.username);
             log.info(`${this} logged out`);
         });
 
         await this.save();
     }
 
-    addFriend(username) {
+    async getFriendWorld(username) {
+        const {
+            usernameWorlds
+        } = await this.world.server.dataClient.sendAndReceive({
+            handler: 'playerGetWorlds',
+            usernames: [username]
+        });
+
+        return usernameWorlds[username];
+    }
+
+    async addFriend(username) {
+        username = username.toLowerCase();
+
         this.friends.push(username);
+
+        const worldID = await this.getFriendWorld(username);
+
+        if (worldID > 0) {
+            this.sendFriendWorld(username, worldID);
+        }
     }
 
     removeFriend(username) {
-        this.friends.splice(1, this.friends.indexOf(username));
+        username = username.toLowerCase();
+        this.friends.splice(this.friends.indexOf(username), 1);
     }
 
     // send a private message to the player
     receivePrivateMessage(from, message) {
-        this.message(`@pri@@cya@${from} tells you: ${message}`);
+        this.send({ type: 'friendMessage', username: from, message });
     }
 
     // send a private message FROM the player to another player
-    sendPrivateMessage(to, message) {
-        this.dataClient.playerMessage(this.username, to, message);
-        this.message(`@pri@@cya@You tell ${to} ${message}`);
+    sendPrivateMessage(toUsername, message) {
+        this.world.server.dataClient.playerMessage(
+            this.username,
+            toUsername,
+            message
+        );
+    }
+
+    addIgnore(username) {
+        this.ignores.push(username);
+    }
+
+    removeIgnore(username) {
+        this.ignores.splice(this.ignores.indexOf(username), 1);
+    }
+
+    async sendFriendList() {
+        const {
+            usernameWorlds
+        } = await this.world.server.dataClient.sendAndReceive({
+            handler: 'playerGetWorlds',
+            usernames: this.friends
+        });
+
+        this.send({
+            type: 'friendList',
+            usernames: this.friends.map((username) => {
+                let worldID = usernameWorlds[username];
+
+                if (worldID === this.world.id) {
+                    worldID = 255;
+                } else if (worldID > 0) {
+                    worldID += 219;
+                }
+
+                return { username, world: worldID };
+            })
+        });
+    }
+
+    sendIgnoreList() {
+        this.send({
+            type: 'ignoreList',
+            usernames: this.ignores
+        });
+    }
+
+    sendFriendWorld(username, worldID) {
+        if (worldID === this.world.id) {
+            worldID = 255;
+        } else if (worldID > 0) {
+            worldID += 219;
+        }
+
+        this.send({
+            type: 'friendStatusChange',
+            username,
+            world: worldID
+        });
     }
 
     // white server-sided message in the chat box
@@ -597,20 +670,17 @@ class Player extends Character {
         }
 
         for (const player of this.localEntities.known.players) {
-            player.localEntities.characterUpdates.playerChat.push(update);
+            if (
+                !player.blockChat &&
+                player.ignores.indexOf(this.username) === -1
+            ) {
+                player.localEntities.characterUpdates.playerChat.push(update);
+            }
         }
     }
 
     // broadcast the player changing sprites
     broadcastDirection() {
-        /*console.log(
-            'tick #',
-            this.world.ticks,
-            '-',
-            this.username,
-            'broadcast direction',
-            this.direction
-        );*/
         if (!this.moveTick) {
             this.moveTick = this.world.ticks;
         } else {
@@ -636,15 +706,6 @@ class Player extends Character {
 
     // broadcast the player moving in their current direction
     broadcastMove() {
-        /*console.log(
-            'tick #',
-            this.world.ticks,
-            '-',
-            this.username,
-            'broadcast move',
-            this.direction
-        );*/
-
         if (!this.moveTick) {
             this.moveTick = this.world.ticks;
         } else {
@@ -876,6 +937,10 @@ class Player extends Character {
 
     isTired(offset = 0) {
         return this.fatigue >= MAX_FATIGUE - offset;
+    }
+
+    canChat() {
+        return this.isMuted() || Date.now() - this.lastChat < 500;
     }
 
     hasInterfaceOpen() {
@@ -1257,8 +1322,6 @@ class Player extends Character {
             }
         }
 
-        //this.localEntities.sendRegions();
-
         if (!this.walkQueue.length) {
             this.walkAction = false;
 
@@ -1289,12 +1352,12 @@ class Player extends Character {
             }
         }
 
-        this.isWalking = false;
-
         if (!this.locked && this.following && this.following.walkQueue.length) {
             const { x, y } = this.following.getBackPoint();
             this.walkQueue = this.getPointSteps(x, y, false);
         }
+
+        this.isWalking = false;
     }
 
     async save() {

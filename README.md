@@ -23,7 +23,7 @@ game server emulator. designed to work with the web-based
 
 * install
 [rsc-client](https://github.com/2003scape/rsc-client#install) or
-[mudclient204](https://github.com/2003scape/mudclient204#build-and-run)
+[mudclient204](https://github.com/2003scape/mudclient204#build-and-run) to login
 
 ## cli usage
 rsc-server connects to
