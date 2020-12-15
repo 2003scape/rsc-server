@@ -146,6 +146,27 @@ class World {
                 this.wallObjects.remove(wallObject);
             }
 
+            try {
+                const tile = this.landscape.getTileAtGameCoords(
+                    entity.x,
+                    entity.y
+                );
+
+                if (entity.direction === 0) {
+                    tile.wall.horizontal = entity.id + 1;
+                } else if (entity.direction === 1) {
+                    tile.wall.vertical = entity.id + 1;
+                } else if (tile.wall) {
+                    if (!tile.wall.diagonal) {
+                        tile.wall.diagonal = {};
+                    }
+
+                    tile.wall.diagonal.overlay = entity.id + 1;
+                }
+            } catch (e) {
+                // pass
+            }
+
             this.pathFinder.addWallObject(entity);
         }
 

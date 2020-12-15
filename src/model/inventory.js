@@ -453,7 +453,7 @@ class Inventory {
     // check if the player has the correct ammunition type for the bow they're
     // using, give them a message if not. return undefined if no ammunition
     // found
-    getAmmunitionID() {
+    getAmmunitionID(messages = true) {
         const equippedItem = this.items[this.equipmentSlots['right-hand']];
 
         for (const ammunitionID of rangedWeapons[equippedItem.id].ammunition) {
@@ -470,9 +470,11 @@ class Inventory {
         if (crossbowEquipped) {
             for (const arrowID of ARROW_IDS) {
                 if (this.has(arrowID)) {
-                    this.player.message(
-                        "You can't fire arrows with a crossbow"
-                    );
+                    if (messages) {
+                        this.player.message(
+                            "You can't fire arrows with a crossbow"
+                        );
+                    }
 
                     return -1;
                 }
@@ -480,23 +482,31 @@ class Inventory {
         } else {
             for (const boltID of BOLT_IDS) {
                 if (this.has(boltID)) {
-                    this.player.message("You can't fire bolts with a bow");
+                    if (messages) {
+                        this.player.message("You can't fire bolts with a bow");
+                    }
+
                     return -1;
                 }
             }
 
             for (const arrowID of ARROW_IDS) {
                 if (this.has(arrowID)) {
-                    this.player.message(
-                        'Your ammo is too powerful for your bow'
-                    );
+                    if (messages) {
+                        this.player.message(
+                            'Your ammo is too powerful for your bow'
+                        );
+                    }
 
                     return -1;
                 }
             }
         }
 
-        this.player.message("You don't have enough ammo in your quiver");
+        if (messages) {
+            this.player.message("You don't have enough ammo in your quiver");
+        }
+
         return -1;
     }
 

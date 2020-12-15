@@ -6,11 +6,11 @@ const wallObjects = require('@2003scape/rsc-data/config/wall-objects');
 
 // walls that projectiles can pass through
 const PROJECTILE_WALLS = new Set([
-    "fence",
-    "arrowslit",
-    "web",
-    "railing",
-    "low wall"
+    'fence',
+    'arrowslit',
+    'web',
+    'railing',
+    'low wall'
 ]);
 
 // partial object model names that projectiles can pass through
@@ -38,9 +38,15 @@ const PROJECTILE_MODELS = new Set([
 ]);
 
 function isWallBlocked(wallObjectID) {
+    if (typeof wallObjectID !== 'number') {
+        return false;
+    }
+
+    wallObjectID -= 1;
+
     const wallObject = wallObjects[wallObjectID];
 
-    if (wallObjects.blocked) {
+    if (!wallObject.blocked) {
         return false;
     }
 
@@ -53,6 +59,39 @@ function isWallBlocked(wallObjectID) {
     }
 
     return true;
+}
+
+function getTileWall(world, x, y) {
+    return world.landscape.getTileAtGameCoords(x, y).wall;
+}
+
+function isProjectileBlocked(world, { x, y }, { deltaX, deltaY }) {
+    if (deltaX !== 0 && deltaY !== 0) {
+        const diagonal = getTileWall(world, x, y).diagonal;
+
+        if (diagonal && isWallBlocked(diagonal.overlay)) {
+            return true;
+        }
+    }
+
+    if (deltaY === -1 && isWallBlocked(getTileWall(world, x, y).horizontal)) {
+        return true;
+    }
+
+    if (
+        deltaY === 1 &&
+        isWallBlocked(getTileWall(world, x, y + 1).horizontal)
+    ) {
+        return true;
+    }
+
+    if (deltaX === -1 && isWallBlocked(getTileWall(world, x, y).vertical)) {
+        return true;
+    }
+
+    if (deltaX === 1 && isWallBlocked(getTileWall(world, x + 1, y).vertical)) {
+        return true;
+    }
 }
 
 class Entity {
@@ -100,15 +139,14 @@ class Entity {
             { x: entity.x, y: entity.y }
         );
 
+        path.push({ x: entity.x, y: entity.y });
+
         let x = this.x;
         let y = this.y;
 
         let gameObjects;
-        // TODO let wallObjects;
 
         if (projectile) {
-            path.push({ x: entity.x, y: entity.y });
-
             gameObjects = this.world.gameObjects.getInArea(x, y, 8).filter(
                 ({
                     definition: {
@@ -142,26 +180,15 @@ class Entity {
             const deltaY = stepY - y;
 
             if (projectile) {
-                const tile = this.world.landscape.getTileAtGameCoords(
-                    stepX,
-                    stepY
-                );
-
-                /*
                 if (
-                    deltaX !== 0 &&
-                    typeof tile.wall.vertical === 'number' &&
-                    isWallBlocked(tile.wall.vertical - 1)
-                ) {
-                    console.log('test');
-                    return false;
-                } else if (
-                    deltaY !== 0 &&
-                    typeof tile.wall.horizontal === 'number' &&
-                    isWallBlocked(tile.wall.horizontal - 1)
+                    isProjectileBlocked(
+                        this.world,
+                        { x, y },
+                        { deltaX, deltaY }
+                    )
                 ) {
                     return false;
-                }*/
+                }
 
                 for (const {
                     x: objectX,

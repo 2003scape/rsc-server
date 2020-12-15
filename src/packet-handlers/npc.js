@@ -170,8 +170,10 @@ async function npcAttack({ player }, { index }) {
         const blocked = await world.callPlugin('onNPCAttack', player, npc);
 
         if (!blocked) {
+            npc.unlock();
+
             if (!(await player.attack(npc))) {
-                npc.unlock();
+                player.message("I can't reach that!");
             }
         } else {
             player.unlock();

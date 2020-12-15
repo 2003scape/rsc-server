@@ -283,7 +283,7 @@ class NPC extends Character {
             }
         } else if (!this.locked) {
             if (Math.random() <= 0.15) {
-                this.stepsLeft = Math.floor(Math.random() * 12) + 1;
+                //this.stepsLeft = Math.floor(Math.random() * 12) + 1;
             }
         }
     }
@@ -386,7 +386,8 @@ class NPC extends Character {
                         if (
                             !player.opponent &&
                             this.isAggressive(player) &&
-                            player.withinRange(8)
+                            player.withinRange(this, 8) &&
+                            player.withinLineOfSight(this)
                         ) {
                             foundPlayer = true;
                             this.attack(player);
@@ -395,7 +396,7 @@ class NPC extends Character {
                     }
                 }
 
-                if (!foundPlayer) {
+                if (!foundPlayer && this.retreatTicks === 0) {
                     this.walkNextRandomStep();
                 }
             }

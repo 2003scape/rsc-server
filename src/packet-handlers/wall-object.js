@@ -27,7 +27,7 @@ function getWallObject(player, x, y) {
     return wallObject;
 }
 
-function wallObjectCommand(pluginHandler, { player }, { x, y }) {
+function wallObjectCommand(pluginHandlerName, { player }, { x, y }) {
     if (player.locked) {
         return;
     }
@@ -46,14 +46,8 @@ function wallObjectCommand(pluginHandler, { player }, { x, y }) {
 
         player.lock();
 
-        await world.sleepTicks(1);
-
-        if (player.opponent) {
-            return;
-        }
-
         const blocked = await world.callPlugin(
-            pluginHandler,
+            pluginHandlerName,
             player,
             wallObject
         );

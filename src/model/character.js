@@ -240,7 +240,7 @@ class Character extends Entity {
         let distance = this.getDistance(character);
 
         if (distance > 1.5) {
-            await this.chase(character, 8, false);
+            await this.chase(character, 8);
         }
 
         distance = this.getDistance(character);
@@ -250,10 +250,21 @@ class Character extends Entity {
             return false;
         }
 
-        if (!this.withinLineOfSight(character)) {
+        const deltaX = character.x - this.x;
+        const deltaY = character.y - this.y;
+
+        this.walkAction = true;
+
+        if (
+            !this.withinLineOfSight(character) ||
+            ((deltaX !== 0 || deltaY !== 0) && !this.canWalk(deltaX, deltaY))
+        ) {
+            this.walkAction = false;
             this.unlock();
             return false;
         }
+
+        this.walkAction = false;
 
         if (character.constructor.name === 'Player') {
             character.message('You are under attack!');
@@ -276,9 +287,6 @@ class Character extends Entity {
                 character.broadcastDirection();
             });
         }
-
-        const deltaX = character.x - this.x;
-        const deltaY = character.y - this.y;
 
         this.opponent = character;
         this.combatRounds = 0;
@@ -361,6 +369,15 @@ class Character extends Entity {
             return false;
         }
 
+        if (
+            !this.world.pathFinder.isValidGameStep(
+                { x: this.x, y: this.y },
+                { deltaX, deltaY }
+            )
+        ) {
+            return false;
+        }
+
         const destX = this.x + deltaX;
         const destY = this.y + deltaY;
 
@@ -393,10 +410,7 @@ class Character extends Entity {
             return false;
         }
 
-        return this.world.pathFinder.isValidGameStep(
-            { x: this.x, y: this.y },
-            { deltaX, deltaY }
-        );
+        return true;
     }
 
     //TODO changeDirection?
@@ -477,10 +491,12 @@ class Character extends Entity {
         }
     }
 
-    async chase(entity, range = 8, overlap = false) {
+    async chase(entity, range = 16, overlap = false) {
         const { world } = this;
 
         let ticks = 0;
+
+        this.stepsLeft = 0;
         this.chasing = entity;
 
         newSteps: do {
@@ -516,7 +532,7 @@ class Character extends Entity {
 
                 if (
                     this.withinWalkBounds &&
-                    !this.withinWalkBounds(destX, destY)
+                    !this.withinWalkBounds(this.x + deltaX, this.y + deltaY)
                 ) {
                     break newSteps;
                 }

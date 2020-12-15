@@ -179,8 +179,6 @@ function rollPlayerNPCRangedDamage(player, npc) {
     const maxHit = getRangedMaxHit(player);
     const protection = npc.skills.defense.current * (1 / 600 + 0.1);
 
-    console.log(accuracy, maxHit, protection);
-
     return rollDamage(accuracy, maxHit, protection);
 }
 

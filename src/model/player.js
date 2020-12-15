@@ -1301,41 +1301,77 @@ class Player extends Character {
     }
 
     async shootRanged(character) {
+        if (typeof this.rangedTimeout === 'number') {
+            this.world.clearTickTimeout(this.rangedTimeout);
+            delete this.rangedTimeout;
+        }
+
+        this.walkQueue.length = 0;
+
+        if (
+            this.getDistance(character) <= 1.5 &&
+            this.withinLineOfSight(character)
+        ) {
+            return character.attack(this);
+        }
+
         const rangedWeapon = this.inventory.getRangedWeapon();
 
         if (!rangedWeapon || character.skills.hits.current <= 0) {
-            delete this.rangedTimeout;
-            return;
+            return false;
         }
 
         const { world } = this;
         const { range } = rangedWeapons[rangedWeapon.id];
 
         if (!this.withinRange(character, range * 2, true)) {
-            await this.chase(character);
             await world.sleepTicks(1);
+            await this.chase(character);
 
             if (!this.withinRange(character, range * 2, true)) {
                 this.message("I can't get close enough");
-                return;
+                return false;
             }
         }
 
         if (!this.withinLineOfSight(character, true)) {
             this.message("I can't get a clear shot from here");
-            return;
-        }
+            this.rangedTimeout = -1;
 
-        this.faceDirection(-1, 1);
+            this.world.setTickTimeout(() => {
+                delete this.rangedTimeout;
+            }, 2);
+
+            return false;
+        }
 
         const ammunitionID = this.inventory.getAmmunitionID();
 
         if (ammunitionID === -1) {
-            return;
+            return false;
         }
 
-        if (Math.random() <= 0.2) {
-            this.inventory.remove(ammunitionID);
+        this.faceDirection(-1, 1);
+
+        this.inventory.remove(ammunitionID);
+
+        if (Math.random() >= 0.2) {
+            const [arrowStack] = world.groundItems
+                .getAtPoint(character.x, character.y)
+                .filter(
+                    ({ id, owner }) => id === ammunitionID && owner === this.id
+                );
+
+            if (arrowStack) {
+                arrowStack.amount += 1;
+            } else {
+                world.addPlayerDrop(
+                    this,
+                    { id: ammunitionID },
+                    character.x,
+                    character.y
+                );
+            }
         }
 
         if (!this.inventory.has(ammunitionID)) {
@@ -1348,9 +1384,28 @@ class Player extends Character {
         character.damage(damage, this);
         this.sendProjectile(character, 2);
 
+        if (
+            !character.locked &&
+            character.constructor.name === 'NPC' &&
+            character.chasing !== this
+        ) {
+            character
+                .attack(this)
+                .then(() => {
+                    character.retreatTicks = 4;
+                })
+                .catch((err) => log.error(err));
+        }
+
+        if (this.inventory.getAmmunitionID(false) === -1) {
+            return true;
+        }
+
         this.rangedTimeout = world.setTickTimeout(() => {
             this.shootRanged(character);
         }, 4);
+
+        return true;
     }
 
     tick() {
@@ -1368,36 +1423,10 @@ class Player extends Character {
         this.localEntities.updateNearby('groundItems');
 
         if (this.walkQueue.length && !this.locked) {
-            if (this.dontAnswer) {
-                this.dontAnswer();
-            }
-
             const { deltaX, deltaY } = this.walkQueue.shift();
 
             if (this.canWalk(deltaX, deltaY)) {
                 this.walkTo(deltaX, deltaY);
-
-                this.localEntities.updateNearby('npcs');
-
-                const gameObjectViewport =
-                    this.localEntities.viewports.gameObjects / 2;
-
-                if (
-                    this.x % gameObjectViewport === 0 ||
-                    this.y % gameObjectViewport === 0
-                ) {
-                    this.localEntities.updateNearby('gameObjects');
-                }
-
-                const wallObjectViewport =
-                    this.localEntities.viewports.wallObjects / 2;
-
-                if (
-                    this.x % wallObjectViewport === 0 ||
-                    this.y % wallObjectViewport === 0
-                ) {
-                    this.localEntities.updateNearby('wallObjects');
-                }
             } else {
                 this.following = null;
                 this.walkQueue.length = 0;
@@ -1405,7 +1434,12 @@ class Player extends Character {
             }
         }
 
-        if (!this.walkQueue.length) {
+        if (!this.locked && this.following && this.following.walkQueue.length) {
+            const { x, y } = this.following.getBackPoint();
+            this.walkQueue = this.getPointSteps(x, y, false);
+        }
+
+        if (!this.walkQueue.length && !this.isWalking) {
             this.walkAction = false;
 
             if (this.endWalkFunction) {
@@ -1435,11 +1469,6 @@ class Player extends Character {
             }
         }
 
-        if (!this.locked && this.following && this.following.walkQueue.length) {
-            const { x, y } = this.following.getBackPoint();
-            this.walkQueue = this.getPointSteps(x, y, false);
-        }
-
         this.isWalking = false;
     }
 
@@ -1467,8 +1496,42 @@ class Player extends Character {
         return `[Player (username=${this.username}, x=${this.x}, y=${this.y})]`;
     }
 
+    walkTo(deltaX, deltaY) {
+        if (this.dontAnswer) {
+            this.dontAnswer();
+        }
+
+        super.walkTo(deltaX, deltaY);
+
+        this.localEntities.updateNearby('npcs');
+
+        const gameObjectViewport = this.localEntities.viewports.gameObjects / 2;
+
+        if (
+            this.x % gameObjectViewport === 0 ||
+            this.y % gameObjectViewport === 0
+        ) {
+            this.localEntities.updateNearby('gameObjects');
+        }
+
+        const wallObjectViewport = this.localEntities.viewports.wallObjects / 2;
+
+        if (
+            this.x % wallObjectViewport === 0 ||
+            this.y % wallObjectViewport === 0
+        ) {
+            this.localEntities.updateNearby('wallObjects');
+        }
+    }
+
     lock() {
         super.lock();
+
+        if (typeof this.rangedTimeout === 'number') {
+            this.world.clearTickTimeout(this.rangedTimeout);
+            delete this.rangedTimeout;
+        }
+
         this.walkQueue.length = 0;
     }
 }
