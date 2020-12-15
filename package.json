@@ -35,6 +35,7 @@
     "flat": "^5.0.2",
     "js-quadtree": "^3.3.3",
     "json-socket": "^0.3.0",
+    "knuth-shuffle-seeded": "^1.0.6",
     "rand-token": "^1.0.1",
     "random": "^2.2.0",
     "ws": "^7.3.1",

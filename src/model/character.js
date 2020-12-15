@@ -2,6 +2,7 @@
 
 const Entity = require('./entity');
 const directions = require('./directions');
+const shuffle = require('knuth-shuffle-seeded');
 
 // used to calculate a direction based on a change in coordinates. use
 // deltaDirections[deltaX + 1][deltaY + 1] to get a direction number.
@@ -11,8 +12,8 @@ const deltaDirections = [
     [directions.southEast, directions.east, directions.northEast]
 ];
 
-// { 0: { deltaX: 0, deltaY: 1 }, ... }
-const numberDirections = {};
+// [ { deltaX: 0, deltaY: 1 }, ... ]
+const numberDirections = [];
 
 for (let deltaX = -1; deltaX < 2; deltaX += 1) {
     for (let deltaY = -1; deltaY < 2; deltaY += 1) {
@@ -556,22 +557,24 @@ class Character extends Entity {
         this.chasing = null;
     }
 
-    getFreeDirection(visitedTiles) {
-        for (let deltaX = -1; deltaX < 2; deltaX += 1) {
-            for (let deltaY = -1; deltaY < 2; deltaY += 1) {
-                const destX = this.x + deltaX;
-                const destY = this.y + deltaY;
+    getFreeDirection(visitedTiles, random = false) {
+        const directions = random
+            ? shuffle(numberDirections.slice())
+            : numberDirections;
 
-                if (
-                    (deltaX === 0 && deltaY === 0) ||
-                    (visitedTiles && visitedTiles.has(`${destX},${destY}`))
-                ) {
-                    continue;
-                }
+        for (const { deltaX, deltaY } of directions) {
+            const destX = this.x + deltaX;
+            const destY = this.y + deltaY;
 
-                if (this.canWalk(deltaX, deltaY)) {
-                    return { deltaX: deltaX, deltaY: deltaY };
-                }
+            if (
+                (deltaX === 0 && deltaY === 0) ||
+                (visitedTiles && visitedTiles.has(`${destX},${destY}`))
+            ) {
+                continue;
+            }
+
+            if (this.canWalk(deltaX, deltaY)) {
+                return { deltaX: deltaX, deltaY: deltaY };
             }
         }
     }

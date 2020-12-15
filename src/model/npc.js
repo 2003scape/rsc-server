@@ -65,6 +65,9 @@ class NPC extends Character {
 
         this.combatLevel = this.getCombatLevel();
 
+        // more realistic random pathing
+        this.visitedTiles = new Set();
+
         // used for automatic movement
         this.stepsLeft = 0;
 
@@ -252,7 +255,6 @@ class NPC extends Character {
     }
 
     walkNextRandomStep() {
-        // TODO visitedTiles
         if (this.stepsLeft > 0) {
             if (
                 this.stepsLeft < 3 &&
@@ -262,28 +264,27 @@ class NPC extends Character {
                 this.stepsLeft -= 1;
                 this.walkTo(this.lastDeltaX, this.lastDeltaY);
             } else {
-                let deltaX = 0;
-                let deltaY = 0;
+                const deltas = this.getFreeDirection(
+                    this.visitedTiles,
+                    true
+                );
 
-                if (Math.random() <= 0.5) {
-                    deltaX = Math.random() <= 0.5 ? 1 : -1;
-                }
+                if (deltas) {
+                    const { deltaX, deltaY }  = deltas;
 
-                if (Math.random() <= 0.5) {
-                    deltaY = Math.random() <= 0.5 ? 1 : -1;
-                }
-
-                if (this.canWalk(deltaX, deltaY)) {
-                    this.stepsLeft -= 1;
                     this.lastDeltaX = deltaX;
                     this.lastDeltaY = deltaY;
+                    this.stepsLeft -= 1;
 
                     this.walkTo(deltaX, deltaY);
+                    this.visitedTiles.add(`${this.x},${this.y}`);
                 }
             }
         } else if (!this.locked) {
             if (Math.random() <= 0.15) {
-                //this.stepsLeft = Math.floor(Math.random() * 12) + 1;
+                this.visitedTiles.clear();
+                this.visitedTiles.add(`${this.x},${this.y}`);
+                this.stepsLeft = Math.floor(Math.random() * 8) + 1;
             }
         }
     }
