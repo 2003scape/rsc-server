@@ -32,9 +32,15 @@ function gameObjectCommand(pluginHandler, { player }, { x, y }) {
         const { world } = player;
 
         player.lock();
-        //player.faceEntity(gameObject);
+
         await world.sleepTicks(1);
+
+        if (player.opponent) {
+            return;
+        }
+
         await world.callPlugin(pluginHandler, player, gameObject);
+
         player.unlock();
     };
 }

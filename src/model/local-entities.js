@@ -59,7 +59,8 @@ class LocalEntities {
             playerBubbles: [],
             playerHits: [],
             npcChat: [],
-            npcHits: []
+            npcHits: [],
+            projectiles: []
         };
     }
 
@@ -165,12 +166,8 @@ class LocalEntities {
             } else if (this.moved[type].has(entity)) {
                 known.push({
                     moved: true,
-                    sprite: entity.direction//this.moved[type].get(entity)
+                    sprite: entity.direction
                 });
-
-                /*if (this.spriteChanged[type].has(entity)) {
-                    console.log('have entity', entity.username);
-                }*/
             } else if (this.spriteChanged[type].has(entity)) {
                 known.push({ spriteChanged: true, sprite: entity.direction });
             } else {
@@ -194,8 +191,6 @@ class LocalEntities {
             known: this.formatKnownCharacters('players')
         });
 
-        //console.log('#'+this.player.world.ticks, this.player.username, this.player.x, this.player.y, this.moved.players.size);
-
         this.updateKnown('players');
 
         this.moved.players.clear();
@@ -210,7 +205,8 @@ class LocalEntities {
             !updates.playerAppearances.length &&
             !updates.playerChat.length &&
             !updates.playerHits.length &&
-            !updates.playerBubbles.length
+            !updates.playerBubbles.length &&
+            !updates.projectiles.length
         ) {
             return;
         }
@@ -222,7 +218,7 @@ class LocalEntities {
             bubbles: updates.playerBubbles,
             chats: updates.playerChat,
             hits: updates.playerHits,
-            projectiles: [],
+            projectiles: updates.projectiles,
             appearances: updates.playerAppearances
         });
 
@@ -231,6 +227,7 @@ class LocalEntities {
             updates.playerChat.length = 0;
             updates.playerAppearances.length = 0;
             updates.playerHits.length = 0;
+            updates.projectiles.length = 0;
         });
     }
 

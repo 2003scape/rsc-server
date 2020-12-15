@@ -50,6 +50,13 @@ async function walk({ player }, { targetX, targetY, steps }) {
         return;
     }
 
+    const { world } = player;
+
+    if (typeof player.rangedTimeout === 'number') {
+        world.clearTickTimeout(player.rangedTimeout);
+        delete player.rangedTimeout;
+    }
+
     player.following = null;
     player.toAttack = null;
     player.chasing = null;
@@ -81,6 +88,8 @@ async function walk({ player }, { targetX, targetY, steps }) {
 
 async function walkAction(socket, message) {
     const { player } = socket;
+
+    return;
 
     if (player.opponent) {
         return;

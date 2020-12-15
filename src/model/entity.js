@@ -2,6 +2,51 @@
 // monsters, players, objects (such as trees), etc.
 
 const regions = require('@2003scape/rsc-data/regions');
+const wallObjects = require('@2003scape/rsc-data/config/wall-objects');
+
+// walls that projectiles can pass through
+const PROJECTILE_WALLS = new Set([
+    "fence",
+    "arrowslit",
+    "web",
+    "railing"
+]);
+
+// partial object model names that projectiles can pass through
+const PROJECTILE_MODELS = new Set([
+    'bed',
+    'bench',
+    'bone',
+    'brokenpillar',
+    'bush',
+    'chair',
+    'egg',
+    'fence',
+    'gate',
+    'gravestone',
+    'ladder',
+    'logpile',
+    'railing',
+    'rock',
+    'sign',
+    'skull',
+    'table',
+    'throne',
+    'torch',
+    'treestump'
+]);
+
+function isWallBlocked(wallObjectID) {
+    const name = wallObjects[wallObjectID].name.toLowerCase();
+
+    for (const wallSegment of PROJECTILE_WALLS) {
+        if (name.indexOf(wallSegment) > -1) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 class Entity {
     constructor(world) {
@@ -42,7 +87,7 @@ class Entity {
     }
 
     // used for trading/dueling
-    withinLineOfSight(entity) {
+    withinLineOfSight(entity, projectile = false) {
         const path = this.world.pathFinder.getLineOfSight(
             { x: this.x, y: this.y },
             { x: entity.x, y: entity.y }
@@ -50,6 +95,36 @@ class Entity {
 
         let x = this.x;
         let y = this.y;
+
+        let gameObjects;
+        // TODO let wallObjects;
+
+        if (projectile) {
+            path.push({ x: entity.x, y: entity.y });
+
+            gameObjects = this.world.gameObjects.getInArea(x, y, 8).filter(
+                ({
+                    definition: {
+                        type,
+                        model: { name: modelName }
+                    }
+                }) => {
+                    if (type === 'unblocked' || type === 'open-door') {
+                        return false;
+                    }
+
+                    modelName = modelName.toLowerCase();
+
+                    for (const modelSegment of PROJECTILE_MODELS) {
+                        if (modelName.indexOf(modelSegment) > -1) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            );
+        }
 
         for (const { x: stepX, y: stepY } of path) {
             if (stepX === this.x && stepY === this.y) {
@@ -59,13 +134,52 @@ class Entity {
             const deltaX = stepX - x;
             const deltaY = stepY - y;
 
-            if (
-                !this.world.pathFinder.isValidGameStep(
-                    { x, y },
-                    { deltaX, deltaY }
-                )
-            ) {
-                return false;
+            if (projectile) {
+                const tile = this.world.landscape.getTileAtGameCoords(
+                    stepX,
+                    stepY
+                );
+
+                /*
+                if (
+                    deltaX !== 0 &&
+                    typeof tile.wall.vertical === 'number' &&
+                    isWallBlocked(tile.wall.vertical - 1)
+                ) {
+                    console.log('test');
+                    return false;
+                } else if (
+                    deltaY !== 0 &&
+                    typeof tile.wall.horizontal === 'number' &&
+                    isWallBlocked(tile.wall.horizontal - 1)
+                ) {
+                    return false;
+                }*/
+
+                for (const {
+                    x: objectX,
+                    y: objectY,
+                    width,
+                    height
+                } of gameObjects) {
+                    if (
+                        stepX <= objectX + width - 1 &&
+                        stepX >= objectX &&
+                        stepY <= objectY + height - 1 &&
+                        stepY >= objectY
+                    ) {
+                        return false;
+                    }
+                }
+            } else {
+                if (
+                    !this.world.pathFinder.isValidGameStep(
+                        { x, y },
+                        { deltaX, deltaY }
+                    )
+                ) {
+                    return false;
+                }
             }
 
             x += deltaX;

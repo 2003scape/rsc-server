@@ -1,5 +1,10 @@
 const random = require('random');
 
+const {
+    ammunition,
+    weapons: rangedWeapons
+} = require('@2003scape/rsc-data/ranged');
+
 // { prayerIndex: { skill: 'skill', multiplier: 1.05 }, ... }
 const PRAYER_BONUSES = {
     // thick skin
@@ -125,6 +130,26 @@ function rollDamage(accuracy, maxHit, protection) {
     return Math.floor(value);
 }
 
+function getRangedAccuracy(player) {
+    const rangedLevel = player.skills.ranged.current;
+    const rangedWeapon = player.inventory.getRangedWeapon();
+
+    const bonusMultiplier = rangedWeapon
+        ? rangedWeapons[rangedWeapon.id].accuracy * (1 / 600) + 0.1
+        : 0;
+
+    return rangedLevel * bonusMultiplier;
+}
+
+function getRangedMaxHit(player) {
+    const rangedLevel = player.skills.ranged.current;
+
+    const bonusMultiplier =
+        ammunition[player.inventory.getAmmunitionID()] * (1 / 600 + 0.1);
+
+    return Math.ceil(rangedLevel * bonusMultiplier);
+}
+
 function rollPlayerNPCDamage(player, npc) {
     const accuracy = getAccuracy(player);
     const maxHit = getMaxHit(player);
@@ -134,7 +159,11 @@ function rollPlayerNPCDamage(player, npc) {
 }
 
 function rollPlayerPlayerDamage(player, targetPlayer) {
-    return 0;
+    const accuracy = getAccuracy(player);
+    const maxHit = getMaxHit(player);
+    const protection = getProtection(targetPlayer);
+
+    return rollDamage(accuracy, maxHit, protection);
 }
 
 function rollNPCDamage(npc, player) {
@@ -145,4 +174,17 @@ function rollNPCDamage(npc, player) {
     return rollDamage(accuracy, maxHit, protection);
 }
 
-module.exports = { rollPlayerNPCDamage, rollPlayerPlayerDamage, rollNPCDamage };
+function rollPlayerNPCRangedDamage(player, npc) {
+    const accuracy = getRangedAccuracy(player);
+    const maxHit = getRangedMaxHit(player);
+    const protection = npc.skills.defense.current * (1 / 600 + 0.1);
+
+    return rollDamage(accuracy, maxHit, protection);
+}
+
+module.exports = {
+    rollPlayerNPCDamage,
+    rollPlayerPlayerDamage,
+    rollNPCDamage,
+    rollPlayerNPCRangedDamage
+};

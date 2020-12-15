@@ -48,6 +48,10 @@ function wallObjectCommand(pluginHandler, { player }, { x, y }) {
 
         await world.sleepTicks(1);
 
+        if (player.opponent) {
+            return;
+        }
+
         const blocked = await world.callPlugin(
             pluginHandler,
             player,

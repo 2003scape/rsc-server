@@ -2,6 +2,11 @@ const Item = require('./item');
 const items = require('@2003scape/rsc-data/config/items');
 const { formatSkillName } = require('../skills');
 
+const {
+    ammunition,
+    weapons: rangedWeapons
+} = require('@2003scape/rsc-data/ranged');
+
 const EQUIPMENT_BONUS_NAMES = [
     'armour',
     'weaponAim',
@@ -27,6 +32,16 @@ const EQUIPMENT_ANIMATION_INDEXES = [
     { type: 'chest', index: 10 },
     { type: 'cape', index: 11 }
 ];
+
+const CROSSBOW_ID = 60;
+const PHOENIX_CROSSBOW_ID = 59;
+
+const BOLT_IDS = new Set(rangedWeapons[CROSSBOW_ID].ammunition);
+const ARROW_IDS = new Set(Object.keys(ammunition).map(Number));
+
+for (const boltID of BOLT_IDS) {
+    ARROW_IDS.delete(boltID);
+}
 
 // get the correct player animation index for different equip types
 function getAnimationIndex(equip) {
@@ -406,7 +421,7 @@ class Inventory {
             return false;
         }
 
-        for (const [, index] of Object.entries(this.equipmentSlots)) {
+        for (const index of Object.values(this.equipmentSlots)) {
             if (index < 0) {
                 continue;
             }
@@ -419,6 +434,70 @@ class Inventory {
         }
 
         return false;
+    }
+
+    getRangedWeapon() {
+        const index = this.equipmentSlots['right-hand'];
+
+        if (index < 0) {
+            return;
+        }
+
+        const item = this.items[index];
+
+        if (rangedWeapons[item.id]) {
+            return item;
+        }
+    }
+
+    // check if the player has the correct ammunition type for the bow they're
+    // using, give them a message if not. return undefined if no ammunition
+    // found
+    getAmmunitionID() {
+        const equippedItem = this.items[this.equipmentSlots['right-hand']];
+
+        for (const ammunitionID of rangedWeapons[equippedItem.id].ammunition) {
+            if (this.has(ammunitionID)) {
+                return ammunitionID;
+            }
+        }
+
+        const crossbowEquipped = equippedItem
+            ? equippedItem.id === PHOENIX_CROSSBOW_ID ||
+              equippedItem.id === CROSSBOW_ID
+            : false;
+
+        if (crossbowEquipped) {
+            for (const arrowID of ARROW_IDS) {
+                if (this.has(arrowID)) {
+                    this.player.message(
+                        "You can't fire arrows with a crossbow"
+                    );
+
+                    return -1;
+                }
+            }
+        } else {
+            for (const boltID of BOLT_IDS) {
+                if (this.has(boltID)) {
+                    this.player.message("You can't fire bolts with a bow");
+                    return -1;
+                }
+            }
+
+            for (const arrowID of ARROW_IDS) {
+                if (this.has(arrowID)) {
+                    this.player.message(
+                        'Your ammo is too powerful for your bow'
+                    );
+
+                    return -1;
+                }
+            }
+        }
+
+        this.player.message("You don't have enough ammo in your quiver");
+        return -1;
     }
 
     isFull() {

@@ -9,7 +9,14 @@ const prayers = require('@2003scape/rsc-data/config/prayers');
 const quests = require('@2003scape/rsc-data/quests');
 const regions = require('@2003scape/rsc-data/regions');
 const { formatSkillName, experienceToLevel } = require('../skills');
-const { rollPlayerNPCDamage, rollPlayerPlayerDamage } = require('../combat');
+
+const {
+    rollPlayerNPCDamage,
+    rollPlayerPlayerDamage,
+    rollPlayerNPCRangedDamage
+} = require('../combat');
+
+const { weapons: rangedWeapons } = require('@2003scape/rsc-data/ranged');
 
 // properties to save in the database
 const SAVE_PROPERTIES = [
@@ -525,6 +532,21 @@ class Player extends Character {
         }
     }
 
+    sendProjectile(victim, sprite = 0) {
+        const message = {
+            index: this.index,
+            victimType: victim.constructor.name === 'NPC' ? 3 : 4,
+            projectileType: sprite,
+            victimIndex: victim.index
+        };
+
+        this.localEntities.characterUpdates.projectiles.push(message);
+
+        for (const player of this.localEntities.known.players) {
+            player.localEntities.characterUpdates.projectiles.push(message);
+        }
+    }
+
     // send the red hitsplat
     damage(damage) {
         const isDead = super.damage(damage);
@@ -972,11 +994,14 @@ class Player extends Character {
             );
         }
 
-        // this seems to be accurate behaviour, see videos like:
-        // https://youtu.be/KPJYewzuHI8?t=501
         await world.sleepTicks(1);
-        this.direction = oldDirection;
-        this.broadcastDirection();
+
+        if (!this.isWalking && !this.opponent) {
+            // this seems to be accurate behaviour, see videos like:
+            // https://youtu.be/KPJYewzuHI8?t=501
+            this.direction = oldDirection;
+            this.broadcastDirection();
+        }
 
         await world.sleepTicks(delay);
         world.replaceEntity('wallObjects', doorframe, doorID);
@@ -1117,6 +1142,8 @@ class Player extends Character {
         }, 2);
     }
 
+    // runs separately from restoreSkills due to the separation of
+    // rapid heal and rapid restore prayers
     restoreHealth() {
         if (this.healTicks > 0) {
             this.healTicks -= 1 + Number(this.prayers[RAPID_HEAL_ID]);
@@ -1226,6 +1253,7 @@ class Player extends Character {
         return updated;
     }
 
+    // run each tick to debuff skills, drain prayer etc.
     normalizeSkills() {
         if (
             this.restoreHealth() ||
@@ -1237,6 +1265,7 @@ class Player extends Character {
         }
     }
 
+    // send the fatigue as it lowers in the client's sleep screen
     refreshDisplayFatigue() {
         if (this.displayFatigue > 0) {
             this.displayFatigue -= this.sleepBed
@@ -1254,6 +1283,7 @@ class Player extends Character {
         });
     }
 
+    // run during each tick of melee combat
     fight() {
         if (this.fightStage % 3 === 0) {
             const isPlayer = !!this.opponent.username;
@@ -1268,6 +1298,59 @@ class Player extends Character {
         } else {
             this.fightStage += 1;
         }
+    }
+
+    async shootRanged(character) {
+        const rangedWeapon = this.inventory.getRangedWeapon();
+
+        if (!rangedWeapon || character.skills.hits.current <= 0) {
+            delete this.rangedTimeout;
+            return;
+        }
+
+        const { world } = this;
+        const { range } = rangedWeapons[rangedWeapon.id];
+
+        if (!this.withinRange(character, range * 2, true)) {
+            await this.chase(character);
+            await world.sleepTicks(1);
+
+            if (!this.withinRange(character, range * 2, true)) {
+                this.message("I can't get close enough");
+                return;
+            }
+        }
+
+        if (!this.withinLineOfSight(character, true)) {
+            this.message("I can't get a clear shot from here");
+            return;
+        }
+
+        this.faceDirection(-1, 1);
+
+        const ammunitionID = this.inventory.getAmmunitionID();
+
+        if (ammunitionID === -1) {
+            return;
+        }
+
+        if (Math.random() <= 0.2) {
+            this.inventory.remove(ammunitionID);
+        }
+
+        if (!this.inventory.has(ammunitionID)) {
+            this.message("I've run out of ammo!");
+        }
+
+        // TODO player damage
+        const damage = rollPlayerNPCRangedDamage(this, character);
+
+        character.damage(damage, this);
+        this.sendProjectile(character, 2);
+
+        this.rangedTimeout = world.setTickTimeout(() => {
+            this.shootRanged(character);
+        }, 4);
     }
 
     tick() {

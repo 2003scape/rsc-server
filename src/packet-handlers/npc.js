@@ -133,6 +133,15 @@ async function npcAttack({ player }, { index }) {
         throw new RangeError(`invalid npc index ${index}`);
     }
 
+    if (player.rangedTimeout) {
+        return;
+    }
+
+    if (player.inventory.getRangedWeapon()) {
+        await player.shootRanged(npc);
+        return;
+    }
+
     player.toAttack = npc;
 
     player.endWalkFunction = async () => {

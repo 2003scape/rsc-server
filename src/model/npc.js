@@ -142,7 +142,7 @@ class NPC extends Character {
                 const drops = this.getDrops();
 
                 for (const item of drops) {
-                    world.addPlayerDrop(victor, item);
+                    world.addPlayerDrop(victor, item, this.x, this.y);
                 }
 
                 world.removeEntity('npcs', this);
@@ -299,30 +299,12 @@ class NPC extends Character {
     }
 
     broadcastDirection() {
-        /*console.log(
-            'tick #',
-            this.world.ticks,
-            '-',
-            this.definition.name,
-            'broadcast direction',
-            this.direction
-        );*/
-
         for (const player of this.knownPlayers) {
             player.localEntities.spriteChanged.npcs.add(this);
         }
     }
 
     broadcastMove() {
-        /*console.log(
-            'tick #',
-            this.world.ticks,
-            '-',
-            this.definition.name,
-            'broadcast move',
-            this.direction
-        );*/
-
         for (const player of this.knownPlayers) {
             player.localEntities.moved.npcs.add(this);
         }

@@ -61,7 +61,10 @@ async function privateMessage({ player }, { username, message }) {
         throw new Error(`player messaging un-added friend: ${username}`);
     }
 
-    player.sendPrivateMessage(username, message);
+    if (player.canChat()) {
+        player.lastChat = Date.now();
+        player.sendPrivateMessage(username, message);
+    }
 }
 
 module.exports = {
