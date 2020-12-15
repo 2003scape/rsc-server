@@ -9,7 +9,8 @@ const PROJECTILE_WALLS = new Set([
     "fence",
     "arrowslit",
     "web",
-    "railing"
+    "railing",
+    "low wall"
 ]);
 
 // partial object model names that projectiles can pass through
@@ -37,7 +38,13 @@ const PROJECTILE_MODELS = new Set([
 ]);
 
 function isWallBlocked(wallObjectID) {
-    const name = wallObjects[wallObjectID].name.toLowerCase();
+    const wallObject = wallObjects[wallObjectID];
+
+    if (wallObjects.blocked) {
+        return false;
+    }
+
+    const name = wallObject.name.toLowerCase();
 
     for (const wallSegment of PROJECTILE_WALLS) {
         if (name.indexOf(wallSegment) > -1) {

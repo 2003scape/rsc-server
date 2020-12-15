@@ -145,7 +145,7 @@ function getRangedMaxHit(player) {
     const rangedLevel = player.skills.ranged.current;
 
     const bonusMultiplier =
-        ammunition[player.inventory.getAmmunitionID()] * (1 / 600 + 0.1);
+        ammunition[player.inventory.getAmmunitionID()] * (1 / 600) + 0.1;
 
     return Math.ceil(rangedLevel * bonusMultiplier);
 }
@@ -178,6 +178,8 @@ function rollPlayerNPCRangedDamage(player, npc) {
     const accuracy = getRangedAccuracy(player);
     const maxHit = getRangedMaxHit(player);
     const protection = npc.skills.defense.current * (1 / 600 + 0.1);
+
+    console.log(accuracy, maxHit, protection);
 
     return rollDamage(accuracy, maxHit, protection);
 }
