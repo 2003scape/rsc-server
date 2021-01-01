@@ -65,7 +65,19 @@ async function groundItemTake({ player }, { x, y, id }) {
 }
 
 async function inventoryDrop({ player }, { index }) {
-    player.endWalkFunction = async () => player.inventory.drop(index);
+    player.endWalkFunction = async () => {
+        const { world } = player;
+
+        const blocked = await world.callPlugin(
+            'onDropItem',
+            player,
+            player.inventory.items[index]
+        );
+
+        if (!blocked) {
+            player.inventory.drop(index);
+        }
+    }
 }
 
 async function inventoryWear({ player }, { index }) {
