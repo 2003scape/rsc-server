@@ -21,6 +21,10 @@ game server emulator. designed to work with the web-based
       $ git clone https://github.com/2003scape/rsc-server
       $ cd rsc-server && npm install
 
+* if you are having npm build issues, you may require additional packages.
+visit the [node-canvas](https://github.com/Automattic/node-canvas#compiling)
+github for more information
+
 * install
 [rsc-client](https://github.com/2003scape/rsc-client#install) or
 [mudclient204](https://github.com/2003scape/mudclient204#build-and-run) to login
