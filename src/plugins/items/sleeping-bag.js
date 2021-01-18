@@ -5,10 +5,8 @@ async function onInventoryCommand(player, item) {
         return false;
     }
 
-    if (!player.locked) {
-        player.displayFatigue = player.fatigue;
-        player.openSleep(false);
-    }
+    player.displayFatigue = player.fatigue;
+    player.openSleep(false);
 
     return true;
 }
