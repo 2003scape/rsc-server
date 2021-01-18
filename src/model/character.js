@@ -256,10 +256,7 @@ class Character extends Entity {
 
         this.walkAction = true;
 
-        if (
-            !this.withinLineOfSight(character) ||
-            ((deltaX !== 0 || deltaY !== 0) && !this.canWalk(deltaX, deltaY))
-        ) {
+        if (!this.withinLineOfSight(character)) {
             this.walkAction = false;
             this.unlock();
             return false;
