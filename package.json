@@ -33,13 +33,13 @@
     "bole": "^4.0.0",
     "bulk-require": "^1.0.1",
     "flat": "^5.0.2",
-    "js-quadtree": "^3.3.3",
+    "js-quadtree": "^3.3.5",
     "json-socket": "^0.3.0",
     "knuth-shuffle-seeded": "^1.0.6",
     "rand-token": "^1.0.1",
-    "random": "^2.2.0",
-    "ws": "^7.3.1",
-    "yargs": "^16.0.3"
+    "random": "^3.0.6",
+    "ws": "^7.4.6",
+    "yargs": "^17.0.1"
   },
   "devDependencies": {
     "garnish": "^5.2.0"

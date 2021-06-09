@@ -962,7 +962,7 @@ class Player extends Character {
     }
 
     canChat() {
-        return this.isMuted() || Date.now() - this.lastChat < 500;
+        return !this.isMuted() && Date.now() - this.lastChat > 500;
     }
 
     hasInterfaceOpen() {

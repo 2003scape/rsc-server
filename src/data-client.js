@@ -98,6 +98,7 @@ class DataClient {
                     message.fromUsername,
                     message.message
                 );
+
                 break;
             }
         }

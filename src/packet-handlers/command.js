@@ -102,7 +102,11 @@ async function command({ player }, { command, args }) {
             player.teleport(+args[0], +args[1], true);
             break;
         case 'ask': {
-            const choice = await player.ask(['hey?', 'sup?'], true);
+            const choice = await player.ask(
+                ['hey?', 'sup?', 'more', 'test', 'again'],
+                true
+            );
+
             player.message('you chose ', choice);
             break;
         }
