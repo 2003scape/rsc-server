@@ -1,11 +1,11 @@
 const Captcha = require('@2003scape/rsc-captcha');
 const EntityList = require('./entity-list');
 const Shop = require('./shop');
-const bulk = require('bulk-require');
 const flat = require('flat');
-const fs = require('fs').promises;
+const fs = require('fs');
 const log = require('bole')('world');
 const objects = require('@2003scape/rsc-data/config/objects');
+const pluginFiles = require('../plugins');
 const tiles = require('@2003scape/rsc-data/config/tiles');
 const wallObjects = require('@2003scape/rsc-data/config/wall-objects');
 const { Landscape } = require('@2003scape/rsc-landscape');
@@ -109,22 +109,30 @@ class World {
         this.ticks = 0;
     }
 
-    async loadLandscape() {
-        const directory =
-            `${__dirname}/../../node_modules/@2003scape/` +
-            'rsc-data/landscape';
-
+    loadLandscape() {
         this.landscape = new Landscape();
 
         this.landscape.loadJag(
-            await fs.readFile(`${directory}/land63.jag`),
-            await fs.readFile(`${directory}/maps63.jag`)
+            fs.readFileSync(
+                __dirname +
+                    '/../../node_modules/@2003scape/rsc-data/landscape/land63.jag'
+            ),
+            fs.readFileSync(
+                __dirname +
+                    '/../../node_modules/@2003scape/rsc-data/landscape/maps63.jag'
+            )
         );
 
         if (this.members) {
             this.landscape.loadMem(
-                await fs.readFile(`${directory}/land63.mem`),
-                await fs.readFile(`${directory}/maps63.mem`)
+                fs.readFileSync(
+                    __dirname +
+                        '/../../node_modules/@2003scape/rsc-data/landscape/land63.mem'
+                ),
+                fs.readFileSync(
+                    __dirname +
+                        '/../../node_modules/@2003scape/rsc-data/landscape/maps63.mem'
+                )
             );
         }
 
@@ -225,6 +233,7 @@ class World {
         const newEntity = new Entity(this, { ...entity, id: newID });
         this.removeEntity(type, entity);
         this.addEntity(type, newEntity);
+
         return newEntity;
     }
 
@@ -271,12 +280,10 @@ class World {
 
         let totalPlugins = 0;
 
-        const pluginFiles = flat(
-            bulk(`${__dirname}/../plugins`, ['*.js', '**/*.js'])
-        );
+        const pluginHandlers = flat(pluginFiles);
 
-        for (const pluginName of Object.keys(pluginFiles)) {
-            const handler = pluginFiles[pluginName];
+        for (const pluginName of Object.keys(pluginHandlers)) {
+            const handler = pluginHandlers[pluginName];
 
             if (
                 typeof handler === 'function' &&
@@ -293,7 +300,7 @@ class World {
 
     // load the definitions and locations required for the game
     async loadData() {
-        await this.loadLandscape();
+        this.loadLandscape();
 
         for (const type of Object.keys(entityLocations)) {
             this.loadEntities(type);

@@ -1,14 +1,18 @@
-const DataClient = require('./data-client');
+const DataClient = process.browser
+    ? require('./browser-data-client')
+    : require('./data-client');
+
 const RSCSocket = require('@2003scape/rsc-socket');
 const World = require('./model/world');
-const bulk = require('bulk-require');
 const log = require('bole')('server');
 const net = require('net');
+const packetHandlers = require('./packet-handlers');
 const ws = require('ws');
 
 class Server {
     constructor(config) {
         this.config = config;
+        this.isBrowser = !!process.browser;
 
         this.world = new World(this);
         this.dataClient = new DataClient(this);
@@ -20,10 +24,8 @@ class Server {
     loadPacketHandlers() {
         this.handlers = {};
 
-        const files = bulk(`${__dirname}/packet-handlers`, ['*.js']);
-
-        for (const file of Object.keys(files)) {
-            const handlers = files[file];
+        for (const file of Object.keys(packetHandlers)) {
+            const handlers = packetHandlers[file];
 
             for (const handlerName of Object.keys(handlers)) {
                 this.handlers[handlerName] = handlers[handlerName];
@@ -150,8 +152,10 @@ class Server {
 
             this.loadPacketHandlers();
 
-            await this.bindTCP();
-            this.bindWebSocket();
+            if (!this.isBrowser) {
+                await this.bindTCP();
+                this.bindWebSocket();
+            }
         } catch (e) {
             log.error(e);
             process.exit(1);
