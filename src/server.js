@@ -1,3 +1,5 @@
+const BrowserSocket = require('./browser-socket');
+
 const DataClient = process.browser
     ? require('./browser-data-client')
     : require('./data-client');
@@ -7,6 +9,7 @@ const World = require('./model/world');
 const log = require('bole')('server');
 const net = require('net');
 const packetHandlers = require('./packet-handlers');
+const toBuffer = require('typedarray-to-buffer');
 const ws = require('ws');
 
 class Server {
@@ -19,6 +22,10 @@ class Server {
 
         this.incomingMessages = new Map();
         this.outgoingMessages = [];
+
+        if (process.browser) {
+            this.browserSockets = {};
+        }
     }
 
     loadPacketHandlers() {
@@ -117,6 +124,32 @@ class Server {
         log.info(`listening for websocket connections on port ${port}`);
     }
 
+    bindWebWorker() {
+        onmessage = (e) => {
+            console.log('got message from worker', e);
+
+            switch (e.data.type) {
+                case 'connect': {
+                    const browserSocket = new BrowserSocket(e.data.id);
+                    this.browserSockets[browserSocket.id] = browserSocket;
+                    this.handleConnection(browserSocket);
+                    break;
+                }
+                case 'disconnect': {
+                    const browserSocket = this.browserSockets[e.data.id];
+                    browserSocket.emit('close', false);
+                    delete this.browserSockets[browserSocket.id];
+                    break;
+                }
+                case 'data': {
+                    const browserSocket = this.browserSockets[e.data.id];
+                    browserSocket.emit('data', toBuffer(e.data.data));
+                    break;
+                }
+            }
+        };
+    }
+
     readMessages() {
         for (const [socket, queue] of this.incomingMessages) {
             for (const message of queue) {
@@ -152,7 +185,10 @@ class Server {
 
             this.loadPacketHandlers();
 
-            if (!this.isBrowser) {
+            if (this.isBrowser) {
+                this.bindWebWorker();
+                postMessage({ type: 'ready' });
+            } else {
                 await this.bindTCP();
                 this.bindWebSocket();
             }

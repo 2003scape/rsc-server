@@ -15,6 +15,7 @@ class DataClient {
         this.connected = false;
 
         this.socket = new JSONSocket(new net.Socket());
+
         this.socket.on('error', (err) => log.error(err));
         this.socket.on('message', (message) => this.handleMessage(message));
 

@@ -1,5 +1,5 @@
 const Bank = require('./bank');
-const Captcha = require('@2003scape/rsc-captcha');
+//const Captcha = require('@2003scape/rsc-captcha');
 const Character = require('./character');
 const Inventory = require('./inventory');
 const LocalEntities = require('./local-entities');
@@ -609,7 +609,7 @@ class Player extends Character {
         const { word, image } = world.captcha.generate();
 
         this.sleepWord = word;
-        this.sleepImage = Captcha.toByteArray(image);
+        //this.sleepImage = Captcha.toByteArray(image);
     }
 
     openSleep(bed = true) {
