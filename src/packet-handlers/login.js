@@ -58,8 +58,6 @@ async function login(socket, message) {
         reconnecting
     });
 
-    console.log(JSON.stringify(player));
-
     socket.send(Buffer.from([code]));
 
     process.nextTick(() => {

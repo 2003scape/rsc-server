@@ -1,5 +1,5 @@
 const Bank = require('./bank');
-//const Captcha = require('@2003scape/rsc-captcha');
+const Captcha = require('@2003scape/rsc-captcha');
 const Character = require('./character');
 const Inventory = require('./inventory');
 const LocalEntities = require('./local-entities');
@@ -609,7 +609,7 @@ class Player extends Character {
         const { word, image } = world.captcha.generate();
 
         this.sleepWord = word;
-        //this.sleepImage = Captcha.toByteArray(image);
+        this.sleepImage = Captcha.toByteArray(image);
     }
 
     openSleep(bed = true) {
@@ -703,6 +703,7 @@ class Player extends Character {
 
     // broadcast the player changing sprites
     broadcastDirection() {
+        // temp debug
         if (!this.moveTick) {
             this.moveTick = this.world.ticks;
         } else {
@@ -712,6 +713,7 @@ class Player extends Character {
 
             this.moveTick = this.world.ticks;
         }
+
         for (const player of this.localEntities.known.players) {
             if (!player.loggedIn) {
                 continue;
@@ -869,6 +871,11 @@ class Player extends Character {
         }
 
         this.sendDeath();
+
+        if (victor) {
+            victor.opponent = null;
+            this.opponent = null;
+        }
     }
 
     getAppearanceUpdate() {
@@ -962,7 +969,7 @@ class Player extends Character {
     }
 
     canChat() {
-        return !this.isMuted() && Date.now() - this.lastChat > 500;
+        return !this.isMuted() && Date.now() - this.lastChat > 150;
     }
 
     hasInterfaceOpen() {
@@ -1415,7 +1422,7 @@ class Player extends Character {
             this.refreshDisplayFatigue();
         }
 
-        if (this.opponent) {
+        if (this.opponent && this.opponent.skills.hits.current > 0) {
             this.fight();
         }
 

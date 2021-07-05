@@ -281,8 +281,10 @@ class Character extends Entity {
 
         if (character.direction !== 8) {
             world.nextTick(() => {
-                character.direction = 8;
-                character.broadcastDirection();
+                if (character.opponent) {
+                    character.direction = 8;
+                    character.broadcastDirection();
+                }
             });
         }
 
@@ -329,7 +331,7 @@ class Character extends Entity {
                 opponent.retreatTicks = 4;
 
                 world.setTickTimeout(() => {
-                    if (!this.locked) {
+                    if (!this.locked && opponent.skills.hits.current > 0) {
                         opponent.attack(this);
                     }
                 }, 4);

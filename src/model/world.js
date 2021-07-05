@@ -1,4 +1,4 @@
-//const Captcha = require('@2003scape/rsc-captcha');
+const Captcha = require('@2003scape/rsc-captcha');
 const EntityList = require('./entity-list');
 const Shop = require('./shop');
 const flat = require('flat');
@@ -92,7 +92,7 @@ class World {
         this.wallObjects = new EntityList(this.planeWidth, totalHeight);
         this.groundItems = new EntityList(this.planeWidth, totalHeight);
 
-        //this.captcha = new Captcha();
+        this.captcha = new Captcha();
 
         // used for clearTickTimeout
         this.tickIndex = 0;
@@ -308,7 +308,18 @@ class World {
 
         this.loadShops();
         this.loadPlugins();
-        //await this.captcha.loadFonts();
+
+        if (
+            !process.browser ||
+            (process.browser && typeof OffscreenCanvas !== 'undefined')
+        ) {
+            await this.captcha.loadFonts();
+        } else {
+            log.warn(
+                'captcha disabled as OffscreenCanvas was not found. enable ' +
+                    'in about:config on firefox'
+            );
+        }
     }
 
     async callPlugin(handlerName, ...args) {

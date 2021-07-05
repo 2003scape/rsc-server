@@ -1,4 +1,4 @@
-// implements the same methods but stubbed to run in the browser
+// implements the same methods but shimmed to run in the browser
 
 const log = require('bole')('browser-data-client');
 const idbKeyval = require('idb-keyval');
@@ -34,31 +34,38 @@ const DEFAULT_PLAYER = {
     id: 0,
     loginDate: 0,
     skills: {
-        attack: { current: 0, experience: 0 },
-        defense: { current: 0, experience: 0 },
-        strength: { current: 0, experience: 0 },
-        hits: { current: 0, experience: 4616 },
-        ranged: { current: 0, experience: 0 },
-        prayer: { current: 0, experience: 0 },
-        magic: { current: 0, experience: 0 },
-        cooking: { current: 0, experience: 0 },
-        woodcutting: { current: 0, experience: 0 },
-        fletching: { current: 0, experience: 0 },
-        fishing: { current: 0, experience: 0 },
-        firemaking: { current: 0, experience: 0 },
-        crafting: { current: 0, experience: 0 },
-        smithing: { current: 0, experience: 0 },
-        mining: { current: 0, experience: 0 },
-        herblaw: { current: 0, experience: 0 },
-        agility: { current: 0, experience: 0 },
-        thieving: { current: 0, experience: 0 }
+        attack: { current: 1, experience: 0 },
+        defense: { current: 1, experience: 0 },
+        strength: { current: 1, experience: 0 },
+        hits: { current: 10, experience: 4616 },
+        ranged: { current: 1, experience: 0 },
+        prayer: { current: 1, experience: 0 },
+        magic: { current: 1, experience: 0 },
+        cooking: { current: 1, experience: 0 },
+        woodcutting: { current: 1, experience: 0 },
+        fletching: { current: 1, experience: 0 },
+        fishing: { current: 1, experience: 0 },
+        firemaking: { current: 1, experience: 0 },
+        crafting: { current: 1, experience: 0 },
+        smithing: { current: 1, experience: 0 },
+        mining: { current: 1, experience: 0 },
+        herblaw: { current: 1, experience: 0 },
+        agility: { current: 1, experience: 0 },
+        thieving: { current: 1, experience: 0 }
     },
-    loginIP: null
+    loginIP: null,
+    world: 0
 };
 
 class BrowserDataClient {
-    constructor() {
+    constructor(server) {
+        this.server = server;
+
+        this.world = this.server.world;
         this.connected = true;
+
+        // { playerID: username }
+        this.playerUsernames = new Map();
     }
 
     async init() {
@@ -73,6 +80,10 @@ class BrowserDataClient {
 
         this.players = players ? new Map(JSON.parse(players)) : new Map();
 
+        for (const player of this.players.values()) {
+            player.world = 0;
+        }
+
         log.info(`loaded ${this.players.size} players from local storage`);
     }
 
@@ -81,8 +92,14 @@ class BrowserDataClient {
 
         await idbKeyval.set(
             'players',
-            JSON.stringify(Object.entries(this.players))
+            JSON.stringify(Array.from(this.players.entries()))
         );
+    }
+
+    async savePlayer(player) {
+        player.password = this.players.get(player.username).password;
+        this.players.set(player.username, JSON.parse(JSON.stringify(player)));
+        await this.save();
     }
 
     async sendAndReceive(message) {
@@ -104,6 +121,7 @@ class BrowserDataClient {
                 player.password = message.password;
 
                 this.playerID += 1;
+
                 this.players.set(player.username, player);
 
                 return {
@@ -123,16 +141,88 @@ class BrowserDataClient {
                     };
                 }
 
+                if (player.world) {
+                    return {
+                        success: false,
+                        code: 4
+                    };
+                }
+
+                this.playerUsernames.set(player.id, player.username);
+
+                player.world = 1;
+
+                this.world.sendForeignPlayerWorld(
+                    message.username,
+                    player.world
+                );
+
                 return {
                     success: true,
                     code: 0,
-                    player: player
+                    player
                 };
             }
             case 'playerUpdate': {
-                console.log('hi');
+                delete message.handler;
+
+                message.username = this.playerUsernames.get(message.id);
+                message.loginDate = Date.now();
+
+                await this.savePlayer(message);
+
+                return { success: true };
             }
             case 'playerLogout': {
+                delete message.handler;
+
+                const player = this.players.get(message.username);
+
+                player.world = 0;
+
+                this.world.sendForeignPlayerWorld(
+                    message.username,
+                    player.world
+                );
+
+                return { success: true };
+            }
+            case 'playerGetWorlds': {
+                const usernameWorlds = {};
+
+                for (let username of message.usernames) {
+                    username = username.toLowerCase();
+
+                    const player = this.players.get(username);
+
+                    if (player) {
+                        usernameWorlds[username] = player.world;
+                    } else {
+                        usernameWorlds[username] = 0;
+                    }
+                }
+
+                return { usernameWorlds };
+            }
+            case 'playerMessage': {
+                const player = this.world.getPlayerByUsername(
+                    message.toUsername
+                );
+
+                if (
+                    !player ||
+                    player.blockPrivateChat ||
+                    player.ignores.indexOf(message.fromUsername) > -1
+                ) {
+                    return;
+                }
+
+                player.receivePrivateMessage(
+                    message.fromUsername,
+                    message.message
+                );
+
+                break;
             }
         }
     }
@@ -157,7 +247,16 @@ class BrowserDataClient {
     }
 
     playerLogout(username) {
-        this.send({ handler: 'playerLogout', username });
+        this.sendAndReceive({ handler: 'playerLogout', username });
+    }
+
+    playerMessage(fromUsername, toUsername, message) {
+        this.sendAndReceive({
+            handler: 'playerMessage',
+            fromUsername,
+            toUsername,
+            message
+        });
     }
 }
 

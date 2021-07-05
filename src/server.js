@@ -9,7 +9,7 @@ const World = require('./model/world');
 const log = require('bole')('server');
 const net = require('net');
 const packetHandlers = require('./packet-handlers');
-const toBuffer = require('typedarray-to-buffer');
+const toBuffer = process.browser ? require('typedarray-to-buffer') : undefined;
 const ws = require('ws');
 
 class Server {
@@ -91,6 +91,7 @@ class Server {
 
     bindTCP() {
         this.tcpServer = new net.Server();
+
         this.tcpServer.on('error', (err) => log.error(err));
 
         this.tcpServer.on('connection', (socket) => {
@@ -125,9 +126,7 @@ class Server {
     }
 
     bindWebWorker() {
-        onmessage = (e) => {
-            console.log('got message from worker', e);
-
+        addEventListener('message', (e) => {
             switch (e.data.type) {
                 case 'connect': {
                     const browserSocket = new BrowserSocket(e.data.id);
@@ -147,7 +146,7 @@ class Server {
                     break;
                 }
             }
-        };
+        });
     }
 
     readMessages() {
@@ -193,6 +192,7 @@ class Server {
                 this.bindWebSocket();
             }
         } catch (e) {
+            console.error(e);
             log.error(e);
             process.exit(1);
         }

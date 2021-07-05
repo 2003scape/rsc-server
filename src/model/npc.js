@@ -178,6 +178,9 @@ class NPC extends Character {
                         victor.addExperience('defense', quarterExperience * 3);
                         break;
                 }
+
+                this.opponent = null;
+                victor.opponent = null;
             })
             .catch((e) => log.error(e));
     }
@@ -264,13 +267,10 @@ class NPC extends Character {
                 this.stepsLeft -= 1;
                 this.walkTo(this.lastDeltaX, this.lastDeltaY);
             } else {
-                const deltas = this.getFreeDirection(
-                    this.visitedTiles,
-                    true
-                );
+                const deltas = this.getFreeDirection(this.visitedTiles, true);
 
                 if (deltas) {
-                    const { deltaX, deltaY }  = deltas;
+                    const { deltaX, deltaY } = deltas;
 
                     this.lastDeltaX = deltaX;
                     this.lastDeltaY = deltaY;
