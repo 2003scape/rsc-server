@@ -169,7 +169,7 @@ settings:
 ## see also
 * [RSCGo](https://github.com/spkaeros/RSCGo) by @spkaeros
     * runescape classic server written in go
-* [RuneJS](https://github.com/rune-js)
+* [RuneJS](https://github.com/runejs)
     * runescape 2 server written in javascript
 * [RuneScape Classic Wiki](https://classic.runescape.wiki/)
     * best source of accurate runescape classic data
