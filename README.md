@@ -93,25 +93,25 @@ serverWorker.postMessage({
 
 |Command|Description|
 |-|-|
-|::addexp <skill> <experience>|Add experience to a skill name.|
+|::addexp \<skill\> \<experience\>|Add experience to a skill name.|
 |::appearance|Toggle the character creation screen.|
 |::bank|Open the bank interface.|
-|::bubble <id>|Create a player action bubble with an item ID.|
+|::bubble \<id\>|Create a player action bubble with an item ID.|
 |::clearinventory|Clear your inventory items.|
 |::coords|Display your current coordinates.|
-|::dmg <amount>|Remove a certain amount of current hitpoints.|
+|::dmg \<amount\>|Remove a certain amount of current hitpoints.|
 |::fatigue|Set your fatigue to 100%.|
-|::give <username> <id> <amount = 1>|Spawn an item in someone else's (online) inventory with optional amount.|
-|::goto <username>|Teleport to a username (online).|
-|::gotoentity <type> <id>|Teleport to the first entity (npcs, gameObjects, groundItems) of a certain ID.|
-|::item <id> <amount = 1>|Spawn an item in your inventory with optional amount.|
-|::kick <username>|Forcefully log out a username (online).|
-|::npc <id>|Spawn an NPC in your current position.|
-|::setqp <amount>|Set your quest points to a certain amount.|
-|::shop <name>|Open a shop by name (see [rsc-data/shops.json](https://github.com/2003scape/rsc-data/blob/master/shops.json))|
-|::sound <name>|Play a sound file (members client only, see [rsc-sounds/sounds1.json](https://github.com/2003scape/rsc-sounds/blob/master/sounds1.json)).|
-|::step <deltaX> <deltaY>|Step in a certain direction (delta can be -1, 0 or 1).
-|::teleport <x> <y> \| <region>|Teleport to an x, y coordinate or region name (see [rsc-data/regions.json](https://github.com/2003scape/rsc-data/blob/master/regions.json)).|
+|::give \<username\> \<id\> \<amount = 1\>|Spawn an item in someone else's (online) inventory with optional amount.|
+|::goto \<username\>|Teleport to a username (online).|
+|::gotoentity \<type\> \<id\>|Teleport to the first entity (npcs, gameObjects, groundItems) of a certain ID.|
+|::item \<id\> \<amount = 1\>|Spawn an item in your inventory with optional amount.|
+|::kick \<username\>|Forcefully log out a username (online).|
+|::npc \<id\>|Spawn an NPC in your current position.|
+|::setqp \<amount\>|Set your quest points to a certain amount.|
+|::shop \<name\>|Open a shop by name (see [rsc-data/shops.json](https://github.com/2003scape/rsc-data/blob/master/shops.json))|
+|::sound \<name\>|Play a sound file (members client only, see [rsc-sounds/sounds1.json](https://github.com/2003scape/rsc-sounds/blob/master/sounds1.json)).|
+|::step \<deltaX\> \<deltaY\>|Step in a certain direction (delta can be -1, 0 or 1).
+|::teleport \<x\> \<y\> \| \<region\>|Teleport to an x, y coordinate or region name (see [rsc-data/regions.json](https://github.com/2003scape/rsc-data/blob/master/regions.json)).|
 
 ## config
 when using `$ rsc-server`, pass in `-c <config-file>` (or edit `config.json`
